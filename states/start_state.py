@@ -15,3 +15,4 @@ class StartState(StatesGroup):
     get_skills = State()
     aims = State()
     finish_questions = State()
+    check_questionnaire = State()

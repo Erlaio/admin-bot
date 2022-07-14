@@ -1,10 +1,12 @@
 from aiogram import types
 from aiogram.dispatcher.filters.builtin import CommandStart
 from loader import dp
-from keyboard.default.start_buttons import choice, agreement, gender, photo, universal_choice
+from keyboard.default.start_buttons import choice, agreement, gender, photo, universal_choice, check_access
 from states.start_state import StartState
 from aiogram.dispatcher.storage import FSMContext
 from aiogram.types import ReplyKeyboardRemove
+from keyboard.default.constant_buttons_value import READ_RULES, DONT_READ_RULES, AGREE_WITH_RULES, \
+    DONT_AGREE_WITH_RULES, MALE_GENDER, FEMALE_GENDER, WANT_UPLOAD_PHOTO, DONT_WANT_UPLOAD_PHOTO, YES, NO, CHECK_ACCESS
 
 
 @dp.message_handler(CommandStart())
@@ -18,11 +20,11 @@ async def bot_start(message: types.Message):
 @dp.message_handler(state=StartState.rules)
 async def reading_rules(message: types.Message, state: FSMContext):
     answer = message.text
-    if answer == 'Ознакомиться с правилами 🤓':
+    if answer == READ_RULES:
         await message.answer('Тут говорится о правилах.', reply_markup=ReplyKeyboardRemove())
         await message.answer('Вы согласны с правилами?', reply_markup=agreement)
         await StartState.decision.set()
-    elif answer == 'Я не буду читать правила 😐':
+    elif answer == DONT_READ_RULES:
         await message.answer('Очень жаль что наше с тобой общение подходит к концу 😔\nЕсли же ты передумаешь,'
                              'то я всегда тут)) Нужно лишь повторно вызвать команду /start',
                              reply_markup=ReplyKeyboardRemove())
@@ -35,13 +37,10 @@ async def reading_rules(message: types.Message, state: FSMContext):
 @dp.message_handler(state=StartState.decision)
 async def decision_about_rules(message: types.Message, state: FSMContext):
     answer = message.text
-    if answer == 'Я согласен с правилами 😎':
-        await message.answer('Хорошо, ваша заявка отправлена модератору и в скором времени будет рассмотрена 🔎',
-                             reply_markup=ReplyKeyboardRemove())
-        await message.answer('Супер! Модератор одобрил вашу заявку! Теперь займемся заполнением анкеты 📝')
-        await message.answer('Введите ваше ФИО 🖊')
+    if answer == AGREE_WITH_RULES:
+        await message.answer('Введите ваше ФИО 🖊', reply_markup=ReplyKeyboardRemove())
         await StartState.gender.set()
-    elif answer == 'Я не согласен с правилами 🤔':
+    elif answer == DONT_AGREE_WITH_RULES:
         await message.answer('Жаль, что вас не устроили наши правила 😔\nВ любой момент, если передумаете, можете'
                              'попробовать снова, для этого нажмите команду /start', reply_markup=ReplyKeyboardRemove())
         await state.reset_state()
@@ -61,11 +60,11 @@ async def get_user_gender(message:types.Message, state: FSMContext):
 @dp.message_handler(state=StartState.photo)
 async def ask_about_photo(message: types.Message, state: FSMContext):
     answer = message.text
-    if answer == 'Мужской 👨':
+    if answer == MALE_GENDER:
         await state.update_data(gender='Мужской')
         await message.answer('Хотите ли вы загрузить свое фото?', reply_markup=photo)
         await StartState.decision_about_photo.set()
-    elif answer == 'Женский 👩‍🦰':
+    elif answer == FEMALE_GENDER:
         await state.update_data(gender='Женский')
         await message.answer('Хотите ли вы загрузить свое фото?', reply_markup=photo)
         await StartState.decision_about_photo.set()
@@ -77,10 +76,10 @@ async def ask_about_photo(message: types.Message, state: FSMContext):
 @dp.message_handler(state=StartState.decision_about_photo)
 async def decision_about_photo(message: types.Message):
     answer = message.text
-    if answer == 'Да! Хочу загрузить свою фоточку 😎':
+    if answer == WANT_UPLOAD_PHOTO:
         await message.answer('Супер!', reply_markup=ReplyKeyboardRemove())
         await StartState.upload_photo.set()
-    elif answer == 'Нет, не буду загружать свое фото 🙂':
+    elif answer == DONT_WANT_UPLOAD_PHOTO:
         await message.answer('Хорошо, тогда продолжаем анкетирование 📝', reply_markup=ReplyKeyboardRemove())
         await message.answer('Введите вашу почту 📧')
         await StartState.gitlab.set()
@@ -113,11 +112,12 @@ async def design(message: types.Message, state: FSMContext):
 @dp.message_handler(state=StartState.decision_about_design)
 async def decision_about_design(message: types.Message):
     answer = message.text
-    if answer == 'Да ✅':
+    if answer == YES:
         await message.answer('Введите вашу ссылку на беханс 🌐', reply_markup=ReplyKeyboardRemove())
         await StartState.get_skills.set()
-    elif answer == 'Нет ❌':
-        await message.answer('Введите ваши навыки 💪', reply_markup=ReplyKeyboardRemove())
+    elif answer == NO:
+        await message.answer('Введите ваши навыки\nТут нужно будет добавить '
+                             'шаблон', reply_markup=ReplyKeyboardRemove())
         await StartState.aims.set()
     else:
         await message.answer('Ошибка ввода! ⛔ \nВыберите один из предложенных вариантов')
@@ -128,7 +128,7 @@ async def decision_about_design(message: types.Message):
 async def get_skills(message: types.Message, state: FSMContext):
     answer = message.text
     await state.update_data(behance=answer)
-    await message.answer('Введите ваши навыки 💪')
+    await message.answer('Введите ваши навыки\nТут нужно будет добавить шаблон')
     await StartState.aims.set()
 
 
@@ -136,7 +136,7 @@ async def get_skills(message: types.Message, state: FSMContext):
 async def get_aims(message: types.Message, state: FSMContext):
     answer = message.text
     await state.update_data(skills=answer)
-    await message.answer('Введите ваши цели 🎯')
+    await message.answer('Введите ваши цели\nТут нужно будет добавить шаблон')
     await StartState.finish_questions.set()
 
 
@@ -144,4 +144,16 @@ async def get_aims(message: types.Message, state: FSMContext):
 async def finish_questions(message: types.Message, state: FSMContext):
     answer = message.text
     await state.update_data(aims=answer)
-    await message.answer('Ваша анкета отправлена на проверку. Пока ее не проверят функционал бота не доступен')
+    await message.answer('Ваша анкета отправлена на проверку. Пока ее не проверят функционал бота не доступен',
+                         reply_markup=check_access)
+    await StartState.check_questionnaire.set()
+
+
+@dp.message_handler(state=StartState.check_questionnaire)
+async def check_questionnaire(message: types.Message):
+    answer = message.text
+    if answer == CHECK_ACCESS:
+        pass
+    else:
+        await message.answer('Чтобы проверить анкету нажмите на кнопку ниже')
+        await StartState.check_questionnaire.set()
