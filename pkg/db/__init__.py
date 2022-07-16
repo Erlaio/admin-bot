@@ -4,7 +4,7 @@ from db_connect_sqlite import connect_to_db
 
 @connect_to_db
 def create_database(cur: sqlite3.Cursor):
-    cur.execute('''
+    cur.executescript('''
             /*  Table Users  */
         CREATE TABLE IF NOT EXISTS "users" (
             "user_id"	INTEGER NOT NULL UNIQUE,
@@ -23,32 +23,22 @@ def create_database(cur: sqlite3.Cursor):
             "join_time"	TEXT,
             "is_moderator"	INTEGER DEFAULT 0,
             "is_approved"	INTEGER DEFAULT 0,
-            PRIMARY KEY("user_id" AUTOINCREMENT)
-        );
-        ''')
+            PRIMARY KEY("user_id" AUTOINCREMENT));
 
-
-    cur.execute('''
         CREATE UNIQUE INDEX IF NOT EXISTS "user_id_index" ON "users" (
             "user_id"
         );
-        ''')
 
-    cur.execute('''
         /*  Table Department  */
         CREATE TABLE IF NOT EXISTS "departments" (
             "department_id"	INTEGER NOT NULL UNIQUE,
             "department"	TEXT NOT NULL,
             "team_lead"	TEXT,
-            PRIMARY KEY("department_id" AUTOINCREMENT)
-        );
-        ''')
+            PRIMARY KEY("department_id" AUTOINCREMENT));
 
 
-    cur.execute('''
         CREATE UNIQUE INDEX IF NOT EXISTS "department_id_index" ON "departments" (
-            "department_id"
-        );
+            "department_id");
         ''')
 
 
