@@ -1,5 +1,5 @@
 import sqlite3
-from db_connect_sqlite import connect_to_db
+from .db_connect_sqlite import connect_to_db
 
 
 @connect_to_db
@@ -8,6 +8,7 @@ def create_database(cur: sqlite3.Cursor):
             /*  Table Users  */
         CREATE TABLE IF NOT EXISTS "users" (
             "user_id"	INTEGER NOT NULL UNIQUE,
+            "telegram_id"   INTEGER UNIQUE,
             "surname"	TEXT,
             "name"	TEXT,
             "patronymic"	TEXT,
@@ -15,6 +16,7 @@ def create_database(cur: sqlite3.Cursor):
             "photo"	BLOB,
             "email"	TEXT,
             "git"	TEXT,
+            "behance"   TEXT,
             "tg_login"	TEXT,
             "desired_department"	INTEGER,
             "skills"	TEXT,
