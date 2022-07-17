@@ -39,6 +39,14 @@ def update_department_by_id(cur: sqlite3.Cursor, department_id: int, data: Depar
                 (data.department, data.team_lead))
 
 
+@connect_to_db
+def get_users_from_department(cur: sqlite3.Cursor, department_id: int):
+    cur.execute(f"SELECT * from users WHERE desired_department = {department_id};") # unsafe
+    res = cur.fetchall()
+    data = [field for field in res]
+    return data
+
+
 if __name__ == '__main__':
     d = new_department(-1, "DepName1", "Leader1")
     add_new_department(d)
