@@ -12,5 +12,5 @@ class Settings(_Settings):
 
 
 def _get_settings() -> Settings:
-    settings = Settings(_env_file=find_dotenv(".env"))
+    settings = Settings(_env_file=find_dotenv(".env"), SQLITE_FILENAME='bla2')
     return settings

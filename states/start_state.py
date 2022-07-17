@@ -1,0 +1,17 @@
+from aiogram.dispatcher.filters.state import StatesGroup, State
+
+
+class StartState(StatesGroup):
+    rules = State()
+    decision = State()
+    user_name = State()
+    gender = State()
+    photo = State()
+    decision_about_photo = State()
+    upload_photo = State()
+    gitlab = State()
+    design = State()
+    decision_about_design = State()
+    get_skills = State()
+    aims = State()
+    finish_questions = State()

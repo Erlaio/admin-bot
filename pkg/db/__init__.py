@@ -1,5 +1,5 @@
 import sqlite3
-from db_connect_sqlite import connect_to_db
+from .db_connect_sqlite import connect_to_db
 
 
 @connect_to_db
