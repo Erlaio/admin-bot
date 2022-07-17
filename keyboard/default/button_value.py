@@ -10,6 +10,9 @@ class ButtonValue:
     YES = 'Да ✅'
     NO = 'Нет ❌'
     CHECK_ACCESS = 'Проверить состояние анкеты ✅'
+    VIEW_ALL = 'Посмотреть всех'
+    VIEW_SOMEONE = 'Посмотреть конкретного'
+
     FRONTEND = 'Frontend'
     BACKEND = 'Backend'
     ML = 'ML'

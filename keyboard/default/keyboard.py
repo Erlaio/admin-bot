@@ -75,3 +75,13 @@ class Keyboard:
             ]
         ]
     )
+    
+    SHOW_USER = ReplyKeyboardMarkup(
+        keyboard=[
+            [
+                KeyboardButton(text=button.VIEW_ALL),
+                KeyboardButton(text=button.VIEW_SOMEONE)
+            ]
+        ],
+        resize_keyboard=True
+    )
