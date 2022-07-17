@@ -1,6 +1,7 @@
 import sqlite3
 import datetime
-import time
+
+from typing import List
 
 from pkg.db.db_connect_sqlite import connect_to_db
 from pkg.db.models.user import User, new_user
@@ -8,11 +9,11 @@ from pkg.db.models.user import User, new_user
 
 @connect_to_db
 def add_new_user(cur: sqlite3.Cursor, data: User):
-    sql = '''INSERT INTO users (surname, name, patronymic, gender, photo, email, git, tg_login, desired_department, 
-                                skills, goals, lead_description, join_time, is_moderator,is_approved)
-                                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);'''
-    cur.execute(sql, (data.surname, data.name, data.patronymic, data.gender, data.photo,
-                      data.email, data.git, data.tg_login, data.desired_department, data.skills,
+    sql = '''INSERT INTO users (telegram_id, surname, name, patronymic, gender, photo, email, git, behance, tg_login, 
+                            desired_department, skills, goals, lead_description, join_time, is_moderator, is_approved)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);'''
+    cur.execute(sql, (data.telegram_id, data.surname, data.name, data.patronymic, data.gender, data.photo,
+                      data.email, data.git, data.behance, data.tg_login, data.desired_department, data.skills,
                       data.goals, data.lead_description, data.join_time, data.is_moderator, data.is_approved))
 
 
@@ -21,18 +22,18 @@ def get_user_by_id(cur: sqlite3.Cursor, user_id: int) -> User:
     cur.execute(f"SELECT * FROM users WHERE user_id = {user_id}")
     rec = cur.fetchone()
     data = new_user(rec[0], rec[1], rec[2], rec[3], rec[4], rec[5], rec[6], rec[7], rec[8], rec[9], rec[10],
-                    rec[11], rec[12], rec[13], rec[14], rec[15])
+                    rec[11], rec[12], rec[13], rec[14], rec[15], rec[16], rec[17])
     return data
 
 
 @connect_to_db
-def get_all_users(cur: sqlite3.Cursor) -> list[User]:
+def get_all_users(cur: sqlite3.Cursor) -> List[User]:
     cur.execute(f"SELECT * FROM users")
     records = cur.fetchall()
     result = []
     for rec in records:
         data = new_user(rec[0], rec[1], rec[2], rec[3], rec[4], rec[5], rec[6], rec[7], rec[8], rec[9], rec[10],
-                        rec[11], rec[12], rec[13], rec[14], rec[15])
+                        rec[11], rec[12], rec[13], rec[14], rec[15], rec[16], rec[17])
         result.append(data)
     return result
 
@@ -44,22 +45,33 @@ def delete_user_by_id(cur: sqlite3.Cursor, user_id: int):
 
 @connect_to_db
 def update_user_by_id(cur: sqlite3.Cursor, user_id: int, data: User):
-    sql = '''UPDATE users SET (surname, name, patronymic, gender, photo, email, git, tg_login, desired_department, 
-                                skills, goals, lead_description, join_time, is_moderator,is_approved)=
-                                (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) '''
+    sql = '''UPDATE users SET (telegram_id, surname, name, patronymic, gender, photo, email, git, behance, tg_login, 
+                            desired_department, skills, goals, lead_description, join_time, is_moderator,is_approved)=
+                            (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) '''
     cur.execute(sql + f"WHERE user_id={user_id}",
+                (data.telegram_id, data.surname, data.name, data.patronymic, data.gender, data.photo,
+                 data.email, data.git, data.behance, data.tg_login, data.desired_department, data.skills,
+                 data.goals, data.lead_description, data.join_time, data.is_moderator, data.is_approved))
+
+
+@connect_to_db
+def update_user_by_telegram_id(cur: sqlite3.Cursor, telegram_id: int, data: User):
+    sql = '''UPDATE users SET (surname, name, patronymic, gender, photo, email, git, behance, tg_login, 
+                            desired_department, skills, goals, lead_description, join_time, is_moderator,is_approved)=
+                            (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) '''
+    cur.execute(sql + f"WHERE telegram_id={telegram_id}",
                 (data.surname, data.name, data.patronymic, data.gender, data.photo,
-                data.email, data.git, data.tg_login, data.desired_department, data.skills,
-                data.goals, data.lead_description, data.join_time, data.is_moderator, data.is_approved))
+                 data.email, data.git, data.behance, data.tg_login, data.desired_department, data.skills,
+                 data.goals, data.lead_description, data.join_time, data.is_moderator, data.is_approved))
 
 
 if __name__ == '__main__':
-    d = new_user(-1, "surname", "name", "patronymic", "m", b'', "mail@mail.ru", r"http://git.com",
-                 "@TG", 0, "My Skills", "My Goals", "Lead Desc", datetime.date.today(), False, False)
-    add_new_user(d)
-    print(get_user_by_id(1))
-    print('', *get_all_users(), sep='\n')
-    # delete_user_by_id(2)
-    # print('', *get_all_users(), sep='\n')
-    # update_user_by_id(2, d)
+    # d = new_user(user_id=-1, behance='asdaljsdhjks', telegram_id=221152376508546261, surname='gh', name='sldjkj', patronymic='asdfas', gender='', photo=bytearray(b''), email='', git='', tg_login='', desired_department=-1, skills='', goals='', lead_description='', join_time=datetime.date(2022, 7, 16), is_moderator=False, is_approved=False)
+    # add_new_user(d)
+    # print(get_user_by_id(10))
     # print(get_user_by_id(2))
+    # print('', *get_all_users(), sep='\n')
+    print('', *get_all_users(), sep='\n')
+    # update_user_by_id(2, d)
+    # print(get_user_by_id(3))
+    # delete_user_by_id(3)

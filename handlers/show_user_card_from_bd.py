@@ -3,7 +3,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram.types import ReplyKeyboardRemove
 from aiogram.utils.exceptions import BadRequest
 
-from keyboard.default.show_user_button import show_user
+from keyboard.default import Keyboard
 from loader import dp, bot
 from pkg.db.user_func import get_user_by_id, get_all_users
 from states.show_user_state import UserCardState
@@ -12,7 +12,7 @@ from states.show_user_state import UserCardState
 @dp.message_handler(commands="show_card")
 async def show_user_start(message: types.Message):
     text = 'Вы хотите посмотреть всех пользователей или кого-то конкретного?'
-    await message.answer(text, reply_markup=show_user)
+    await message.answer(text, reply_markup=Keyboard.SHOW_USER)
     await UserCardState.show_user_choice.set()
 
 
@@ -78,7 +78,7 @@ async def show_user_by_id(message: types.Message, state: FSMContext):
         except BadRequest:
             await message.answer('Фото отсутствует в бд')
     except TypeError:
-        await message.answer('Пользователь с таким id не найден.', reply_markup=show_user)
+        await message.answer('Пользователь с таким id не найден.', reply_markup=Keyboard.SHOW_USER)
         await UserCardState.show_user_choice.set()
     except ValueError:
         await message.answer('Введите id в числовом формате.')

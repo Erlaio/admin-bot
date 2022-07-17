@@ -139,3 +139,9 @@ dmypy.json
 .idea/vagrant.xml
 .idea/vcs.xml
 .idea/
+
+# Databases
+*.db
+
+# Other
+temp/
