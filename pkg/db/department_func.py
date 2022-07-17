@@ -1,6 +1,7 @@
 import sqlite3
 from pkg.db.db_connect_sqlite import connect_to_db
 from pkg.db.models.department import Department, new_department
+from typing import List
 
 
 @connect_to_db
@@ -17,7 +18,7 @@ def get_department_by_id(cur: sqlite3.Cursor, department_id: int) -> Department:
 
 
 @connect_to_db
-def get_all_departments(cur: sqlite3.Cursor) -> list[Department]:
+def get_all_departments(cur: sqlite3.Cursor) -> List[Department]:
     cur.execute(f"SELECT * FROM departments")
     records = cur.fetchall()
     result = []

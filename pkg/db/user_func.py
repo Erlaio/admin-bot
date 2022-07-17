@@ -1,6 +1,8 @@
 import sqlite3
 import datetime
 
+from typing import List
+
 from pkg.db.db_connect_sqlite import connect_to_db
 from pkg.db.models.user import User, new_user
 
@@ -25,7 +27,7 @@ def get_user_by_id(cur: sqlite3.Cursor, user_id: int) -> User:
 
 
 @connect_to_db
-def get_all_users(cur: sqlite3.Cursor) -> list[User]:
+def get_all_users(cur: sqlite3.Cursor) -> List[User]:
     cur.execute(f"SELECT * FROM users")
     records = cur.fetchall()
     result = []

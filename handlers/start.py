@@ -65,8 +65,14 @@ async def get_user_gender(message: types.Message, state: FSMContext):
     user.telegram_id = message.from_user.id
     user.tg_login = f"@{message.from_user.username}"
     user.surname = splitted_full_name[0]
-    user.name = splitted_full_name[1]
-    user.patronymic = splitted_full_name[2]
+    try:
+        user.name = splitted_full_name[1]
+    except IndexError:
+        user.name = ""
+    try:
+        user.patronymic = splitted_full_name[2]
+    except IndexError:
+        user.patronymic = ""
     add_new_user(user)
     await ContextHelper.add_user(user, state)
     await message.answer('Введите ваш пол', reply_markup=Keyboard.GENDER)

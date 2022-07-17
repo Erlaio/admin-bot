@@ -12,7 +12,7 @@ multidict==6.0.2
 python-decouple==3.6
 pytz==2022.1
 yarl==1.7.2
-﻿dnspython==2.2.1
+dnspython==2.2.1
 email-validator==1.2.1
 idna==3.3
 pydantic==1.9.1
