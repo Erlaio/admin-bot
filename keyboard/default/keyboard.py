@@ -62,3 +62,16 @@ class Keyboard:
         ],
         resize_keyboard=True
     )
+
+    DEPARTMENTS = ReplyKeyboardMarkup(
+        keyboard=[
+            [
+                KeyboardButton(text=button.FRONTEND),
+                KeyboardButton(text=button.BACKEND),
+                KeyboardButton(text=button.ML),
+                KeyboardButton(text=button.DS),
+                KeyboardButton(text=button.DESIGN),
+                KeyboardButton(text=button.MOBILE_DEVELOPMENT),
+            ]
+        ]
+    )
