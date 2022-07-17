@@ -14,6 +14,7 @@ from pkg.db.models.user import new_user
 from pkg.db.user_func import add_new_user, update_user_by_telegram_id
 from states.start_state import StartState
 from utils.config_utils import ConfigUtils
+from utils.context_helper import ContextHelper
 
 
 @dp.message_handler(CommandStart())
@@ -67,8 +68,7 @@ async def get_user_gender(message: types.Message, state: FSMContext):
     user.name = splitted_full_name[1]
     user.patronymic = splitted_full_name[2]
     add_new_user(user)
-    async with state.proxy() as data:
-        data["user"] = user
+    await ContextHelper.add_user(user, state)
     await message.answer('Введите ваш пол', reply_markup=Keyboard.GENDER)
     await StartState.photo.set()
 
@@ -78,21 +78,22 @@ async def ask_about_photo(message: types.Message, state: FSMContext):
     answer = message.text
     message_text = 'Хотите ли вы загрузить свое фото?'
     reply_markup = Keyboard.PHOTO
-    async with state.proxy() as data:
-        user = data.get("user")
-        if answer == button.MALE_GENDER:
-            user.gender = "Мужской"
-            await message.answer(message_text, reply_markup=reply_markup)
-            await StartState.decision_about_photo.set()
-        elif answer == button.FEMALE_GENDER:
-            user.gender = "Женский"
-            await message.answer(message_text, reply_markup=reply_markup)
-            await StartState.decision_about_photo.set()
-        else:
-            await message.answer('Ошибка ввода! ⛔ \nВыберите один из предложенных вариантов')
-            await StartState.photo.set()
+    user = await ContextHelper.get_user(state)
+    if answer == button.MALE_GENDER:
+        user.gender = "Мужской"
         update_user_by_telegram_id(message.from_user.id, user)
-        data['user'] = user
+        await ContextHelper.add_user(user, state)
+        await message.answer(message_text, reply_markup=reply_markup)
+        await StartState.decision_about_photo.set()
+    elif answer == button.FEMALE_GENDER:
+        user.gender = "Женский"
+        update_user_by_telegram_id(message.from_user.id, user)
+        await ContextHelper.add_user(user, state)
+        await message.answer(message_text, reply_markup=reply_markup)
+        await StartState.decision_about_photo.set()
+    else:
+        await message.answer('Ошибка ввода! ⛔ \nВыберите один из предложенных вариантов')
+        await StartState.photo.set()
 
 
 @dp.message_handler(state=StartState.decision_about_photo)
@@ -115,15 +116,14 @@ async def upload_photo(message: types.Message, state: FSMContext):
     timestamp = str(time.time()).replace(".", "")
     file_name = f"photo_{timestamp}.jpg"
     file_path = str(PurePath(ConfigUtils.get_project_root(), "temp", file_name))
-    async with state.proxy() as data:
-        user = data.get('user')
-        await message.photo[-1].download(destination_file=file_path)
-        with open(file_path, 'rb') as file:
-            user.photo = file.read()
-            update_user_by_telegram_id(message.from_user.id, user)
-        if os.path.exists(file_path):
-            os.remove(file_path)
-        data['user'] = user
+    user = await ContextHelper.get_user(state)
+    await message.photo[-1].download(destination_file=file_path)
+    with open(file_path, 'rb') as file:
+        user.photo = file.read()
+        update_user_by_telegram_id(message.from_user.id, user)
+    if os.path.exists(file_path):
+        os.remove(file_path)
+    await ContextHelper.add_user(user, state)
     await message.answer('Спасибо!')
     await message.answer('Введите вашу почту 📧')
     await StartState.gitlab.set()
@@ -132,11 +132,10 @@ async def upload_photo(message: types.Message, state: FSMContext):
 @dp.message_handler(state=StartState.gitlab)
 async def get_gitlab(message: types.Message, state: FSMContext):
     answer = message.text
-    async with state.proxy() as data:
-        user = data.get('user')
-        user.email = answer
-        data["user"] = user
-        update_user_by_telegram_id(message.from_user.id, user)
+    user = await ContextHelper.get_user(state)
+    user.email = answer
+    update_user_by_telegram_id(message.from_user.id, user)
+    await ContextHelper.add_user(user, state)
     await message.answer('Введите вашу ссылку на gitlab 🌐')
     await StartState.design.set()
 
@@ -144,11 +143,10 @@ async def get_gitlab(message: types.Message, state: FSMContext):
 @dp.message_handler(state=StartState.design)
 async def design(message: types.Message, state: FSMContext):
     answer = message.text
-    async with state.proxy() as data:
-        user = data.get('user')
-        user.git = answer
-        data["user"] = user
-        update_user_by_telegram_id(message.from_user.id, user)
+    user = await ContextHelper.get_user(state)
+    user.git = answer
+    update_user_by_telegram_id(message.from_user.id, user)
+    await ContextHelper.add_user(user, state)
     await message.answer('Вы дизайнер? 🎨', reply_markup=Keyboard.UNIVERSAL_CHOICE)
     await StartState.decision_about_design.set()
 
@@ -171,11 +169,10 @@ async def decision_about_design(message: types.Message):
 @dp.message_handler(state=StartState.get_skills)
 async def get_skills(message: types.Message, state: FSMContext):
     answer = message.text
-    async with state.proxy() as data:
-        user = data.get('user')
-        user.behance = answer
-        update_user_by_telegram_id(message.from_user.id, user)
-        data['user'] = user
+    user = await ContextHelper.get_user(state)
+    user.behance = answer
+    update_user_by_telegram_id(message.from_user.id, user)
+    await ContextHelper.add_user(user, state)
     await message.answer('Введите ваши навыки\nТут нужно будет добавить шаблон')
     await StartState.goals.set()
 
@@ -183,11 +180,10 @@ async def get_skills(message: types.Message, state: FSMContext):
 @dp.message_handler(state=StartState.goals)
 async def get_goals(message: types.Message, state: FSMContext):
     answer = message.text
-    async with state.proxy() as data:
-        user = data.get('user')
-        user.skills = answer
-        update_user_by_telegram_id(message.from_user.id, user)
-        data['user'] = user
+    user = await ContextHelper.get_user(state)
+    user.skills = answer
+    update_user_by_telegram_id(message.from_user.id, user)
+    await ContextHelper.add_user(user, state)
     await message.answer('Введите ваши цели\nТут нужно будет добавить шаблон')
     await StartState.finish_questions.set()
 
@@ -195,11 +191,10 @@ async def get_goals(message: types.Message, state: FSMContext):
 @dp.message_handler(state=StartState.finish_questions)
 async def finish_questions(message: types.Message, state: FSMContext):
     answer = message.text
-    async with state.proxy() as data:
-        user = data.get('user')
-        user.goals = answer
-        update_user_by_telegram_id(message.from_user.id, user)
-        data['user'] = user
+    user = await ContextHelper.get_user(state)
+    user.goals = answer
+    update_user_by_telegram_id(message.from_user.id, user)
+    await ContextHelper.add_user(user, state)
     await message.answer('Ваша анкета отправлена на проверку. Пока ее не проверят функционал бота не доступен',
                          reply_markup=Keyboard.CHECK_ACCESS)
     await StartState.check_questionnaire.set()
