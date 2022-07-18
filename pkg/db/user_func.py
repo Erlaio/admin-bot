@@ -21,8 +21,10 @@ def add_new_user(cur: sqlite3.Cursor, data: User):
 def get_user_by_id(cur: sqlite3.Cursor, user_id: int) -> User:
     cur.execute(f"SELECT * FROM users WHERE user_id = {user_id}")
     rec = cur.fetchone()
-    data = new_user(rec[0], rec[1], rec[2], rec[3], rec[4], rec[5], rec[6], rec[7], rec[8], rec[9], rec[10],
-                    rec[11], rec[12], rec[13], rec[14], rec[15], rec[16], rec[17])
+    data = new_user(user_id=rec[0], telegram_id=rec[1], surname=rec[2], name=rec[3], patronymic=rec[4],
+                    gender=rec[5], photo=rec[6], email=rec[7], git=rec[8], behance=rec[9],
+                    tg_login=rec[10], desired_department=rec[11], skills=rec[12], goals=rec[13],
+                    lead_description=rec[14], join_time=rec[15], is_moderator=rec[16], is_approved=rec[17])
     return data
 
 
@@ -32,8 +34,10 @@ def get_all_users(cur: sqlite3.Cursor) -> List[User]:
     records = cur.fetchall()
     result = []
     for rec in records:
-        data = new_user(rec[0], rec[1], rec[2], rec[3], rec[4], rec[5], rec[6], rec[7], rec[8], rec[9], rec[10],
-                        rec[11], rec[12], rec[13], rec[14], rec[15], rec[16], rec[17])
+        data = new_user(user_id=rec[0], telegram_id=rec[1], surname=rec[2], name=rec[3], patronymic=rec[4],
+                        gender=rec[5], photo=rec[6], email=rec[7], git=rec[8], behance=rec[9],
+                        tg_login=rec[10], desired_department=rec[11], skills=rec[12], goals=rec[13],
+                        lead_description=rec[14], join_time=rec[15], is_moderator=rec[16], is_approved=rec[17])
         result.append(data)
     return result
 
@@ -63,6 +67,20 @@ def update_user_by_telegram_id(cur: sqlite3.Cursor, telegram_id: int, data: User
                 (data.surname, data.name, data.patronymic, data.gender, data.photo,
                  data.email, data.git, data.behance, data.tg_login, data.desired_department, data.skills,
                  data.goals, data.lead_description, data.join_time, data.is_moderator, data.is_approved))
+
+
+@connect_to_db
+def get_users_from_department(cur: sqlite3.Cursor, department_id: int):
+    cur.execute(f"SELECT * from users WHERE desired_department = {department_id};") # unsafe
+    records = cur.fetchall()
+    result = []
+    for rec in records:
+        data = new_user(user_id=rec[0], telegram_id=rec[1], surname=rec[2], name=rec[3], patronymic=rec[4],
+                        gender=rec[5], photo=rec[6], email=rec[7], git=rec[8], behance=rec[9],
+                        tg_login=rec[10], desired_department=rec[11], skills=rec[12], goals=rec[13],
+                        lead_description=rec[14], join_time=rec[15], is_moderator=rec[16], is_approved=rec[17])
+        result.append(data)
+    return result
 
 
 if __name__ == '__main__':
