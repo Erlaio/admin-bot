@@ -28,8 +28,6 @@ async def show_user_choice(message: types.Message, state: FSMContext):
             for i_user in user_list:
                 caption = f'ФИО: {i_user.surname} {i_user.name} {i_user.patronymic}\n' \
                           f'Пол: {i_user.gender}\n' \
-                          f'Почта: {i_user.email}\n' \
-                          f'Ссылка на Git: {i_user.git}\n' \
                           f'Логин в Telegram: {i_user.tg_login}\n' \
                           f'Желаемый отдел: {i_user.desired_department}\n' \
                           f'Скилы: {i_user.skills}\n' \
@@ -60,8 +58,6 @@ async def show_user_by_id(message: types.Message, state: FSMContext):
         user = get_user_by_id(int(user_id))
         caption = f'ФИО: {user.surname} {user.name} {user.patronymic}\n' \
                   f'Пол: {user.gender}\n' \
-                  f'Почта: {user.email}\n' \
-                  f'Ссылка на Git: {user.git}\n' \
                   f'Логин в Telegram: {user.tg_login}\n' \
                   f'Желаемый отдел: {user.desired_department}\n' \
                   f'Скилы: {user.skills}\n' \
@@ -112,8 +108,6 @@ async def show_users_by_department(message: types.Message, state: FSMContext):
         for user in data:
             caption = f'ФИО: {user.name} {user.surname} {user.patronymic}\n' \
                       f'Пол: {user.gender}\n' \
-                      f'Почта: {user.email}\n' \
-                      f'Ссылка на Git: {user.git}\n' \
                       f'Логин в Telegram: {user.tg_login}\n' \
                       f'Желаемый отдел: {user.desired_department}\n' \
                       f'Скилы: {user.skills}\n' \
