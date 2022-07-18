@@ -16,8 +16,6 @@ from states.start_state import StartState
 from utils.config_utils import ConfigUtils
 from utils.context_helper import ContextHelper
 
-from pkg.db.department_func import get_users_from_department
-
 
 @dp.message_handler(CommandStart())
 async def bot_start(message: types.Message):
@@ -215,45 +213,4 @@ async def check_questionnaire(message: types.Message):
         pass
     else:
         await message.answer('Чтобы проверить анкету нажмите на кнопку ниже')
-        await StartState.departments.set()
-
-
-@dp.message_handler(state=StartState.departments)
-async def output_users_by_department(message: types.Message):
-    await message.answer(text='Выберите отдел для вывода', reply_markup=Keyboard.DEPARTMENTS)
-    answer = message.text
-    if answer == button.FRONTEND:
-        data = get_users_from_department(1)
-    elif answer == button.BACKEND:
-        data = get_users_from_department(2)
-    elif answer == button.ML:
-        data = get_users_from_department(3)
-    elif answer == button.DS:
-        data = get_users_from_department(4)
-    elif answer == button.DESIGN:
-        data = get_users_from_department(5)
-    elif answer == button.MOBILE_DEVELOPMENT:
-        data = get_users_from_department(6)
-    for field in data:                          # Не уверен, что это адекватное решение. Вдруг появятся идеи
-        await message.answer(
-            f"ID: {field[0]}\n"
-            f"Фамилия: {field[1]}\n"
-            f"Имя: {field[2]}\n"
-            f"Отчество: {field[3]}\n"
-            f"Пол: {field[4]}\n"
-            # f"Фото: {field[5]}\n"
-            f"Почта: {field[6]}\n"
-            f"Гит: {field[7]}\n"
-            f"Телеграм: {field[8]}\n"
-            f"Желаемый отдел: {field[9]}\n"
-            f"Скилы: {field[10]}\n"
-            f"Цели: {field[11]}\n"
-            f"Описание лида: {field[12]}\n"
-            f"Время присоединения: {field[13]}\n"
-            f"Является модератором: {field[14]}\n"
-            f"Принят: {field[15]}",
-            reply_markup=ReplyKeyboardRemove()
-        )
-    else:
-        pass            # Обработать TypeError
-
+        await StartState.check_questionnaire.set()
