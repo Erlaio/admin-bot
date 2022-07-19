@@ -123,5 +123,4 @@ async def show_users_by_department(message: types.Message, state: FSMContext):
                 await message.answer(caption + '\nФото отсутствует в бд.', reply_markup=ReplyKeyboardRemove())
     else:
         await bot.send_message(message.chat.id, 'Такой отдел не найден.', reply_markup=ReplyKeyboardRemove())
-        await UserCardState.show_departments.set()
     await state.finish()
