@@ -11,10 +11,11 @@ from keyboard.default.button_value import ButtonValue as button
 from keyboard.default.keyboard import Keyboard
 from loader import dp
 from pkg.db.models.user import new_user
-from pkg.db.user_func import add_new_user, update_user_by_telegram_id
+from pkg.db.user_func import add_new_user, update_user_by_telegram_id, get_user_by_tg_login
 from states.start_state import StartState
 from utils.config_utils import ConfigUtils
 from utils.context_helper import ContextHelper
+
 
 
 @dp.message_handler(CommandStart())
@@ -207,10 +208,18 @@ async def finish_questions(message: types.Message, state: FSMContext):
 
 
 @dp.message_handler(state=StartState.check_questionnaire)
-async def check_questionnaire(message: types.Message):
+async def check_questionnaire(message: types.Message, state: FSMContext):
     answer = message.text
     if answer == button.CHECK_ACCESS:
-        pass
+        user = get_user_by_tg_login(f'@{message.from_user.username}')
+        if user.is_approved:
+            await message.answer('Поздравляем', reply_markup=ReplyKeyboardRemove())
+            await state.finish()
+        else:
+            await message.answer('Пока не одобрено',
+                                 reply_markup=Keyboard.CHECK_ACCESS)
+            await StartState.check_questionnaire.set()
     else:
-        await message.answer('Чтобы проверить анкету нажмите на кнопку ниже')
+        await message.answer('Чтобы проверить анкету нажмите на кнопку ниже',
+                             reply_markup=Keyboard.CHECK_ACCESS)
         await StartState.check_questionnaire.set()
