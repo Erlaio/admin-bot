@@ -18,3 +18,5 @@ class StartState(StatesGroup):
     goals = State()
     finish_questions = State()
     check_questionnaire = State()
+    update_info = State()
+    choise = State()
