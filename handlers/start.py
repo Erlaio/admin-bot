@@ -224,7 +224,7 @@ async def decision_about_design(message: types.Message, state: FSMContext):
     if answer == button.DESIGN:
         await message.answer('Введите вашу ссылку на беханс 🌐', reply_markup=ReplyKeyboardRemove())
         await StartState.get_skills.set()
-    elif answer in button_value.ButtonValue.DEPARTMENTS:
+    elif answer in (button.FRONTEND, button.BACKEND, button.ML, button.DS, button.DESIGN, button.MOBILE_DEVELOPMENT):
         await message.answer('Введите ваши навыки\nТут нужно будет добавить '
                              'шаблон', reply_markup=ReplyKeyboardRemove())
         await StartState.get_skills.set()
