@@ -73,14 +73,16 @@ class Keyboard:
                 KeyboardButton(text=button.DESIGN),
                 KeyboardButton(text=button.MOBILE_DEVELOPMENT),
             ]
-        ]
+        ],
+        resize_keyboard=True
     )
     
     SHOW_USER = ReplyKeyboardMarkup(
         keyboard=[
             [
                 KeyboardButton(text=button.VIEW_ALL),
-                KeyboardButton(text=button.VIEW_SOMEONE)
+                KeyboardButton(text=button.VIEW_ID),
+                KeyboardButton(text=button.VIEW_TG_LOGIN)
             ]
         ],
         resize_keyboard=True

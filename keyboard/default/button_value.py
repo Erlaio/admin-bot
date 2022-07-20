@@ -10,8 +10,10 @@ class ButtonValue:
     YES = 'Да ✅'
     NO = 'Нет ❌'
     CHECK_ACCESS = 'Проверить состояние анкеты ✅'
+
     VIEW_ALL = 'Посмотреть всех'
-    VIEW_SOMEONE = 'Посмотреть конкретного'
+    VIEW_ID = 'Посмотреть по ID'
+    VIEW_TG_LOGIN = 'Посмотреть по Логину в Telegram'
 
     FRONTEND = 'Frontend'
     BACKEND = 'Backend'
