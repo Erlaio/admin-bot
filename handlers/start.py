@@ -11,11 +11,11 @@ from keyboard.default.button_value import ButtonValue as button
 from keyboard.default.keyboard import Keyboard
 from loader import dp
 from pkg.db.models.user import new_user
-from pkg.db.user_func import add_new_user, update_user_by_telegram_id, get_user_by_tg_login
+from pkg.db.user_func import add_new_user, update_user_by_telegram_id, get_user_by_tg_login, delete_user_by_tg_id, \
+    get_user_by_tg_id
 from states.start_state import StartState
 from utils.config_utils import ConfigUtils
 from utils.context_helper import ContextHelper
-
 
 
 @dp.message_handler(CommandStart())
@@ -47,8 +47,13 @@ async def reading_rules(message: types.Message, state: FSMContext):
 async def decision_about_rules(message: types.Message, state: FSMContext):
     answer = message.text
     if answer == button.AGREE_WITH_RULES:
-        await message.answer('Введите ваше ФИО 🖊', reply_markup=ReplyKeyboardRemove())
-        await StartState.gender.set()
+        if get_user_by_tg_id(tg_id=message.from_user.id) is None:
+            await message.answer('Введите ваше ФИО 🖊', reply_markup=ReplyKeyboardRemove())
+            await StartState.gender.set()
+        else:
+            await message.answer('Вы уже зарегестрированы в системе. Хотите обновить данные?',
+                                 reply_markup=Keyboard.UNIVERSAL_CHOICE)
+            await StartState.update_info.set()
     elif answer == button.DONT_AGREE_WITH_RULES:
         await message.answer('Жаль, что вас не устроили наши правила 😔\nВ любой момент, если передумаете, можете'
                              'попробовать снова, для этого нажмите команду /start', reply_markup=ReplyKeyboardRemove())
@@ -56,6 +61,29 @@ async def decision_about_rules(message: types.Message, state: FSMContext):
     else:
         await message.answer('Ошибка ввода! ⛔ \nВыберите один из предложенных вариантов')
         await StartState.decision.set()
+
+
+@dp.message_handler(state=StartState.update_info)
+async def update_info(message: types.Message):
+    answer = message.text
+    if answer == button.YES:
+        await message.answer('Введите ваше ФИО 🖊', reply_markup=ReplyKeyboardRemove())
+        tg_id = message.from_user.id
+        delete_user_by_tg_id(telegram_id=tg_id)
+        await StartState.gender.set()
+    elif answer == button.NO:
+        await message.answer('Хотите проверить Вашу анкету?', reply_markup=Keyboard.UNIVERSAL_CHOICE)
+        await StartState.choise.set()
+
+
+@dp.message_handler(state=StartState.choise)
+async def choise(message: types.Message, state: FSMContext):
+    answer = message.text
+    if answer == button.YES:
+        await StartState.check_questionnaire.set()
+    elif answer == button.NO:
+        await message.answer('Ок. Возвращаю Вас в начало', reply_markup=ReplyKeyboardRemove())
+        await state.reset_state()
 
 
 @dp.message_handler(state=StartState.gender)
