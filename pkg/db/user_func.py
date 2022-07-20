@@ -92,11 +92,11 @@ def get_users_from_department(cur: sqlite3.Cursor, department_id: int):
     return result
 
 
-@connect_to_db
-def get_department_name(cur: sqlite3.Cursor, department_id: int):
-    cur.execute(f"SELECT department FROM departments WHERE department_id = {department_id}")
-    record = cur.fetchone()
-    return record[0]
+# @connect_to_db                                                                # useless for now
+# def get_department_name(cur: sqlite3.Cursor, department_id: int):
+#     cur.execute(f"SELECT department FROM departments WHERE department_id = {department_id}")
+#     record = cur.fetchone()
+#     return record[0]
 
 
 if __name__ == '__main__':
