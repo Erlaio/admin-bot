@@ -144,6 +144,17 @@ async def get_gitlab(message: types.Message, state: FSMContext):
     update_user_by_telegram_id(message.from_user.id, user)
     await ContextHelper.add_user(user, state)
     await message.answer('Введите вашу ссылку на gitlab 🌐')
+    await StartState.department.set()
+
+
+@dp.message_handler(state=StartState.department)
+async def get_department(message: types.Message, state: FSMContext):
+    answer = message.text
+    user = await ContextHelper.get_user(state)
+    user.git = answer
+    update_user_by_telegram_id(message.from_user.id, user)
+    await ContextHelper.add_user(user, state)
+    await message.answer('В какой бы отдел Вы хотели попасть?', reply_markup=Keyboard.DEPARTMENTS)
     await StartState.design.set()
 
 
@@ -151,7 +162,7 @@ async def get_gitlab(message: types.Message, state: FSMContext):
 async def design(message: types.Message, state: FSMContext):
     answer = message.text
     user = await ContextHelper.get_user(state)
-    user.git = answer
+    user.desired_department = answer
     update_user_by_telegram_id(message.from_user.id, user)
     await ContextHelper.add_user(user, state)
     await message.answer('Вы дизайнер? 🎨', reply_markup=Keyboard.UNIVERSAL_CHOICE)
