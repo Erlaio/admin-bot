@@ -59,6 +59,11 @@ def delete_user_by_id(cur: sqlite3.Cursor, user_id: int):
 
 
 @connect_to_db
+def delete_user_by_tg_id(cur: sqlite3.Cursor, telegram_id: int):
+    cur.execute(f"DELETE FROM users WHERE telegram_id={telegram_id}")
+
+
+@connect_to_db
 def update_user_by_id(cur: sqlite3.Cursor, user_id: int, data: User):
     sql = '''UPDATE users SET (telegram_id, surname, name, patronymic, gender, photo, email, git, behance, tg_login, 
                             desired_department, skills, goals, lead_description, join_time, is_moderator,is_approved)=
