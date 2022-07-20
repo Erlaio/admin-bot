@@ -1,4 +1,6 @@
 import sqlite3
+import datetime
+
 from typing import List
 
 from pkg.db.db_connect_sqlite import connect_to_db
@@ -80,7 +82,7 @@ def update_user_by_telegram_id(cur: sqlite3.Cursor, telegram_id: int, data: User
 
 @connect_to_db
 def get_users_from_department(cur: sqlite3.Cursor, department_id: int):
-    cur.execute(f"SELECT * from users WHERE desired_department = {department_id};")  # unsafe
+    cur.execute(f"SELECT * from users WHERE desired_department = {department_id};") # unsafe
     records = cur.fetchall()
     result = []
     for rec in records:
