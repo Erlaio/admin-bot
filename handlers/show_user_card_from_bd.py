@@ -1,6 +1,6 @@
 from aiogram import types
 from aiogram.dispatcher import FSMContext
-from aiogram.types import ReplyKeyboardRemove
+from aiogram.types import ReplyKeyboardRemove, InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.exceptions import BadRequest
 
 from keyboard.default import Keyboard
@@ -17,6 +17,19 @@ async def show_user_start(message: types.Message):
     text = 'Вы хотите посмотреть всех пользователей или кого-то конкретного?'
     await message.answer(text, reply_markup=Keyboard.SHOW_USER)
     await UserCardState.show_user_choice.set()
+
+
+
+inline_btn_0 = InlineKeyboardButton('<<1', callback_data='1')
+# inline_btn_1 = InlineKeyboardButton('2', callback_data=)
+
+PAGES = InlineKeyboardMarkup(row_width=5).add(inline_btn_0)
+PAGES.row(inline_btn_0)
+
+@dp.callback_query_handler(func=lambda c: c.data == 'button1')
+async def process_callback_button1(callback_query: types.CallbackQuery):
+    await bot.answer_callback_query(callback_query.id)
+    await bot.send_message(callback_query.from_user.id, 'Нажата первая кнопка!')
 
 
 @dp.message_handler(state=UserCardState.show_user_choice)
@@ -54,7 +67,10 @@ async def show_user_choice(message: types.Message, state: FSMContext):
         user_list = get_all_users()
         if user_list:
             index = 0
-            for _ in range(len(user_list) // 2):
+            users = []
+            quantity_of_iterations = len(user_list) / 2
+            # quantity_of_iterations = len(user_list) // 2 if len(user_list) % 2 == 0 else len(user_list) // 2 + 1
+            for _ in range(round(quantity_of_iterations)):
                 result = ''
                 for i_user in user_list[index:index + 2]:
                     caption = f'ФИО: {i_user.surname} {i_user.name} {i_user.patronymic}\n' \
@@ -68,7 +84,8 @@ async def show_user_choice(message: types.Message, state: FSMContext):
                               f'Принят: {i_user.is_approved}\n\n'
                     result += caption
                 index += 2
-                await bot.send_message(message.chat.id, result, reply_markup=ReplyKeyboardRemove())
+                users.append(result)
+                await bot.send_message(message.chat.id, users, reply_markup=Keyboard.PAGES)
 
 
 @dp.message_handler(state=UserCardState.user_id)
