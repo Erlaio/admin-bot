@@ -17,6 +17,8 @@ class ButtonValue:
     VIEW_ID = 'Посмотреть по ID'
     VIEW_TG_LOGIN = 'Посмотреть по Логину в Telegram'
 
+    DEPARTMENTS = ['Frontend', 'Backend', 'ML', 'DS', 'Design', 'Mobile Development']
+
     FRONTEND = 'Frontend'
     BACKEND = 'Backend'
     ML = 'ML'
