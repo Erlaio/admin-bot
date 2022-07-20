@@ -1,15 +1,17 @@
+import imghdr
 import os.path
+import typing
 from pathlib import PurePath
 import time
 
 from aiogram import types
 from aiogram.dispatcher.filters.builtin import CommandStart
 from aiogram.dispatcher.storage import FSMContext
-from aiogram.types import ReplyKeyboardRemove
+from aiogram.types import ReplyKeyboardRemove, ContentType
 
 from keyboard.default.button_value import ButtonValue as button
 from keyboard.default.keyboard import Keyboard
-from loader import dp
+from loader import dp, bot
 from pkg.db.models.user import new_user
 from pkg.db.user_func import add_new_user, update_user_by_telegram_id, get_user_by_tg_login
 from states.start_state import StartState
@@ -118,22 +120,30 @@ async def decision_about_photo(message: types.Message):
         await StartState.decision_about_photo.set()
 
 
-@dp.message_handler(state=StartState.upload_photo, content_types=["photo"])
+@dp.message_handler(state=StartState.upload_photo, content_types=[ContentType.PHOTO, ContentType.DOCUMENT])
 async def upload_photo(message: types.Message, state: FSMContext):
     timestamp = str(time.time()).replace(".", "")
     file_name = f"photo_{timestamp}.jpg"
-    file_path = str(PurePath(ConfigUtils.get_project_root(), "temp", file_name))
+    file_path = os.path.join(ConfigUtils.get_temp_path(), file_name)
     user = await ContextHelper.get_user(state)
-    await message.photo[-1].download(destination_file=file_path)
+    if not message.content_type == 'photo':
+        file = await bot.get_file(message.document.file_id)
+        await bot.download_file(file.file_path, file_path)
+    else:
+        await message.photo[-1].download(destination_file=file_path)
     with open(file_path, 'rb') as file:
-        user.photo = file.read()
-        update_user_by_telegram_id(message.from_user.id, user)
+        if not imghdr.what(file):
+            await message.reply("Отправьте изображение.")
+            await StartState.upload_photo.set()
+        else:
+            user.photo = file.read()
+            update_user_by_telegram_id(message.from_user.id, user)
+            await ContextHelper.add_user(user, state)
+            await message.answer('Спасибо!')
+            await message.answer('Введите вашу почту 📧')
+            await StartState.gitlab.set()
     if os.path.exists(file_path):
         os.remove(file_path)
-    await ContextHelper.add_user(user, state)
-    await message.answer('Спасибо!')
-    await message.answer('Введите вашу почту 📧')
-    await StartState.gitlab.set()
 
 
 @dp.message_handler(state=StartState.gitlab)
