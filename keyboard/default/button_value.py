@@ -21,3 +21,8 @@ class ButtonValue:
     DS = 'DS'
     DESIGN = 'Design'
     MOBILE_DEVELOPMENT = 'Mobile Development'
+
+    CREATE_DEPARTMENT = 'Создать новый отдел'
+    DELETE_DEPARTMENT = 'Удалить отдел'
+    CHANGE_DEPARTMENT_NAME = 'Сменить имя отдела'
+    CHANGE_DEPARTMENT_LEAD = 'Сменить/добавить тим лида отдела'

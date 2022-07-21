@@ -76,7 +76,7 @@ class Keyboard:
         ],
         resize_keyboard=True
     )
-    
+
     SHOW_USER = ReplyKeyboardMarkup(
         keyboard=[
             [
@@ -86,4 +86,12 @@ class Keyboard:
             ]
         ],
         resize_keyboard=True
+    )
+
+    DEPARTMENTS_UTILS = ReplyKeyboardMarkup(resize_keyboard=True).row(
+        KeyboardButton(text=button.CREATE_DEPARTMENT),
+        KeyboardButton(text=button.DELETE_DEPARTMENT),
+        KeyboardButton(text=button.CHANGE_DEPARTMENT_NAME)
+    ).insert(
+        KeyboardButton(text=button.CHANGE_DEPARTMENT_LEAD)
     )

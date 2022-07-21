@@ -27,8 +27,19 @@ def get_user_by_id(cur: sqlite3.Cursor, user_id: int) -> User:
 
 
 @connect_to_db
+def get_user_by_tg_id(cur: sqlite3.Cursor, telegram_id: int) -> User:
+    cur.execute(f"SELECT * FROM users WHERE telegram_id = {telegram_id}")
+    rec = cur.fetchone()
+    data = new_user(user_id=rec[0], telegram_id=rec[1], surname=rec[2], name=rec[3], patronymic=rec[4],
+                    gender=rec[5], photo=rec[6], email=rec[7], git=rec[8], behance=rec[9],
+                    tg_login=rec[10], desired_department=rec[11], skills=rec[12], goals=rec[13],
+                    lead_description=rec[14], join_time=rec[15], is_moderator=rec[16], is_approved=rec[17])
+    return data
+
+
+@connect_to_db
 def get_user_by_tg_login(cur: sqlite3.Cursor, tg_login: str) -> User:
-    cur.execute(f"SELECT * FROM users WHERE tg_login = ?;", (tg_login, ))
+    cur.execute(f"SELECT * FROM users WHERE tg_login = ?;", (tg_login,))
     rec = cur.fetchone()
     data = new_user(user_id=rec[0], telegram_id=rec[1], surname=rec[2], name=rec[3], patronymic=rec[4],
                     gender=rec[5], photo=rec[6], email=rec[7], git=rec[8], behance=rec[9],

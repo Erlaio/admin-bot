@@ -1,10 +1,12 @@
+from aiogram import types
 from aiogram.types import ReplyKeyboardRemove
 from aiogram.utils.exceptions import BadRequest
 
+from pkg.db.models.user import User
 from loader import bot
 
 
-async def send_card(message, user):
+async def send_card(message: types.Message, user: User) -> None:
     caption = f'ФИО: {user.surname} {user.name} {user.patronymic}\n' \
               f'Пол: {user.gender}\n' \
               f'Логин в Telegram: {user.tg_login}\n' \
