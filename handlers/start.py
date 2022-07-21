@@ -237,7 +237,7 @@ async def decision_about_design(message: types.Message, state: FSMContext):
     elif answer in (button.FRONTEND, button.BACKEND, button.ML, button.DS, button.DESIGN, button.MOBILE_DEVELOPMENT):
         await message.answer('Введите ваши навыки\nТут нужно будет добавить '
                              'шаблон', reply_markup=ReplyKeyboardRemove())
-        await StartState.get_skills.set()
+        await StartState.goals.set()
     else:
         await message.answer('Ошибка ввода! ⛔ \nВыберите один из предложенных вариантов')
         await StartState.decision_about_design.set()
