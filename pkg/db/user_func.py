@@ -1,4 +1,6 @@
 import sqlite3
+import datetime
+
 from typing import List
 
 from pkg.db.db_connect_sqlite import connect_to_db
@@ -49,6 +51,19 @@ def get_user_by_tg_login(cur: sqlite3.Cursor, tg_login: str) -> User:
 
 
 @connect_to_db
+def get_user_by_tg_id(cur: sqlite3.Cursor, tg_id: int) -> User or None:
+    cur.execute(f"SELECT * FROM users WHERE telegram_id = {tg_id};")
+    rec = cur.fetchone()
+    if rec is None:
+        return None
+    data = new_user(user_id=rec[0], telegram_id=rec[1], surname=rec[2], name=rec[3], patronymic=rec[4],
+                    gender=rec[5], photo=rec[6], email=rec[7], git=rec[8], behance=rec[9],
+                    tg_login=rec[10], desired_department=rec[11], skills=rec[12], goals=rec[13],
+                    lead_description=rec[14], join_time=rec[15], is_moderator=rec[16], is_approved=rec[17])
+    return data
+
+
+@connect_to_db
 def get_all_users(cur: sqlite3.Cursor) -> List[User]:
     cur.execute(f"SELECT * FROM users")
     records = cur.fetchall()
@@ -65,6 +80,11 @@ def get_all_users(cur: sqlite3.Cursor) -> List[User]:
 @connect_to_db
 def delete_user_by_id(cur: sqlite3.Cursor, user_id: int):
     cur.execute(f"DELETE FROM users WHERE user_id={user_id}")
+
+
+@connect_to_db
+def delete_user_by_tg_id(cur: sqlite3.Cursor, telegram_id: int):
+    cur.execute(f"DELETE FROM users WHERE telegram_id={telegram_id}")
 
 
 @connect_to_db
@@ -91,7 +111,7 @@ def update_user_by_telegram_id(cur: sqlite3.Cursor, telegram_id: int, data: User
 
 @connect_to_db
 def get_users_from_department(cur: sqlite3.Cursor, department_id: int):
-    cur.execute(f"SELECT * from users WHERE desired_department = {department_id};")  # unsafe
+    cur.execute(f"SELECT * from users WHERE desired_department = {department_id};") # unsafe
     records = cur.fetchall()
     result = []
     for rec in records:
@@ -101,6 +121,13 @@ def get_users_from_department(cur: sqlite3.Cursor, department_id: int):
                         lead_description=rec[14], join_time=rec[15], is_moderator=rec[16], is_approved=rec[17])
         result.append(data)
     return result
+
+
+# @connect_to_db                                                                # useless for now
+# def get_department_name(cur: sqlite3.Cursor, department_id: int):
+#     cur.execute(f"SELECT department FROM departments WHERE department_id = {department_id}")
+#     record = cur.fetchone()
+#     return record[0]
 
 
 if __name__ == '__main__':
