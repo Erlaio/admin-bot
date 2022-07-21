@@ -1,5 +1,7 @@
 import sqlite3
+
 from .db_connect_sqlite import connect_to_db
+from .department_func import add_new_department
 
 
 @connect_to_db
@@ -41,6 +43,17 @@ def create_database(cur: sqlite3.Cursor):
 
         CREATE UNIQUE INDEX IF NOT EXISTS "department_id_index" ON "departments" (
             "department_id");
+            
+        /*  Table Projects  */
+        CREATE TABLE IF NOT EXISTS "projects" (
+            "project_id"	INTEGER NOT NULL UNIQUE,
+            "project_name"	TEXT NOT NULL,
+            "team_lead"	TEXT,
+            PRIMARY KEY("project_id" AUTOINCREMENT));
+
+
+        CREATE UNIQUE INDEX IF NOT EXISTS "project_id_index" ON "projects" (
+            "project_id"); 
         ''')
 
 

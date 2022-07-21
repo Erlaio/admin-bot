@@ -1,7 +1,7 @@
 from aiogram.dispatcher.filters.state import StatesGroup, State
 
 
-class DepartmentUtilsState(StatesGroup):
+class DepartmentStates(StatesGroup):
     moderator_choice = State()
     new_department = State()
     delete_department = State()

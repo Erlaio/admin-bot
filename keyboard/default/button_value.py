@@ -27,5 +27,10 @@ class ButtonValue:
     CHANGE_DEPARTMENT_NAME = 'Сменить имя отдела'
     CHANGE_DEPARTMENT_LEAD = 'Сменить/добавить тим лида отдела'
 
+    CREATE_PROJECT = 'Создать новый проект'
+    DELETE_PROJECT = 'Удалить проект'
+    CHANGE_PROJECT_NAME = 'Сменить имя проекта'
+    CHANGE_PROJECT_LEAD = 'Сменить/добавить тим лида проекта'
+
     # PAGES = [page for page in range(len(get_all_users()) // 2)]       # for pagely output
     # PAGES = [page for page in range(65)]

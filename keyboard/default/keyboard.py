@@ -1,4 +1,4 @@
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
 from keyboard.default.button_value import ButtonValue as button
 
@@ -88,10 +88,18 @@ class Keyboard:
         resize_keyboard=True
     )
 
-    DEPARTMENTS_UTILS = ReplyKeyboardMarkup(resize_keyboard=True).row(
+    DEPARTMENTS_COMMANDS = ReplyKeyboardMarkup(resize_keyboard=True).row(
         KeyboardButton(text=button.CREATE_DEPARTMENT),
         KeyboardButton(text=button.DELETE_DEPARTMENT),
         KeyboardButton(text=button.CHANGE_DEPARTMENT_NAME)
     ).insert(
         KeyboardButton(text=button.CHANGE_DEPARTMENT_LEAD)
+    )
+
+    PROJECTS_COMMANDS = ReplyKeyboardMarkup(resize_keyboard=True).row(
+        KeyboardButton(text=button.CREATE_PROJECT),
+        KeyboardButton(text=button.DELETE_PROJECT),
+        KeyboardButton(text=button.CHANGE_PROJECT_NAME)
+    ).insert(
+        KeyboardButton(text=button.CHANGE_PROJECT_LEAD)
     )
