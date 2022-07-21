@@ -1,3 +1,5 @@
+# from handlers.show_user_card_from_bd import get_all_users
+
 class ButtonValue:
     READ_RULES = 'Ознакомиться с правилами 🤓'
     DONT_READ_RULES = 'Я не буду читать правила 😐'
@@ -21,3 +23,6 @@ class ButtonValue:
     DS = 'DS'
     DESIGN = 'Design'
     MOBILE_DEVELOPMENT = 'Mobile Development'
+
+    # PAGES = [page for page in range(len(get_all_users()) // 2)]       # for pagely output
+    # PAGES = [page for page in range(65)]

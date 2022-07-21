@@ -7,20 +7,21 @@ from aiogram.dispatcher.filters.builtin import CommandStart
 from aiogram.dispatcher.storage import FSMContext
 from aiogram.types import ReplyKeyboardRemove
 
+from keyboard.default import button_value
 from keyboard.default.button_value import ButtonValue as button
 from keyboard.default.keyboard import Keyboard
 from loader import dp
 from pkg.db.models.user import new_user
-from pkg.db.user_func import add_new_user, update_user_by_telegram_id, get_user_by_tg_login
+from pkg.db.user_func import add_new_user, update_user_by_telegram_id, get_user_by_tg_login, delete_user_by_tg_id, \
+    get_user_by_tg_id
 from states.start_state import StartState
 from utils.config_utils import ConfigUtils
 from utils.context_helper import ContextHelper
 
 
-
 @dp.message_handler(CommandStart())
 async def bot_start(message: types.Message):
-    text = 'Приветствую! 👋 \nЭто телеграм бот "Школа IT". Чтобы продолжить наше общение, тебе нужно будет' \
+    text = 'Приветствую! 👋 \nЭто телеграм бот "Школа IT". Чтобы продолжить наше общение, тебе нужно будет ' \
            'прочесть наши правила и согласиться с ними :)'
     await message.answer(text, reply_markup=Keyboard.CHOICE)
     await StartState.rules.set()
@@ -30,7 +31,22 @@ async def bot_start(message: types.Message):
 async def reading_rules(message: types.Message, state: FSMContext):
     answer = message.text
     if answer == button.READ_RULES:
-        await message.answer('Тут говорится о правилах.', reply_markup=ReplyKeyboardRemove())
+        rules = 'Приветствуем в Школе IT!'\
+                '\nДля того чтобы пройти дальше, нужно ознакомиться и согласиться с правилами Школы:\n\n'\
+                "1. Еженедельные встречи.\n"\
+                "Каждую пятницу с 19:00 - 20:00 проходят очные встречи для жителей Москвы, территориально, в десяти" \
+                ' минутах от станции метро "Деловой центр".'\
+                'Для жителей других городов, встречи проходят удалённо' \
+                ' (нужно подключиться к звонку в общей беседе "Школа IT")\n\n'\
+                '2. Личные карточки.\n'\
+                'При вступлении в Школу необходимо заполнить личную карточку и отправить боту в дальнейшей беседе в' \
+                ' этом чате.\n\n'\
+                '3. Дедлайны\n'\
+                'В Школе введена система передоговоров.'\
+                'За день до дедлайна можно перенести дату.'\
+                'Переносы обсуждаются с тимлидом направления.'\
+                'Пример: дедлайн на задачу 18.07, передоговориться на по ней можно не позже 17.07.'
+        await message.answer(rules, reply_markup=ReplyKeyboardRemove())
         await message.answer('Вы согласны с правилами?', reply_markup=Keyboard.AGREEMENT)
         await StartState.decision.set()
     elif answer == button.DONT_READ_RULES:
@@ -47,8 +63,13 @@ async def reading_rules(message: types.Message, state: FSMContext):
 async def decision_about_rules(message: types.Message, state: FSMContext):
     answer = message.text
     if answer == button.AGREE_WITH_RULES:
-        await message.answer('Введите ваше ФИО 🖊', reply_markup=ReplyKeyboardRemove())
-        await StartState.gender.set()
+        if get_user_by_tg_id(tg_id=message.from_user.id) is None:
+            await message.answer('Введите ваше ФИО 🖊', reply_markup=ReplyKeyboardRemove())
+            await StartState.gender.set()
+        else:
+            await message.answer('Вы уже зарегестрированы в системе. Хотите обновить данные?',
+                                 reply_markup=Keyboard.UNIVERSAL_CHOICE)
+            await StartState.update_info.set()
     elif answer == button.DONT_AGREE_WITH_RULES:
         await message.answer('Жаль, что вас не устроили наши правила 😔\nВ любой момент, если передумаете, можете'
                              'попробовать снова, для этого нажмите команду /start', reply_markup=ReplyKeyboardRemove())
@@ -56,6 +77,30 @@ async def decision_about_rules(message: types.Message, state: FSMContext):
     else:
         await message.answer('Ошибка ввода! ⛔ \nВыберите один из предложенных вариантов')
         await StartState.decision.set()
+
+
+@dp.message_handler(state=StartState.update_info)
+async def update_info(message: types.Message):
+    answer = message.text
+    if answer == button.YES:
+        await message.answer('Введите ваше ФИО 🖊', reply_markup=ReplyKeyboardRemove())
+        tg_id = message.from_user.id
+        delete_user_by_tg_id(telegram_id=tg_id)
+        await StartState.gender.set()
+    elif answer == button.NO:
+        await message.answer('Хотите проверить Вашу анкету?', reply_markup=Keyboard.UNIVERSAL_CHOICE)
+        await StartState.choise.set()
+
+
+@dp.message_handler(state=StartState.choise)
+async def choise(message: types.Message, state: FSMContext):
+    answer = message.text
+    if answer == button.YES:
+        await message.answer('Для проверки нажмите на кнопку ниже', reply_markup=Keyboard.CHECK_ACCESS)
+        await StartState.check_questionnaire.set()
+    elif answer == button.NO:
+        await message.answer('Ок. Возвращаю Вас в начало', reply_markup=ReplyKeyboardRemove())
+        await state.reset_state()
 
 
 @dp.message_handler(state=StartState.gender)
@@ -144,30 +189,45 @@ async def get_gitlab(message: types.Message, state: FSMContext):
     update_user_by_telegram_id(message.from_user.id, user)
     await ContextHelper.add_user(user, state)
     await message.answer('Введите вашу ссылку на gitlab 🌐')
-    await StartState.design.set()
+    await StartState.department.set()
 
 
-@dp.message_handler(state=StartState.design)
-async def design(message: types.Message, state: FSMContext):
+@dp.message_handler(state=StartState.department)
+async def get_department(message: types.Message, state: FSMContext):
     answer = message.text
     user = await ContextHelper.get_user(state)
     user.git = answer
     update_user_by_telegram_id(message.from_user.id, user)
     await ContextHelper.add_user(user, state)
-    await message.answer('Вы дизайнер? 🎨', reply_markup=Keyboard.UNIVERSAL_CHOICE)
+    await message.answer('В какой бы отдел Вы хотели попасть?', reply_markup=Keyboard.DEPARTMENTS)
     await StartState.decision_about_design.set()
 
 
+# @dp.message_handler(state=StartState.design)
+# async def design(message: types.Message, state: FSMContext):
+#     answer = message.text
+#     user = await ContextHelper.get_user(state)
+#     user.desired_department = answer
+#     update_user_by_telegram_id(message.from_user.id, user)
+#     await ContextHelper.add_user(user, state)
+#     await message.answer('Вы дизайнер? 🎨', reply_markup=Keyboard.UNIVERSAL_CHOICE)
+#     await StartState.decision_about_design.set()
+
+
 @dp.message_handler(state=StartState.decision_about_design)
-async def decision_about_design(message: types.Message):
+async def decision_about_design(message: types.Message, state: FSMContext):
     answer = message.text
-    if answer == button.YES:
+    user = await ContextHelper.get_user(state)
+    user.desired_department = answer
+    update_user_by_telegram_id(message.from_user.id, user)
+    await ContextHelper.add_user(user, state)
+    if answer == button.DESIGN:
         await message.answer('Введите вашу ссылку на беханс 🌐', reply_markup=ReplyKeyboardRemove())
         await StartState.get_skills.set()
-    elif answer == button.NO:
+    elif answer in (button.FRONTEND, button.BACKEND, button.ML, button.DS, button.DESIGN, button.MOBILE_DEVELOPMENT):
         await message.answer('Введите ваши навыки\nТут нужно будет добавить '
                              'шаблон', reply_markup=ReplyKeyboardRemove())
-        await StartState.goals.set()
+        await StartState.get_skills.set()
     else:
         await message.answer('Ошибка ввода! ⛔ \nВыберите один из предложенных вариантов')
         await StartState.decision_about_design.set()
