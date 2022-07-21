@@ -12,7 +12,7 @@ def add_new_project(cur: sqlite3.Cursor, project_name: str) -> None:
 
 @connect_to_db
 def attach_tl_to_project(cur: sqlite3.Cursor, project_name: str, team_lead: str) -> None:
-    cur.execute("UPDATE departments SET (team_lead) = (?) WHERE project_name = ?", (team_lead, project_name,))
+    cur.execute("UPDATE projects SET (team_lead) = (?) WHERE project_name = ?", (team_lead, project_name,))
 
 
 @connect_to_db
@@ -33,7 +33,7 @@ def delete_project_by_name(cur: sqlite3.Cursor, project_name: str) -> None:
 
 @connect_to_db
 def update_project_name(cur: sqlite3.Cursor, old_name: str, new_name: str) -> None:
-    cur.execute(f"UPDATE projects SET (project) = (?) WHERE project = ?", (new_name, old_name))
+    cur.execute(f"UPDATE projects SET (project_name) = (?) WHERE project_name = ?", (new_name, old_name))
 
 
 if __name__ == '__main__':

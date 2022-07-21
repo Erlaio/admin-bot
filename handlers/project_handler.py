@@ -7,7 +7,7 @@ from loader import dp
 from pkg.db.project_func import *
 from pkg.db.user_func import get_user_by_tg_id
 from states.project_states import ProjectStates
-from utils.check_is_available import is_available
+from utils.check_is_available import is_project_available
 
 
 @dp.message_handler(commands='project')
@@ -62,7 +62,7 @@ async def new_department(message: types.Message, state: FSMContext):
 
 @dp.message_handler(state=ProjectStates.delete_project)
 async def delete_department(message: types.Message, state: FSMContext):
-    if is_available(message.text, get_all_projects):
+    if is_project_available(message.text):
         delete_project_by_name(message.text)
         await message.answer(f'Проект "{message.text}" удален')
         await state.finish()
@@ -73,7 +73,7 @@ async def delete_department(message: types.Message, state: FSMContext):
 
 @dp.message_handler(state=ProjectStates.change_project_name_get_name)
 async def get_new_department_name(message: types.Message, state: FSMContext):
-    if is_available(message.text, get_all_projects):
+    if is_project_available(message.text):
         await message.answer('Введите новое название проекта')
         await state.update_data(old_name=message.text)
         await ProjectStates.change_project_name.set()
@@ -93,7 +93,7 @@ async def change_department_name(message: types.Message, state: FSMContext):
 
 @dp.message_handler(state=ProjectStates.change_team_lead_name_get_name)
 async def get_new_team_lead_name(message: types.Message, state: FSMContext):
-    if is_available(message.text, get_all_projects):
+    if is_project_available(message.text):
         await message.answer('Введите новое имя Тим лида проекта')
         await state.update_data(department=message.text)
         await ProjectStates.change_team_lead_name.set()
