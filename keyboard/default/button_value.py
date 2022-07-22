@@ -15,13 +15,6 @@ class ButtonValue:
     VIEW_ID = 'Посмотреть по ID'
     VIEW_TG_LOGIN = 'Посмотреть по Логину в Telegram'
 
-    FRONTEND = 'Frontend'
-    BACKEND = 'Backend'
-    ML = 'ML'
-    DS = 'DS'
-    DESIGN = 'Design'
-    MOBILE_DEVELOPMENT = 'Mobile Development'
-
     CREATE_DEPARTMENT = 'Создать новый отдел'
     DELETE_DEPARTMENT = 'Удалить отдел'
     CHANGE_DEPARTMENT_NAME = 'Сменить имя отдела'
@@ -31,6 +24,3 @@ class ButtonValue:
     DELETE_PROJECT = 'Удалить проект'
     CHANGE_PROJECT_NAME = 'Сменить имя проекта'
     CHANGE_PROJECT_LEAD = 'Сменить/добавить тим лида проекта'
-
-    # PAGES = [page for page in range(len(get_all_users()) // 2)]       # for pagely output
-    # PAGES = [page for page in range(65)]
