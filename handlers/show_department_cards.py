@@ -19,16 +19,19 @@ async def show_user_by_department_start(message: types.Message):
 
 @dp.message_handler(state=UserCardState.show_departments)
 async def show_users_by_department(message: types.Message, state: FSMContext):
-    data = None
-    departments = await DepartmentButtonFactory.get_departments()
     answer = message.text
-    for department in departments:
-        if answer == department:
-            data = get_users_from_department_name(department_name=department)
-    if not data:
-        await bot.send_message(message.chat.id, 'Такой отдел не найден.', reply_markup=ReplyKeyboardRemove())
-        await state.finish()
-    else:
+    if await DepartmentButtonFactory.is_exist(answer):
+        data = None
+        departments = await DepartmentButtonFactory.get_departments()
+        for department in departments:
+            if answer == department:
+                data = get_users_from_department_name(department_name=department)
+        if data is None:
+            await bot.send_message(message.chat.id, 'Никто не привязан к отделу', reply_markup=ReplyKeyboardRemove())
+            await state.finish()
         for user in data:
             await send_card(message, user)
+        await state.finish()
+    else:
+        await bot.send_message(message.chat.id, 'Такой отдел не найден.', reply_markup=ReplyKeyboardRemove())
         await state.finish()
