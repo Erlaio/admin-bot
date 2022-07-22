@@ -108,8 +108,22 @@ def update_user_by_department(cur: sqlite3.Cursor, user_id: int, data: User):
 
 
 @connect_to_db
-def get_users_from_department(cur: sqlite3.Cursor, department_id: int):
-    cur.execute(f"SELECT * from users WHERE desired_department = {department_id};")  # unsafe
+def get_users_from_department(cur: sqlite3.Cursor, department_id: int):                 # useless for now
+    cur.execute(f"SELECT * from users WHERE desired_department = {department_id};")
+    records = cur.fetchall()
+    result = []
+    for rec in records:
+        data = new_user(user_id=rec[0], telegram_id=rec[1], surname=rec[2], name=rec[3], patronymic=rec[4],
+                        gender=rec[5], photo=rec[6], email=rec[7], git=rec[8], behance=rec[9],
+                        tg_login=rec[10], desired_department=rec[11], skills=rec[12], goals=rec[13],
+                        lead_description=rec[14], join_time=rec[15], is_moderator=rec[16], is_approved=rec[17])
+        result.append(data)
+    return result
+
+
+@connect_to_db
+def get_users_from_department_name(cur: sqlite3.Cursor, department_name: str):
+    cur.execute(f"SELECT * from users WHERE desired_department = ?;", (department_name, ))
     records = cur.fetchall()
     result = []
     for rec in records:
