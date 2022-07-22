@@ -1,6 +1,7 @@
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
 from keyboard.default.button_value import ButtonValue as button
+from pkg.db.department_func import get_all_departments
 
 
 class Keyboard:
@@ -63,19 +64,19 @@ class Keyboard:
         resize_keyboard=True
     )
 
-    DEPARTMENTS = ReplyKeyboardMarkup(
-        keyboard=[
-            [
-                KeyboardButton(text=button.FRONTEND),
-                KeyboardButton(text=button.BACKEND),
-                KeyboardButton(text=button.ML),
-                KeyboardButton(text=button.DS),
-                KeyboardButton(text=button.DESIGN),
-                KeyboardButton(text=button.MOBILE_DEVELOPMENT),
-            ]
-        ],
-        resize_keyboard=True
-    )
+    # DEPARTMENTS = ReplyKeyboardMarkup(            # useless for now
+    #     keyboard=[
+    #         [
+    #             KeyboardButton(text=button.FRONTEND),
+    #             KeyboardButton(text=button.BACKEND),
+    #             KeyboardButton(text=button.ML),
+    #             KeyboardButton(text=button.DS),
+    #             KeyboardButton(text=button.DESIGN),
+    #             KeyboardButton(text=button.MOBILE_DEVELOPMENT),
+    #         ]
+    #     ],
+    #     resize_keyboard=True
+    # )
 
     SHOW_USER = ReplyKeyboardMarkup(
         keyboard=[
@@ -103,3 +104,52 @@ class Keyboard:
     ).insert(
         KeyboardButton(text=button.CHANGE_PROJECT_LEAD)
     )
+
+
+class DepartmentButtonFactory:
+    departments_from_bd = get_all_departments()
+    DEPARTMENTS = ReplyKeyboardMarkup(
+        resize_keyboard=True,
+        keyboard=[[]],
+    )
+
+    for department in departments_from_bd:
+        DEPARTMENTS.keyboard[0].append(KeyboardButton(text=department.department))
+
+    @classmethod
+    async def delete(cls, department_name: str):
+        if await cls.is_exist(department_name):
+            cls.DEPARTMENTS.keyboard[0].remove(KeyboardButton(text=department_name))
+        else:
+            return None
+
+    @classmethod
+    async def rename(cls, old_name: str, new_name: str):
+        for index, department in enumerate(cls.DEPARTMENTS.keyboard[0]):
+            if old_name in department['text']:
+                department[index]['text'] = new_name
+                return
+        else:
+            return None
+
+    @classmethod
+    async def add(cls, department_name: str):
+        if await cls.is_exist(department_name):
+            return None
+        else:
+            cls.DEPARTMENTS.keyboard[0].append(KeyboardButton(text=department_name))
+
+    @classmethod
+    async def is_exist(cls, department_name: str):
+        for index, department in enumerate(cls.DEPARTMENTS.keyboard[0]):
+            if department_name in department['text']:
+                return True
+        else:
+            return False
+
+    @classmethod
+    async def get_departments(cls):
+        result = []
+        for department in cls.DEPARTMENTS.keyboard[0]:
+            result.append(department['text'])
+        return result
