@@ -20,3 +20,4 @@ class StartState(StatesGroup):
     check_questionnaire = State()
     update_info = State()
     choise = State()
+    get_moder = State()
