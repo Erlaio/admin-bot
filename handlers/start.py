@@ -15,7 +15,7 @@ from keyboard.default.keyboard import Keyboard, DepartmentButtonFactory
 from loader import dp, bot
 from pkg.db.models.user import new_user
 from pkg.db.user_func import add_new_user, update_user_by_telegram_id, get_user_by_tg_login, delete_user_by_tg_id, \
-    get_user_by_tg_id
+    get_user_by_tg_id, update_user_status
 from pkg.settings import settings
 from states.start_state import StartState
 from utils.config_utils import ConfigUtils
@@ -294,7 +294,7 @@ async def check_questionnaire(message: types.Message, state: FSMContext):
             await message.answer('Пока не одобрено',
                                  reply_markup=Keyboard.CHECK_ACCESS)
             await StartState.check_questionnaire.set()
-    elif answer == 'модер':  # TODO Утвердить команду
+    elif answer == 'iammoder':
         await message.answer('Введите ключ доступа', reply_markup=ReplyKeyboardRemove())
         await StartState.get_moder.set()
     else:
@@ -307,8 +307,9 @@ async def check_questionnaire(message: types.Message, state: FSMContext):
 async def get_moder(message: types.Message, state: FSMContext):
     answer = message.text
     if answer == settings.SECRET_KEY:
-        user = get_user_by_tg_login(f'@{message.from_user.username}')  # TODO обсудить метод получения user'a
-        user.is_moderator = 1
-        update_user_by_telegram_id(message.from_user.id, user)
-        await message.answer('Добро пожаловать домой', reply_markup=ReplyKeyboardRemove())  # TODO поменять вывод
+        update_user_status(message.from_user.id)
+        await message.answer('Ваша анкета одобрена и права модератора получены', reply_markup=ReplyKeyboardRemove())
         await state.finish()
+    else:
+        await message.answer('Неверный ключ доступа')
+        await StartState.check_questionnaire.set()
