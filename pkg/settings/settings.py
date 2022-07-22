@@ -9,6 +9,7 @@ class _Settings(pydantic.BaseSettings):
 
 class Settings(_Settings):
     SQLITE_FILENAME: str
+    SECRET_KEY: str
 
 
 def _get_settings() -> Settings:
