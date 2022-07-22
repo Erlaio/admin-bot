@@ -110,7 +110,7 @@ class DepartmentButtonFactory:
     departments_from_bd = get_all_departments()
     DEPARTMENTS = ReplyKeyboardMarkup(
         resize_keyboard=True,
-        keyboard=[[]],
+        keyboard=[[KeyboardButton(text='Без отдела')]],
     )
 
     for department in departments_from_bd:
