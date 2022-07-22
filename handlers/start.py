@@ -235,8 +235,9 @@ async def decision_about_design(message: types.Message, state: FSMContext):
         await message.answer('Введите вашу ссылку на беханс 🌐', reply_markup=ReplyKeyboardRemove())
         await StartState.get_skills.set()
     elif answer in (button.FRONTEND, button.BACKEND, button.ML, button.DS, button.DESIGN, button.MOBILE_DEVELOPMENT):
-        await message.answer('Введите ваши навыки\nТут нужно будет добавить '
-                             'шаблон', reply_markup=ReplyKeyboardRemove())
+        await message.answer('Введите ваши навыки\nНапример: '
+                             'Python, Postgresql, Git, FastAPI, Django, Go, aiogramm, asyncio', 
+                             reply_markup=ReplyKeyboardRemove())
         await StartState.goals.set()
     else:
         await message.answer('Ошибка ввода! ⛔ \nВыберите один из предложенных вариантов')
@@ -250,7 +251,8 @@ async def get_skills(message: types.Message, state: FSMContext):
     user.behance = answer
     update_user_by_telegram_id(message.from_user.id, user)
     await ContextHelper.add_user(user, state)
-    await message.answer('Введите ваши навыки\nТут нужно будет добавить шаблон')
+    await message.answer('Введите ваши навыки\nНапример: '
+                            'Python, Postgresql, Git, FastAPI, Django, Go, aiogramm, asyncio')
     await StartState.goals.set()
 
 
@@ -261,7 +263,8 @@ async def get_goals(message: types.Message, state: FSMContext):
     user.skills = answer
     update_user_by_telegram_id(message.from_user.id, user)
     await ContextHelper.add_user(user, state)
-    await message.answer('Введите ваши цели\nТут нужно будет добавить шаблон')
+    await message.answer('Введите ваши цели\n'
+                        '1. Основные ожидания от школы: ...\n2. Вектор, куда ты хочешь развиваться: ...')
     await StartState.finish_questions.set()
 
 

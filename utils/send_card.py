@@ -18,7 +18,7 @@ async def send_card(message: types.Message, user: User) -> None:
     if user.is_approved == 1:
         caption += 'Анкета проверена\n'
     if user.is_moderator == 1:
-        caption += 'Является модератором: Модератор\n'
+        caption += 'Модератор\n'
     try:
         await bot.send_photo(message.chat.id, user.photo, caption=caption,
                              reply_markup=ReplyKeyboardRemove())
