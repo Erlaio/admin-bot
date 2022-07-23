@@ -1,20 +1,23 @@
 import pathlib
-import sqlite3
 from pkg.settings import settings
 from utils.config_utils import ConfigUtils
+from contextlib import asynccontextmanager
+import aiosqlite
 
 
 def connect_to_db(func):
-    def wrapper(*args, **kwargs):
+    async def wrapper(*args, **kwargs):
         result = []
         try:
-            conn = sqlite3.connect(str(pathlib.PurePath(ConfigUtils.get_project_root(), settings.SQLITE_FILENAME)))
-            cur = conn.cursor()
-            result = func(cur, *args, **kwargs)
-        except sqlite3.Error as e:
-            print("SQLite3 Error: ", e)
+            conn = await aiosqlite.connect(str(pathlib.PurePath(ConfigUtils.get_project_root(), settings.SQLITE_FILENAME)))
+            cur = await conn.cursor()
+            result = await func(cur, *args, **kwargs)
+        except aiosqlite.Error as e:
+            print("aiosqlite Error: ", e)
         finally:
-            conn.commit()
-            conn.close()
+            await conn.commit()
+            await conn.close()
         return result
     return wrapper
+
+
