@@ -75,6 +75,11 @@ async def delete_user_by_tg_id(cur: aiosqlite.Cursor, telegram_id: int):
 
 
 @connect_to_db
+async def update_user_status(cur: sqlite3.Cursor, telegram_id: int):
+    await cur.execute(f'UPDATE users SET is_moderator = (?), is_approved = (?) WHERE telegram_id = ?', (1, 1, telegram_id))
+
+
+@connect_to_db
 async def update_user_by_id(cur: aiosqlite.Cursor, user_id: int, data: User):
     sql = '''UPDATE users SET (telegram_id, surname, name, patronymic, gender, photo, email, git, behance, tg_login, 
                             desired_department, skills, goals, lead_description, join_time, is_moderator,is_approved)=
@@ -108,8 +113,22 @@ async def update_user_by_department(cur: aiosqlite.Cursor, user_id: int, data: U
 
 
 @connect_to_db
-async def get_users_from_department(cur: aiosqlite.Cursor, department_id: int):
-    await cur.execute(f"SELECT * from users WHERE desired_department = {department_id};")  # unsafe
+async def get_users_from_department(cur: aiosqlite.Cursor, department_id: int):                 # useless for now
+    await cur.execute(f"SELECT * from users WHERE desired_department = {department_id};")
+    records = await cur.fetchall()
+    result = []
+    for rec in records:
+        data = new_user(user_id=rec[0], telegram_id=rec[1], surname=rec[2], name=rec[3], patronymic=rec[4],
+                        gender=rec[5], photo=rec[6], email=rec[7], git=rec[8], behance=rec[9],
+                        tg_login=rec[10], desired_department=rec[11], skills=rec[12], goals=rec[13],
+                        lead_description=rec[14], join_time=rec[15], is_moderator=rec[16], is_approved=rec[17])
+        result.append(data)
+    return result
+
+
+@connect_to_db
+async def get_users_from_department_name(cur: sqlite3.Cursor, department_name: str):
+    await cur.execute(f"SELECT * from users WHERE desired_department = ?;", (department_name, ))
     records = await cur.fetchall()
     result = []
     for rec in records:

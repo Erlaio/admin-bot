@@ -11,3 +11,6 @@
 - Создать .env файл и внести в него токен своего бота и имя базы данных, пример: env.example
 - Стартануть бота: python3 app.py
 
+## Сборка контейнера
+- docker-compose build
+- docker-compose up

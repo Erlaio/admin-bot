@@ -3,6 +3,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram.types import ReplyKeyboardRemove
 
 from keyboard.default import Keyboard
+from keyboard.default.keyboard import DepartmentButtonFactory
 from loader import dp
 from pkg.db.department_func import *
 from pkg.db.user_func import get_user_by_tg_id, update_user_department
@@ -55,16 +56,23 @@ async def moderator_choice(message: types.Message, state: FSMContext):
 @dp.message_handler(state=DepartmentStates.new_department)
 async def new_department(message: types.Message, state: FSMContext):
     department_name = message.text
-    add_new_department(department_name)
-    await message.answer(f'Отдел {department_name} создан')
-    await state.finish()
+    if await DepartmentButtonFactory.is_exist(department_name) is False:
+        add_new_department(department_name)
+        await DepartmentButtonFactory.add(department_name)
+        await message.answer(f'Отдел {department_name} создан')
+        await state.finish()
+    else:
+        await message.answer(f'Отдел {department_name} уже существует')
+        await state.finish()
 
 
 @dp.message_handler(state=DepartmentStates.delete_department)
 async def delete_department(message: types.Message, state: FSMContext):
-    if is_department_available(message.text):
+    department_name = message.text
+    if is_department_available(department_name) and await DepartmentButtonFactory.is_exist(department_name):
         update_user_department(message.text, 'EmptyDepartment')
         delete_department_by_name(message.text)
+        await DepartmentButtonFactory.delete(department_name)
         await message.answer(f'Отдел {message.text} удален')
         await state.finish()
     else:
@@ -87,9 +95,15 @@ async def get_new_department_name(message: types.Message, state: FSMContext):
 async def change_department_name(message: types.Message, state: FSMContext):
     old_name_dict = await state.get_data()
     old_name = old_name_dict.get('old_name', '')
-    update_department_name(old_name, message.text)
-    await message.answer(f'Отдел {old_name} переименован в {message.text}')
-    await state.finish()
+    if await DepartmentButtonFactory.is_exist(old_name):
+        new_name = message.text
+        update_department_name(old_name, new_name)
+        await DepartmentButtonFactory.rename(old_name=old_name, new_name=new_name)
+        await message.answer(f'Отдел {old_name} переименован в {new_name}')
+        await state.finish()
+    else:
+        await message.answer(f'{old_name} не существует')
+        await state.finish()
 
 
 @dp.message_handler(state=DepartmentStates.change_team_lead_name_get_name)

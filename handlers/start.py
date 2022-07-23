@@ -11,11 +11,12 @@ from aiogram.types import ReplyKeyboardRemove, ContentType
 
 from keyboard.default import button_value
 from keyboard.default.button_value import ButtonValue as button
-from keyboard.default.keyboard import Keyboard
+from keyboard.default.keyboard import Keyboard, DepartmentButtonFactory
 from loader import dp, bot
 from pkg.db.models.user import new_user
 from pkg.db.user_func import add_new_user, update_user_by_telegram_id, get_user_by_tg_login, delete_user_by_tg_id, \
-    get_user_by_tg_id
+    get_user_by_tg_id, update_user_status
+from pkg.settings import settings
 from states.start_state import StartState
 from utils.config_utils import ConfigUtils
 from utils.context_helper import ContextHelper
@@ -33,20 +34,20 @@ async def bot_start(message: types.Message):
 async def reading_rules(message: types.Message, state: FSMContext):
     answer = message.text
     if answer == button.READ_RULES:
-        rules = 'Приветствуем в Школе IT!'\
-                '\nДля того чтобы пройти дальше, нужно ознакомиться и согласиться с правилами Школы:\n\n'\
-                "1. Еженедельные встречи.\n"\
+        rules = 'Приветствуем в Школе IT!' \
+                '\nДля того чтобы пройти дальше, нужно ознакомиться и согласиться с правилами Школы:\n\n' \
+                "1. Еженедельные встречи.\n" \
                 "Каждую пятницу с 19:00 - 20:00 проходят очные встречи для жителей Москвы, территориально, в десяти" \
-                ' минутах от станции метро "Деловой центр".'\
+                ' минутах от станции метро "Деловой центр".' \
                 'Для жителей других городов, встречи проходят удалённо' \
-                ' (нужно подключиться к звонку в общей беседе "Школа IT")\n\n'\
-                '2. Личные карточки.\n'\
+                ' (нужно подключиться к звонку в общей беседе "Школа IT")\n\n' \
+                '2. Личные карточки.\n' \
                 'При вступлении в Школу необходимо заполнить личную карточку и отправить боту в дальнейшей беседе в' \
-                ' этом чате.\n\n'\
-                '3. Дедлайны\n'\
-                'В Школе введена система передоговоров.'\
-                'За день до дедлайна можно перенести дату.'\
-                'Переносы обсуждаются с тимлидом направления.'\
+                ' этом чате.\n\n' \
+                '3. Дедлайны\n' \
+                'В Школе введена система передоговоров.' \
+                'За день до дедлайна можно перенести дату.' \
+                'Переносы обсуждаются с тимлидом направления.' \
                 'Пример: дедлайн на задачу 18.07, передоговориться на по ней можно не позже 17.07.'
         await message.answer(rules, reply_markup=ReplyKeyboardRemove())
         await message.answer('Вы согласны с правилами?', reply_markup=Keyboard.AGREEMENT)
@@ -199,46 +200,47 @@ async def get_gitlab(message: types.Message, state: FSMContext):
     update_user_by_telegram_id(message.from_user.id, user)
     await ContextHelper.add_user(user, state)
     await message.answer('Введите вашу ссылку на gitlab 🌐')
-    await StartState.department.set()
+    await StartState.design.set()
+
+
+@dp.message_handler(state=StartState.design)
+async def design(message: types.Message, state: FSMContext):
+    answer = message.text
+    user = await ContextHelper.get_user(state)
+    user.git = answer
+    update_user_by_telegram_id(message.from_user.id, user)
+    await ContextHelper.add_user(user, state)
+    await message.answer('Вы дизайнер? 🎨', reply_markup=Keyboard.UNIVERSAL_CHOICE)
+    await StartState.decision_about_design.set()
 
 
 @dp.message_handler(state=StartState.department)
 async def get_department(message: types.Message, state: FSMContext):
     answer = message.text
     user = await ContextHelper.get_user(state)
-    user.git = answer
+    user.desired_department = answer
     update_user_by_telegram_id(message.from_user.id, user)
     await ContextHelper.add_user(user, state)
-    await message.answer('В какой бы отдел Вы хотели попасть?', reply_markup=Keyboard.DEPARTMENTS)
-    await StartState.decision_about_design.set()
-
-
-# @dp.message_handler(state=StartState.design)
-# async def design(message: types.Message, state: FSMContext):
-#     answer = message.text
-#     user = await ContextHelper.get_user(state)
-#     user.desired_department = answer
-#     update_user_by_telegram_id(message.from_user.id, user)
-#     await ContextHelper.add_user(user, state)
-#     await message.answer('Вы дизайнер? 🎨', reply_markup=Keyboard.UNIVERSAL_CHOICE)
-#     await StartState.decision_about_design.set()
+    await message.answer('Введите ваши навыки\n'
+                         'Например: Python, Postgresql, Git, FastAPI, Django, Go, aiogramm, asyncio',
+                         reply_markup=ReplyKeyboardRemove())
+    await StartState.goals.set()
 
 
 @dp.message_handler(state=StartState.decision_about_design)
 async def decision_about_design(message: types.Message, state: FSMContext):
     answer = message.text
     user = await ContextHelper.get_user(state)
-    user.desired_department = answer
-    update_user_by_telegram_id(message.from_user.id, user)
-    await ContextHelper.add_user(user, state)
-    if answer == button.DESIGN:
+    if answer == button.YES:
+        user.desired_department = 'Design'
+        update_user_by_telegram_id(message.from_user.id, user)
+        await ContextHelper.add_user(user, state)
         await message.answer('Введите вашу ссылку на беханс 🌐', reply_markup=ReplyKeyboardRemove())
         await StartState.get_skills.set()
-    elif answer in (button.FRONTEND, button.BACKEND, button.ML, button.DS, button.DESIGN, button.MOBILE_DEVELOPMENT):
-        await message.answer('Введите ваши навыки\nНапример: '
-                             'Python, Postgresql, Git, FastAPI, Django, Go, aiogramm, asyncio', 
-                             reply_markup=ReplyKeyboardRemove())
-        await StartState.goals.set()
+    elif answer == button.NO:
+        await message.answer('В какой бы отдел Вы хотели попасть?',
+                             reply_markup=DepartmentButtonFactory.DEPARTMENTS)
+        await StartState.department.set()
     else:
         await message.answer('Ошибка ввода! ⛔ \nВыберите один из предложенных вариантов')
         await StartState.decision_about_design.set()
@@ -251,8 +253,8 @@ async def get_skills(message: types.Message, state: FSMContext):
     user.behance = answer
     update_user_by_telegram_id(message.from_user.id, user)
     await ContextHelper.add_user(user, state)
-    await message.answer('Введите ваши навыки\nНапример: '
-                            'Python, Postgresql, Git, FastAPI, Django, Go, aiogramm, asyncio')
+    await message.answer('Введите ваши навыки\n'
+                         'Например: Python, Postgresql, Git, FastAPI, Django, Go, aiogramm, asyncio')
     await StartState.goals.set()
 
 
@@ -264,7 +266,7 @@ async def get_goals(message: types.Message, state: FSMContext):
     update_user_by_telegram_id(message.from_user.id, user)
     await ContextHelper.add_user(user, state)
     await message.answer('Введите ваши цели\n'
-                        '1. Основные ожидания от школы: ...\n2. Вектор, куда ты хочешь развиваться: ...')
+                         '1. Основные ожидания от школы: ...\n2. Вектор, куда ты хочешь развиваться:')
     await StartState.finish_questions.set()
 
 
@@ -292,7 +294,22 @@ async def check_questionnaire(message: types.Message, state: FSMContext):
             await message.answer('Пока не одобрено',
                                  reply_markup=Keyboard.CHECK_ACCESS)
             await StartState.check_questionnaire.set()
+    elif answer == 'iammoder':
+        await message.answer('Введите ключ доступа', reply_markup=ReplyKeyboardRemove())
+        await StartState.get_moder.set()
     else:
         await message.answer('Чтобы проверить анкету нажмите на кнопку ниже',
                              reply_markup=Keyboard.CHECK_ACCESS)
+        await StartState.check_questionnaire.set()
+
+
+@dp.message_handler(state=StartState.get_moder)
+async def get_moder(message: types.Message, state: FSMContext):
+    answer = message.text
+    if answer == settings.SECRET_KEY:
+        update_user_status(message.from_user.id)
+        await message.answer('Ваша анкета одобрена и права модератора получены', reply_markup=ReplyKeyboardRemove())
+        await state.finish()
+    else:
+        await message.answer('Неверный ключ доступа')
         await StartState.check_questionnaire.set()
