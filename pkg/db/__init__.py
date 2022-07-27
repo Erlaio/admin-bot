@@ -57,4 +57,4 @@ async def create_database(cur: aiosqlite.Cursor):
         ''')
 
 
-asyncio.run(create_database())
+# asyncio.run(create_database())

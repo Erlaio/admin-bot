@@ -25,7 +25,7 @@ async def show_users_by_department(message: types.Message, state: FSMContext):
         departments = await DepartmentButtonFactory.get_departments()
         for department in departments:
             if answer == department:
-                data = get_users_from_department_name(department_name=department)
+                data = await get_users_from_department_name(department_name=department)
         if not data:
             await bot.send_message(message.chat.id, 'Никто не привязан к отделу', reply_markup=ReplyKeyboardRemove())
             await state.finish()

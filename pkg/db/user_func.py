@@ -75,7 +75,7 @@ async def delete_user_by_tg_id(cur: aiosqlite.Cursor, telegram_id: int):
 
 
 @connect_to_db
-async def update_user_status(cur: sqlite3.Cursor, telegram_id: int):
+async def update_user_status(cur: aiosqlite.Cursor, telegram_id: int):
     await cur.execute(f'UPDATE users SET is_moderator = (?), is_approved = (?) WHERE telegram_id = ?', (1, 1, telegram_id))
 
 
@@ -127,7 +127,7 @@ async def get_users_from_department(cur: aiosqlite.Cursor, department_id: int): 
 
 
 @connect_to_db
-async def get_users_from_department_name(cur: sqlite3.Cursor, department_name: str):
+async def get_users_from_department_name(cur: aiosqlite.Cursor, department_name: str):
     await cur.execute(f"SELECT * from users WHERE desired_department = ?;", (department_name, ))
     records = await cur.fetchall()
     result = []

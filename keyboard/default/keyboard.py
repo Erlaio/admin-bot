@@ -1,7 +1,10 @@
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+import asyncio
 
+import app
 from keyboard.default.button_value import ButtonValue as button
 from pkg.db.department_func import get_all_departments
+from app import Departments
 
 
 class Keyboard:
@@ -107,7 +110,10 @@ class Keyboard:
 
 
 class DepartmentButtonFactory:
-    departments_from_bd = get_all_departments()
+    # res = asyncio.get_event_loop()
+    # res.create_task()
+    print("class", app.Departments)
+    departments_from_bd = app.Departments # asyncio.run(get_all_departments())
     DEPARTMENTS = ReplyKeyboardMarkup(
         resize_keyboard=True,
         keyboard=[[KeyboardButton(text='Без отдела')]],

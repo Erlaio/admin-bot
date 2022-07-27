@@ -66,7 +66,7 @@ async def reading_rules(message: types.Message, state: FSMContext):
 async def decision_about_rules(message: types.Message, state: FSMContext):
     answer = message.text
     if answer == button.AGREE_WITH_RULES:
-        if get_user_by_tg_id(tg_id=message.from_user.id) is None:
+        if await get_user_by_tg_id(tg_id=message.from_user.id) is None:
             await message.answer('Введите ваше ФИО 🖊', reply_markup=ReplyKeyboardRemove())
             await StartState.gender.set()
         else:
@@ -88,7 +88,7 @@ async def update_info(message: types.Message):
     if answer == button.YES:
         await message.answer('Введите ваше ФИО 🖊', reply_markup=ReplyKeyboardRemove())
         tg_id = message.from_user.id
-        delete_user_by_tg_id(telegram_id=tg_id)
+        await delete_user_by_tg_id(telegram_id=tg_id)
         await StartState.gender.set()
     elif answer == button.NO:
         await message.answer('Хотите проверить Вашу анкету?', reply_markup=Keyboard.UNIVERSAL_CHOICE)
@@ -122,7 +122,7 @@ async def get_user_gender(message: types.Message, state: FSMContext):
         user.patronymic = splitted_full_name[2]
     except IndexError:
         user.patronymic = ""
-    add_new_user(user)
+    await add_new_user(user)
     await ContextHelper.add_user(user, state)
     await message.answer('Введите ваш пол', reply_markup=Keyboard.GENDER)
     await StartState.photo.set()
@@ -136,13 +136,13 @@ async def ask_about_photo(message: types.Message, state: FSMContext):
     user = await ContextHelper.get_user(state)
     if answer == button.MALE_GENDER:
         user.gender = "Мужской"
-        update_user_by_telegram_id(message.from_user.id, user)
+        await update_user_by_telegram_id(message.from_user.id, user)
         await ContextHelper.add_user(user, state)
         await message.answer(message_text, reply_markup=reply_markup)
         await StartState.decision_about_photo.set()
     elif answer == button.FEMALE_GENDER:
         user.gender = "Женский"
-        update_user_by_telegram_id(message.from_user.id, user)
+        await update_user_by_telegram_id(message.from_user.id, user)
         await ContextHelper.add_user(user, state)
         await message.answer(message_text, reply_markup=reply_markup)
         await StartState.decision_about_photo.set()
@@ -183,7 +183,7 @@ async def upload_photo(message: types.Message, state: FSMContext):
             await StartState.upload_photo.set()
         else:
             user.photo = file.read()
-            update_user_by_telegram_id(message.from_user.id, user)
+            await update_user_by_telegram_id(message.from_user.id, user)
             await ContextHelper.add_user(user, state)
             await message.answer('Спасибо!')
             await message.answer('Введите вашу почту 📧')
@@ -197,7 +197,7 @@ async def get_gitlab(message: types.Message, state: FSMContext):
     answer = message.text
     user = await ContextHelper.get_user(state)
     user.email = answer
-    update_user_by_telegram_id(message.from_user.id, user)
+    await update_user_by_telegram_id(message.from_user.id, user)
     await ContextHelper.add_user(user, state)
     await message.answer('Введите вашу ссылку на gitlab 🌐')
     await StartState.design.set()
@@ -208,7 +208,7 @@ async def design(message: types.Message, state: FSMContext):
     answer = message.text
     user = await ContextHelper.get_user(state)
     user.git = answer
-    update_user_by_telegram_id(message.from_user.id, user)
+    await update_user_by_telegram_id(message.from_user.id, user)
     await ContextHelper.add_user(user, state)
     await message.answer('Вы дизайнер? 🎨', reply_markup=Keyboard.UNIVERSAL_CHOICE)
     await StartState.decision_about_design.set()
@@ -219,7 +219,7 @@ async def get_department(message: types.Message, state: FSMContext):
     answer = message.text
     user = await ContextHelper.get_user(state)
     user.desired_department = answer
-    update_user_by_telegram_id(message.from_user.id, user)
+    await update_user_by_telegram_id(message.from_user.id, user)
     await ContextHelper.add_user(user, state)
     await message.answer('Введите ваши навыки\n'
                          'Например: Python, Postgresql, Git, FastAPI, Django, Go, aiogramm, asyncio',
@@ -233,7 +233,7 @@ async def decision_about_design(message: types.Message, state: FSMContext):
     user = await ContextHelper.get_user(state)
     if answer == button.YES:
         user.desired_department = 'Design'
-        update_user_by_telegram_id(message.from_user.id, user)
+        await update_user_by_telegram_id(message.from_user.id, user)
         await ContextHelper.add_user(user, state)
         await message.answer('Введите вашу ссылку на беханс 🌐', reply_markup=ReplyKeyboardRemove())
         await StartState.get_skills.set()
@@ -251,7 +251,7 @@ async def get_skills(message: types.Message, state: FSMContext):
     answer = message.text
     user = await ContextHelper.get_user(state)
     user.behance = answer
-    update_user_by_telegram_id(message.from_user.id, user)
+    await update_user_by_telegram_id(message.from_user.id, user)
     await ContextHelper.add_user(user, state)
     await message.answer('Введите ваши навыки\n'
                          'Например: Python, Postgresql, Git, FastAPI, Django, Go, aiogramm, asyncio')
@@ -263,7 +263,7 @@ async def get_goals(message: types.Message, state: FSMContext):
     answer = message.text
     user = await ContextHelper.get_user(state)
     user.skills = answer
-    update_user_by_telegram_id(message.from_user.id, user)
+    await update_user_by_telegram_id(message.from_user.id, user)
     await ContextHelper.add_user(user, state)
     await message.answer('Введите ваши цели\n'
                          '1. Основные ожидания от школы: ...\n2. Вектор, куда ты хочешь развиваться:')
@@ -275,7 +275,7 @@ async def finish_questions(message: types.Message, state: FSMContext):
     answer = message.text
     user = await ContextHelper.get_user(state)
     user.goals = answer
-    update_user_by_telegram_id(message.from_user.id, user)
+    await update_user_by_telegram_id(message.from_user.id, user)
     await ContextHelper.add_user(user, state)
     await message.answer('Ваша анкета отправлена на проверку. Пока ее не проверят функционал бота не доступен',
                          reply_markup=Keyboard.CHECK_ACCESS)
@@ -286,7 +286,7 @@ async def finish_questions(message: types.Message, state: FSMContext):
 async def check_questionnaire(message: types.Message, state: FSMContext):
     answer = message.text
     if answer == button.CHECK_ACCESS:
-        user = get_user_by_tg_login(f'@{message.from_user.username}')
+        user = await get_user_by_tg_login(f'@{message.from_user.username}')
         if user.is_approved:
             await message.answer('Поздравляем', reply_markup=ReplyKeyboardRemove())
             await state.finish()
@@ -307,7 +307,7 @@ async def check_questionnaire(message: types.Message, state: FSMContext):
 async def get_moder(message: types.Message, state: FSMContext):
     answer = message.text
     if answer == settings.SECRET_KEY:
-        update_user_status(message.from_user.id)
+        await update_user_status(message.from_user.id)
         await message.answer('Ваша анкета одобрена и права модератора получены', reply_markup=ReplyKeyboardRemove())
         await state.finish()
     else:
