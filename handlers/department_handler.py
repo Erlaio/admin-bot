@@ -2,8 +2,8 @@ from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.types import ReplyKeyboardRemove
 
-from keyboard.default import Keyboard
-from keyboard.default.keyboard import DepartmentButtonFactory
+from keyboard.default import *
+from keyboard.default.keyboard import *
 from loader import dp
 from pkg.db.department_func import *
 from pkg.db.user_func import get_user_by_tg_id, update_user_department
@@ -17,7 +17,7 @@ async def start_handler(message: types.Message, state: FSMContext):
         user = get_user_by_tg_id(message.from_user.id)
         if user.is_moderator:
             await message.answer('Что вы хотите сделать?',
-                                 reply_markup=Keyboard.DEPARTMENTS_COMMANDS)
+                                 reply_markup=DepartmentCommands.KEYBOARD)
             await DepartmentStates.moderator_choice.set()
         else:
             await message.answer('Вы не модератор',
@@ -56,9 +56,9 @@ async def moderator_choice(message: types.Message, state: FSMContext):
 @dp.message_handler(state=DepartmentStates.new_department)
 async def new_department(message: types.Message, state: FSMContext):
     department_name = message.text
-    if await DepartmentButtonFactory.is_exist(department_name) is False:
+    if await DepartmentsKeyboard.is_exist(department_name) is False:
         add_new_department(department_name)
-        await DepartmentButtonFactory.add(department_name)
+        await DepartmentsKeyboard.add(department_name)
         await message.answer(f'Отдел {department_name} создан')
         await state.finish()
     else:
@@ -69,10 +69,10 @@ async def new_department(message: types.Message, state: FSMContext):
 @dp.message_handler(state=DepartmentStates.delete_department)
 async def delete_department(message: types.Message, state: FSMContext):
     department_name = message.text
-    if is_department_available(department_name) and await DepartmentButtonFactory.is_exist(department_name):
+    if is_department_available(department_name) and await DepartmentsKeyboard.is_exist(department_name):
         update_user_department(message.text, 'EmptyDepartment')
         delete_department_by_name(message.text)
-        await DepartmentButtonFactory.delete(department_name)
+        await DepartmentsKeyboard.delete(department_name)
         await message.answer(f'Отдел {message.text} удален')
         await state.finish()
     else:
@@ -95,10 +95,10 @@ async def get_new_department_name(message: types.Message, state: FSMContext):
 async def change_department_name(message: types.Message, state: FSMContext):
     old_name_dict = await state.get_data()
     old_name = old_name_dict.get('old_name', '')
-    if await DepartmentButtonFactory.is_exist(old_name):
+    if await DepartmentsKeyboard.is_exist(old_name):
         new_name = message.text
         update_department_name(old_name, new_name)
-        await DepartmentButtonFactory.rename(old_name=old_name, new_name=new_name)
+        await DepartmentsKeyboard.rename(old_name=old_name, new_name=new_name)
         await message.answer(f'Отдел {old_name} переименован в {new_name}')
         await state.finish()
     else:

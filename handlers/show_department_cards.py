@@ -2,7 +2,7 @@ from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.types import ReplyKeyboardRemove
 
-from keyboard.default import Keyboard, DepartmentButtonFactory
+from keyboard.default import *
 from keyboard.default.button_value import ButtonValue as button
 from loader import dp, bot
 from pkg.db.user_func import get_users_from_department, get_users_from_department_name
@@ -13,16 +13,16 @@ from utils.send_card import send_card
 @dp.message_handler(commands="show_department_cards")
 async def show_user_by_department_start(message: types.Message):
     text = 'Выберите отдел для вывода'
-    await message.answer(text, reply_markup=DepartmentButtonFactory.DEPARTMENTS)
+    await message.answer(text, reply_markup=DepartmentsKeyboard.KEYBOARD)
     await UserCardState.show_departments.set()
 
 
 @dp.message_handler(state=UserCardState.show_departments)
 async def show_users_by_department(message: types.Message, state: FSMContext):
     answer = message.text
-    if await DepartmentButtonFactory.is_exist(answer):
+    if await DepartmentsKeyboard.is_exist(answer):
         data = None
-        departments = await DepartmentButtonFactory.get_departments()
+        departments = await DepartmentsKeyboard.get_departments()
         for department in departments:
             if answer == department:
                 data = get_users_from_department_name(department_name=department)

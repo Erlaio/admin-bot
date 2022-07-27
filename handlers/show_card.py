@@ -2,7 +2,7 @@ from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.types import ReplyKeyboardRemove
 
-from keyboard.default import Keyboard
+from keyboard.default import *
 from loader import dp
 from pkg.db.user_func import get_user_by_id, get_all_users, get_user_by_tg_login
 from states.show_user_state import UserCardState
@@ -12,7 +12,7 @@ from utils.send_card import send_card
 @dp.message_handler(commands="show_card")
 async def show_user_start(message: types.Message):
     text = 'Вы хотите посмотреть всех пользователей или кого-то конкретного?'
-    await message.answer(text, reply_markup=Keyboard.SHOW_USER)
+    await message.answer(text, reply_markup=ShowUserKeyboard.KEYBOARD)
     await UserCardState.show_user_choice.set()
 
 

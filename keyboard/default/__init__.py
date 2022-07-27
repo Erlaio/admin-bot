@@ -1,3 +1,3 @@
-from .keyboard import Keyboard, DepartmentButtonFactory
+from .keyboard import *
 
 
