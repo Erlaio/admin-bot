@@ -26,7 +26,7 @@ from utils.context_helper import ContextHelper
 async def bot_start(message: types.Message):
     text = 'Приветствую! 👋 \nЭто телеграм бот "Школа IT". Чтобы продолжить наше общение, тебе нужно будет ' \
            'прочесть наши правила и согласиться с ними :)'
-    await message.answer(text, reply_markup=ChoiceKeyboard.CHOICE)
+    await message.answer(text, reply_markup=ChoiceKeyboard.KEYBOARD)
     await StartState.rules.set()
 
 
@@ -50,7 +50,7 @@ async def reading_rules(message: types.Message, state: FSMContext):
                 'Переносы обсуждаются с тимлидом направления.' \
                 'Пример: дедлайн на задачу 18.07, передоговориться на по ней можно не позже 17.07.'
         await message.answer(rules, reply_markup=ReplyKeyboardRemove())
-        await message.answer('Вы согласны с правилами?', reply_markup=AgreementKeyboard.AGREEMENT)
+        await message.answer('Вы согласны с правилами?', reply_markup=AgreementKeyboard.KEYBOARD)
         await StartState.decision.set()
     elif answer == button.DONT_READ_RULES:
         await message.answer('Очень жаль что наше с тобой общение подходит к концу 😔\nЕсли же ты передумаешь,'
