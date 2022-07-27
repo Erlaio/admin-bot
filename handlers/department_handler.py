@@ -2,8 +2,8 @@ from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.types import ReplyKeyboardRemove
 
-from keyboard.default import *
-from keyboard.default.keyboard import *
+from keyboard.default.department_commands_keyboard import DepartmentCommandsKeyboard
+from keyboard.default.departments_keyboard import DepartmentsKeyboard
 from loader import dp
 from pkg.db.department_func import *
 from pkg.db.user_func import get_user_by_tg_id, update_user_department
@@ -17,7 +17,7 @@ async def start_handler(message: types.Message, state: FSMContext):
         user = get_user_by_tg_id(message.from_user.id)
         if user.is_moderator:
             await message.answer('Что вы хотите сделать?',
-                                 reply_markup=DepartmentCommands.KEYBOARD)
+                                 reply_markup=DepartmentCommandsKeyboard.KEYBOARD)
             await DepartmentStates.moderator_choice.set()
         else:
             await message.answer('Вы не модератор',
