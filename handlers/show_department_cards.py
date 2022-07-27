@@ -2,10 +2,9 @@ from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.types import ReplyKeyboardRemove
 
-from keyboard.default import *
-from keyboard.default.button_value import ButtonValue as button
+from keyboard.default.departments_keyboard import DepartmentsKeyboard
 from loader import dp, bot
-from pkg.db.user_func import get_users_from_department, get_users_from_department_name
+from pkg.db.user_func import get_users_from_department_name
 from states.show_user_state import UserCardState
 from utils.send_card import send_card
 
