@@ -2,7 +2,7 @@ from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.types import ReplyKeyboardRemove
 
-from keyboard.default.project_commands_keyboard import ProjectCommandsKeyboard
+from keyboard.default.keyboards import ProjectCommandsKeyboard
 from loader import dp
 from pkg.db.project_func import *
 from pkg.db.user_func import get_user_by_tg_id
@@ -16,7 +16,7 @@ async def start_handler(message: types.Message, state: FSMContext):
         user = get_user_by_tg_id(message.from_user.id)
         if user.is_moderator:
             await message.answer('Что вы хотите сделать?',
-                                 reply_markup=ProjectCommandsKeyboard.KEYBOARD)
+                                 reply_markup=ProjectCommandsKeyboard.get_reply_keyboard())
             await ProjectStates.moderator_choice.set()
         else:
             await message.answer('Вы не модератор',
@@ -30,19 +30,19 @@ async def start_handler(message: types.Message, state: FSMContext):
 @dp.message_handler(state=ProjectStates.moderator_choice)
 async def moderator_choice(message: types.Message, state: FSMContext):
     answer = message.text
-    if answer == 'Создать новый проект':
+    if answer == ProjectCommandsKeyboard.CREATE_PROJECT:
         await message.answer('Введите название проекта который хотите создать',
                              reply_markup=ReplyKeyboardRemove())
         await ProjectStates.new_project.set()
-    elif answer == 'Удалить проект':
+    elif answer == ProjectCommandsKeyboard.DELETE_PROJECT:
         await message.answer('Введите название проекта который хотите удалить',
                              reply_markup=ReplyKeyboardRemove())
         await ProjectStates.delete_project.set()
-    elif answer == 'Сменить имя проекта':
+    elif answer == ProjectCommandsKeyboard.CHANGE_PROJECT_NAME:
         await message.answer('Введите название проекта который хотите поменять',
                              reply_markup=ReplyKeyboardRemove())
         await ProjectStates.change_project_name_get_name.set()
-    elif answer == 'Сменить/добавить тим лида проекта':
+    elif answer == ProjectCommandsKeyboard.CHANGE_PROJECT_LEAD:
         await message.answer('Введите название проекта тим лидера которого вы хотите поменять',
                              reply_markup=ReplyKeyboardRemove())
         await ProjectStates.change_team_lead_name_get_name.set()
