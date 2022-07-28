@@ -19,5 +19,5 @@ class StartState(StatesGroup):
     finish_questions = State()
     check_questionnaire = State()
     update_info = State()
-    choise = State()
+    choice = State()
     get_moder = State()

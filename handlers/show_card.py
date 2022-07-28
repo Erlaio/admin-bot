@@ -2,7 +2,7 @@ from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.types import ReplyKeyboardRemove
 
-from keyboard.default.show_user_keyboard import ShowUserKeyboard
+from keyboard.default.keyboards import ShowUserKeyboard
 from loader import dp
 from pkg.db.user_func import get_user_by_id, get_all_users, get_user_by_tg_login
 from states.show_user_state import UserCardState
@@ -12,14 +12,14 @@ from utils.send_card import send_card
 @dp.message_handler(commands="show_card")
 async def show_user_start(message: types.Message):
     text = 'Вы хотите посмотреть всех пользователей или кого-то конкретного?'
-    await message.answer(text, reply_markup=ShowUserKeyboard.KEYBOARD)
+    await message.answer(text, reply_markup=ShowUserKeyboard.get_reply_keyboard())
     await UserCardState.show_user_choice.set()
 
 
 @dp.message_handler(state=UserCardState.show_user_choice)
 async def show_user_choice(message: types.Message, state: FSMContext):
     answer = message.text
-    if answer == 'Посмотреть всех':
+    if answer == ShowUserKeyboard.VIEW_ALL:
         user_list = get_all_users()
         if user_list:
             for i_user in user_list:
@@ -30,11 +30,11 @@ async def show_user_choice(message: types.Message, state: FSMContext):
                                  reply_markup=ReplyKeyboardRemove())
             await state.finish()
 
-    elif answer == 'Посмотреть по ID':
+    elif answer == ShowUserKeyboard.VIEW_ID:
         await message.answer('Введите id', reply_markup=ReplyKeyboardRemove())
         await UserCardState.user_id.set()
 
-    elif answer == 'Посмотреть по Логину в Telegram':
+    elif answer == ShowUserKeyboard.VIEW_TG_LOGIN:
         await message.answer('Введите логин Telegram', reply_markup=ReplyKeyboardRemove())
         await UserCardState.user_tg_login.set()
 
