@@ -6,7 +6,7 @@ from pkg.db.models.user import User
 from loader import bot
 
 
-async def send_card(message: types.Message, user: User) -> None:
+async def send_card(message: types.Message, user: User, reply_markup=ReplyKeyboardRemove()) -> None:
     caption = f'ФИО: {user.surname} {user.name} {user.patronymic}\n' \
               f'Пол: {user.gender}\n' \
               f'Логин в Telegram: {user.tg_login}\n' \
@@ -21,7 +21,7 @@ async def send_card(message: types.Message, user: User) -> None:
         caption += 'Модератор\n'
     try:
         await bot.send_photo(message.chat.id, user.photo, caption=caption,
-                             reply_markup=ReplyKeyboardRemove())
+                             reply_markup=reply_markup)
     except BadRequest:
         await message.answer(caption + '\nФото отсутствует в бд',
-                             reply_markup=ReplyKeyboardRemove())
+                             reply_markup=reply_markup)
