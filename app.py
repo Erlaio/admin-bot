@@ -1,7 +1,10 @@
 from utils.set_bot_commands import set_default_commands
+from keyboard.default.keyboard import DepartmentButtonFactory
 
 
 async def on_startup(dp):
+    print("Start Bot")
+    await DepartmentButtonFactory.read_departments()
     await set_default_commands(dp)
 
 

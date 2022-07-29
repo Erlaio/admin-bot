@@ -20,8 +20,8 @@ async def show_user_by_department_start(message: types.Message):
 @dp.message_handler(state=UserCardState.show_departments)
 async def show_users_by_department(message: types.Message, state: FSMContext):
     department_name = message.text
-    if is_department_available(department_name):
-        data = get_users_from_department_name(department_name=department_name)
+    if await is_department_available(department_name):
+        data = await get_users_from_department_name(department_name=department_name)
         if not data:
             await bot.send_message(message.chat.id, 'Никто не привязан к отделу', reply_markup=ReplyKeyboardRemove())
         for user in data:

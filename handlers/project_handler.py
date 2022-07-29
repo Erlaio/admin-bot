@@ -13,7 +13,7 @@ from utils.check_is_available import is_project_available
 @dp.message_handler(commands='project')
 async def start_handler(message: types.Message, state: FSMContext):
     try:
-        user = get_user_by_tg_id(message.from_user.id)
+        user = await get_user_by_tg_id(message.from_user.id)
         if user.is_moderator:
             await message.answer('Что вы хотите сделать?',
                                  reply_markup=ProjectCommandsKeyboard.get_reply_keyboard())
