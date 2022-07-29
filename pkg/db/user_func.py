@@ -145,6 +145,20 @@ def update_user_department(cur: sqlite3.Cursor, old_name: str, new_name: str) ->
     cur.execute("UPDATE users SET (desired_department) = (?) WHERE desired_department = ?", (new_name, old_name))
 
 
+@connect_to_db
+def get_unapproved_users(cur: sqlite3.Cursor):
+    cur.execute(f"SELECT * from users WHERE is_approved = ?", (0, ))
+    records = cur.fetchall()
+    result = []
+    for rec in records:
+        data = new_user(user_id=rec[0], telegram_id=rec[1], surname=rec[2], name=rec[3], patronymic=rec[4],
+                        gender=rec[5], photo=rec[6], email=rec[7], git=rec[8], behance=rec[9],
+                        tg_login=rec[10], desired_department=rec[11], skills=rec[12], goals=rec[13],
+                        lead_description=rec[14], join_time=rec[15])
+        result.append(data)
+    return result
+
+
 # @connect_to_db                                                                # useless for now
 # def get_department_name(cur: sqlite3.Cursor, department_id: int):
 #     cur.execute(f"SELECT department FROM departments WHERE department_id = {department_id}")
