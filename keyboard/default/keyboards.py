@@ -7,14 +7,14 @@ from .button_factory import ButtonFactory
 class DepartmentsKeyboard(ButtonFactory):
 
     @classmethod
-    def __get_department(cls) -> None:
-        all_departments = get_all_departments()
+    async def __get_department(cls) -> None:
+        all_departments = await get_all_departments()
         for department in all_departments:
             setattr(cls, department.department.upper(), department.department)
 
     @classmethod
-    def get_reply_keyboard(cls) -> ReplyKeyboardMarkup:
-        cls.__get_department()
+    async def get_reply_keyboard(cls) -> ReplyKeyboardMarkup:
+        await cls.__get_department()
         return super().get_reply_keyboard()
 
 
