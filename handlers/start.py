@@ -14,6 +14,7 @@ from pkg.settings import settings
 from states.start_state import StartState
 from utils.config_utils import ConfigUtils
 from utils.context_helper import ContextHelper
+from utils.get_name import get_fio
 
 
 @dp.message_handler(CommandStart())
@@ -116,24 +117,21 @@ async def questionnaire_choice(message: types.Message, state: FSMContext):
 @dp.message_handler(state=StartState.gender)
 async def get_user_gender(message: types.Message, state: FSMContext):
     answer = message.text
-    splitted_full_name = answer.split(" ")
-    user = new_user()
-    user.telegram_id = message.from_user.id
-    user.tg_login = f"@{message.from_user.username}"
-    user.surname = splitted_full_name[0]
-    try:
-        user.name = splitted_full_name[1]
-    except IndexError:
-        user.name = ""
-    try:
-        user.patronymic = splitted_full_name[2]
-    except IndexError:
-        user.patronymic = ""
-    add_new_user(user)
-    await ContextHelper.add_user(user, state)
-    await message.answer('Введите ваш пол',
-                         reply_markup=GenderKeyboard.get_reply_keyboard())
-    await StartState.photo.set()
+    surname, name, patronymic = get_fio(answer)
+    if name.isalpha():
+        user = new_user()
+        user.telegram_id = message.from_user.id
+        user.tg_login = f"@{message.from_user.username}"
+        user.surname, user.name, user.patronymic = surname, name, patronymic
+        add_new_user(user)
+        await ContextHelper.add_user(user, state)
+        await message.answer('Введите ваш пол',
+                             reply_markup=GenderKeyboard.get_reply_keyboard())
+        await StartState.photo.set()
+    else:
+        await message.answer('Необходимо ввести ФИО\nПример: Иванов Иван Иванович\n'
+                             'Можно не указывать фамилию или отчество\nИмя указывать обязательно.')
+        await StartState.gender.set()
 
 
 @dp.message_handler(state=StartState.photo)
