@@ -26,7 +26,7 @@ async def show_users_by_department(message: types.Message, state: FSMContext):
             await bot.send_message(message.chat.id, 'Никто не привязан к отделу',
                                    reply_markup=ReplyKeyboardRemove())
         for user in data:
-            await send_card(message, user)
+            await send_card(message.chat.id, user)
         await state.finish()
     else:
         await bot.send_message(message.chat.id, 'Такой отдел не найден.',

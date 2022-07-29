@@ -55,7 +55,7 @@ async def moderator_choice(message: types.Message, state: FSMContext):
 @dp.message_handler(state=ProjectStates.new_project)
 async def new_department(message: types.Message, state: FSMContext):
     project_name = message.text
-    add_new_project(project_name)
+    await add_new_project(project_name)
     await message.answer(f'Проект "{project_name}" создан')
     await state.finish()
 
@@ -63,7 +63,7 @@ async def new_department(message: types.Message, state: FSMContext):
 @dp.message_handler(state=ProjectStates.delete_project)
 async def delete_department(message: types.Message, state: FSMContext):
     if is_project_available(message.text):
-        delete_project_by_name(message.text)
+        await delete_project_by_name(message.text)
         await message.answer(f'Проект "{message.text}" удален')
         await state.finish()
     else:
@@ -86,7 +86,7 @@ async def get_new_department_name(message: types.Message, state: FSMContext):
 async def change_department_name(message: types.Message, state: FSMContext):
     old_name_dict = await state.get_data()
     old_name = old_name_dict.get('old_name', '')
-    update_project_name(old_name, message.text)
+    await update_project_name(old_name, message.text)
     await message.answer(f'Проект "{old_name}" переименован в "{message.text}"')
     await state.finish()
 
@@ -106,6 +106,6 @@ async def get_new_team_lead_name(message: types.Message, state: FSMContext):
 async def change_team_lead_name(message: types.Message, state: FSMContext):
     project_name_dict = await state.get_data()
     project_name = project_name_dict.get('department', '')
-    attach_tl_to_project(project_name, message.text)
+    await attach_tl_to_project(project_name, message.text)
     await message.answer(f'К проекту "{project_name}" прикреплен Тим лид: "{message.text}"')
     await state.finish()

@@ -23,7 +23,7 @@ async def show_user_choice(message: types.Message, state: FSMContext):
         user_list = await get_all_users()
         if user_list:
             for i_user in user_list:
-                await send_card(message, i_user)
+                await send_card(message.chat.id, i_user)
             await state.finish()
         else:
             await message.answer('Пользователи отсутствуют',
@@ -44,7 +44,7 @@ async def show_user_by_id(message: types.Message, state: FSMContext):
     user_id = message.text
     try:
         user = await get_user_by_id(int(user_id))
-        await send_card(message, user)
+        await send_card(message.chat.id, user)
     except TypeError:
         await message.answer('Пользователь с таким id не найден.',
                              reply_markup=ReplyKeyboardRemove())
@@ -61,7 +61,7 @@ async def show_user_by_tg_login(message: types.Message, state: FSMContext):
     user_tg_login = message.text
     try:
         user = await get_user_by_tg_login(user_tg_login)
-        await send_card(message, user)
+        await send_card(message.chat.id, user)
     except TypeError:
         await message.answer('Пользователь с таким логином не найден.',
                              reply_markup=ReplyKeyboardRemove())

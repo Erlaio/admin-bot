@@ -1,6 +1,8 @@
-import aiosqlite
 import asyncio
 from typing import List
+
+import aiosqlite
+
 from pkg.db.db_connect_sqlite import connect_to_db
 from pkg.db.models.user import User, new_user
 
@@ -10,9 +12,12 @@ async def add_new_user(cur: aiosqlite.Cursor, data: User):
     sql = '''INSERT INTO users (telegram_id, surname, name, patronymic, gender, photo, email, git, behance, tg_login, 
                             desired_department, skills, goals, lead_description, join_time, is_moderator, is_approved)
                             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);'''
-    await cur.execute(sql, (data.telegram_id, data.surname, data.name, data.patronymic, data.gender, data.photo,
-                      data.email, data.git, data.behance, data.tg_login, data.desired_department, data.skills,
-                      data.goals, data.lead_description, data.join_time, data.is_moderator, data.is_approved))
+    await cur.execute(sql,
+                      (data.telegram_id, data.surname, data.name, data.patronymic, data.gender, data.photo,
+                       data.email, data.git, data.behance, data.tg_login, data.desired_department,
+                       data.skills,
+                       data.goals, data.lead_description, data.join_time, data.is_moderator,
+                       data.is_approved))
 
 
 @connect_to_db
@@ -59,7 +64,8 @@ async def get_all_users(cur: aiosqlite.Cursor) -> List[User]:
         data = new_user(user_id=rec[0], telegram_id=rec[1], surname=rec[2], name=rec[3], patronymic=rec[4],
                         gender=rec[5], photo=rec[6], email=rec[7], git=rec[8], behance=rec[9],
                         tg_login=rec[10], desired_department=rec[11], skills=rec[12], goals=rec[13],
-                        lead_description=rec[14], join_time=rec[15], is_moderator=rec[16], is_approved=rec[17])
+                        lead_description=rec[14], join_time=rec[15], is_moderator=rec[16],
+                        is_approved=rec[17])
         result.append(data)
     return result
 
@@ -76,7 +82,8 @@ async def delete_user_by_tg_id(cur: aiosqlite.Cursor, telegram_id: int):
 
 @connect_to_db
 async def update_user_status(cur: aiosqlite.Cursor, telegram_id: int):
-    await cur.execute(f'UPDATE users SET is_moderator = (?), is_approved = (?) WHERE telegram_id = ?', (1, 1, telegram_id))
+    await cur.execute(f'UPDATE users SET is_moderator = (?), is_approved = (?) WHERE telegram_id = ?',
+                      (1, 1, telegram_id))
 
 
 @connect_to_db
@@ -85,9 +92,11 @@ async def update_user_by_id(cur: aiosqlite.Cursor, user_id: int, data: User):
                             desired_department, skills, goals, lead_description, join_time, is_moderator,is_approved)=
                             (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) '''
     await cur.execute(sql + f"WHERE user_id={user_id}",
-                (data.telegram_id, data.surname, data.name, data.patronymic, data.gender, data.photo,
-                 data.email, data.git, data.behance, data.tg_login, data.desired_department, data.skills,
-                 data.goals, data.lead_description, data.join_time, data.is_moderator, data.is_approved))
+                      (data.telegram_id, data.surname, data.name, data.patronymic, data.gender, data.photo,
+                       data.email, data.git, data.behance, data.tg_login, data.desired_department,
+                       data.skills,
+                       data.goals, data.lead_description, data.join_time, data.is_moderator,
+                       data.is_approved))
 
 
 @connect_to_db
@@ -96,9 +105,11 @@ async def update_user_by_telegram_id(cur: aiosqlite.Cursor, telegram_id: int, da
                             desired_department, skills, goals, lead_description, join_time, is_moderator,is_approved)=
                             (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) '''
     await cur.execute(sql + f"WHERE telegram_id={telegram_id}",
-                (data.surname, data.name, data.patronymic, data.gender, data.photo,
-                 data.email, data.git, data.behance, data.tg_login, data.desired_department, data.skills,
-                 data.goals, data.lead_description, data.join_time, data.is_moderator, data.is_approved))
+                      (data.surname, data.name, data.patronymic, data.gender, data.photo,
+                       data.email, data.git, data.behance, data.tg_login, data.desired_department,
+                       data.skills,
+                       data.goals, data.lead_description, data.join_time, data.is_moderator,
+                       data.is_approved))
 
 
 @connect_to_db
@@ -107,13 +118,15 @@ async def update_user_by_department(cur: aiosqlite.Cursor, user_id: int, data: U
                             desired_department, skills, goals, lead_description, join_time, is_moderator,is_approved)=
                             (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) '''
     await cur.execute(sql + f"WHERE user_id={user_id}",
-                (data.telegram_id, data.surname, data.name, data.patronymic, data.gender, data.photo,
-                 data.email, data.git, data.behance, data.tg_login, data.desired_department, data.skills,
-                 data.goals, data.lead_description, data.join_time, data.is_moderator, data.is_approved))
+                      (data.telegram_id, data.surname, data.name, data.patronymic, data.gender, data.photo,
+                       data.email, data.git, data.behance, data.tg_login, data.desired_department,
+                       data.skills,
+                       data.goals, data.lead_description, data.join_time, data.is_moderator,
+                       data.is_approved))
 
 
 @connect_to_db
-async def get_users_from_department(cur: aiosqlite.Cursor, department_id: int):                 # useless for now
+async def get_users_from_department(cur: aiosqlite.Cursor, department_id: int):  # useless for now
     await cur.execute(f"SELECT * from users WHERE desired_department = {department_id};")
     records = await cur.fetchall()
     result = []
@@ -121,28 +134,38 @@ async def get_users_from_department(cur: aiosqlite.Cursor, department_id: int): 
         data = new_user(user_id=rec[0], telegram_id=rec[1], surname=rec[2], name=rec[3], patronymic=rec[4],
                         gender=rec[5], photo=rec[6], email=rec[7], git=rec[8], behance=rec[9],
                         tg_login=rec[10], desired_department=rec[11], skills=rec[12], goals=rec[13],
-                        lead_description=rec[14], join_time=rec[15], is_moderator=rec[16], is_approved=rec[17])
+                        lead_description=rec[14], join_time=rec[15], is_moderator=rec[16],
+                        is_approved=rec[17])
         result.append(data)
     return result
 
 
 @connect_to_db
 async def get_users_from_department_name(cur: aiosqlite.Cursor, department_name: str):
-    await cur.execute(f"SELECT * from users WHERE desired_department = ?;", (department_name, ))
+    await cur.execute(f"SELECT * from users WHERE desired_department = ?;", (department_name,))
     records = await cur.fetchall()
     result = []
     for rec in records:
         data = new_user(user_id=rec[0], telegram_id=rec[1], surname=rec[2], name=rec[3], patronymic=rec[4],
                         gender=rec[5], photo=rec[6], email=rec[7], git=rec[8], behance=rec[9],
                         tg_login=rec[10], desired_department=rec[11], skills=rec[12], goals=rec[13],
-                        lead_description=rec[14], join_time=rec[15], is_moderator=rec[16], is_approved=rec[17])
+                        lead_description=rec[14], join_time=rec[15], is_moderator=rec[16],
+                        is_approved=rec[17])
         result.append(data)
     return result
 
 
 @connect_to_db
+async def get_tg_id_if_moderator(cur: aiosqlite.Cursor):
+    await cur.execute(f"SELECT * from users WHERE is_moderator = 1;")
+    records = await cur.fetchall()
+    return [rec[1] for rec in records]
+
+
+@connect_to_db
 async def update_user_department(cur: aiosqlite.Cursor, old_name: str, new_name: str) -> None:
-    await cur.execute("UPDATE users SET (desired_department) = (?) WHERE desired_department = ?", (new_name, old_name))
+    await cur.execute("UPDATE users SET (desired_department) = (?) WHERE desired_department = ?",
+                      (new_name, old_name))
 
 
 if __name__ == '__main__':

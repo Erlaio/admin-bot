@@ -14,7 +14,9 @@ from pkg.settings import settings
 from states.start_state import StartState
 from utils.config_utils import ConfigUtils
 from utils.context_helper import ContextHelper
+from utils.get_moder_chat_id import ModeratorUtils
 from utils.get_name import get_fio
+from utils.send_card import send_card
 
 
 @dp.message_handler(CommandStart())
@@ -249,7 +251,7 @@ async def decision_about_design(message: types.Message, state: FSMContext):
         await StartState.get_skills.set()
     elif answer == YesNoKeyboard.NO:
         await message.answer('В какой бы отдел Вы хотели попасть?',
-                             reply_markup=DepartmentsKeyboard.get_reply_keyboard())
+                             reply_markup=await DepartmentsKeyboard.get_reply_keyboard())
         await StartState.department.set()
     else:
         await message.answer('Ошибка ввода! ⛔ \nВыберите один из предложенных вариантов')
@@ -292,6 +294,9 @@ async def finish_questions(message: types.Message, state: FSMContext):
     await message.answer('Ваша анкета отправлена на проверку. '
                          'Пока ее не проверят функционал бота не доступен',
                          reply_markup=CheckAccessKeyboard.get_reply_keyboard())
+    moder_chat_id = await ModeratorUtils().get_random_moder()
+    await bot.send_message(chat_id=moder_chat_id, text='Йо проверь карту пж')
+    await send_card(moder_chat_id, user)
     await StartState.check_questionnaire.set()
 
 
