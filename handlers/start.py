@@ -288,7 +288,8 @@ async def check_questionnaire(message: types.Message, state: FSMContext):
     if answer == button.CHECK_ACCESS:
         user = get_user_by_tg_login(f'@{message.from_user.username}')
         if user.is_approved:
-            await message.answer('Поздравляем', reply_markup=ReplyKeyboardRemove())
+            await message.answer('Поздравляем\n\nСсылка на общий чат:\nhttps://t.me/+qGGF9z5Jy8MwMDA8',
+                                 reply_markup=ReplyKeyboardRemove())
             await state.finish()
         else:
             await message.answer('Пока не одобрено',
@@ -308,7 +309,9 @@ async def get_moder(message: types.Message, state: FSMContext):
     answer = message.text
     if answer == settings.SECRET_KEY:
         update_user_status(message.from_user.id)
-        await message.answer('Ваша анкета одобрена и права модератора получены', reply_markup=ReplyKeyboardRemove())
+        await message.answer('Ваша анкета одобрена и права модератора получены'
+                             '\n\nСсылка на общий чат:\nhttps://t.me/+qGGF9z5Jy8MwMDA8',
+                             reply_markup=ReplyKeyboardRemove())
         await state.finish()
     else:
         await message.answer('Неверный ключ доступа')
