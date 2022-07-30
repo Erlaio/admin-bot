@@ -27,6 +27,7 @@ async def characters_page_callback(call):
 async def callback_query(call, state: FSMContext):
     req = call.data.split('_')
     if req[0] == 'approve':
+        # update_user_approve()
         pass
     elif req[0] == 'refilling':
         pass

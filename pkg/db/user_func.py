@@ -159,6 +159,10 @@ def get_unapproved_users(cur: sqlite3.Cursor):
     return result
 
 
+@connect_to_db
+def update_user_approve(cur: sqlite3.Cursor, user_id: int) -> None:
+    cur.execute("UPDATE users SET (is_approved) = (?) WHERE user_id = ?", (1, user_id))
+
 # @connect_to_db                                                                # useless for now
 # def get_department_name(cur: sqlite3.Cursor, department_id: int):
 #     cur.execute(f"SELECT department FROM departments WHERE department_id = {department_id}")
