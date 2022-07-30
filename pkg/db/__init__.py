@@ -1,12 +1,12 @@
-import sqlite3
-
+import aiosqlite
+import asyncio
 from .db_connect_sqlite import connect_to_db
 from .department_func import add_new_department
 
 
 @connect_to_db
-def create_database(cur: sqlite3.Cursor):
-    cur.executescript('''
+async def create_database(cur: aiosqlite.Cursor):
+    await cur.executescript('''
             /*  Table Users  */
         CREATE TABLE IF NOT EXISTS "users" (
             "user_id"	INTEGER NOT NULL UNIQUE,
@@ -57,4 +57,4 @@ def create_database(cur: sqlite3.Cursor):
         ''')
 
 
-create_database()
+# asyncio.run(create_database())
