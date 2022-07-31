@@ -1,5 +1,6 @@
 from aiogram import types
 from aiogram.dispatcher import FSMContext
+from aiogram.types import ReplyKeyboardRemove
 
 from keyboard.default.pagination import *
 
@@ -37,7 +38,7 @@ async def callback_query(call, state: FSMContext):
         await bot.send_message(call.message.chat.id, 'Пользователь удален')
         await characters_page_callback(call)
     elif req[0] == 'back':
-        await bot.send_message(call.message.chat.id, 'Возвращаю на главную')
+        await bot.send_message(call.message.chat.id, 'Возвращаю на главную', reply_markup=ReplyKeyboardRemove())
         await bot.delete_message(
             call.message.chat.id,
             call.message.message_id
