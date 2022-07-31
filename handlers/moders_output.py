@@ -54,9 +54,12 @@ async def send_character_page(message: types.Message, page=1):
     )
 
     paginator.add_before(
-        InlineKeyboardButton('Одобрить', callback_data='approve#{}'.format(page)),
-        InlineKeyboardButton('Перезаполнение', callback_data='refilling#{}'.format(page)),
-        InlineKeyboardButton('Удалить', callback_data='delete_user#{}'.format(page))
+        InlineKeyboardButton('Одобрить',
+                             callback_data='approve#{}#{}'.format(page, user_list[page - 1].user_id)),
+        InlineKeyboardButton('Перезаполнение',
+                             callback_data='refilling#{}#{}'.format(page, user_list[page - 1].user_id)),
+        InlineKeyboardButton('Удалить',
+                             callback_data='delete_user#{}#{}'.format(page, user_list[page - 1].user_id)),
     )
     paginator.add_after(InlineKeyboardButton('Go back', callback_data='back'))
 
