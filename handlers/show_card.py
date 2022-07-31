@@ -13,7 +13,7 @@ from utils.send_card import send_card
 @dp.message_handler(commands="show_card")
 async def show_user_start(message: types.Message):
     text = 'Вы хотите посмотреть всех пользователей или кого-то конкретного?'
-    await message.answer(text, reply_markup=ShowUserKeyboard.KEYBOARD)
+    await message.answer(text, reply_markup=ShowUserKeyboard.get_reply_keyboard())
     await UserCardState.show_user_choice.set()
 
 
@@ -24,11 +24,11 @@ async def show_user_choice(message: types.Message, state: FSMContext):
         await message.answer('Постраничный вывод всех пользователей', reply_markup=ReplyKeyboardRemove())
         await show_all(message, state)
 
-    elif answer == 'Посмотреть по ID':
+    elif answer == ShowUserKeyboard.VIEW_ID:
         await message.answer('Введите id', reply_markup=ReplyKeyboardRemove())
         await UserCardState.user_id.set()
 
-    elif answer == 'Посмотреть по Логину в Telegram':
+    elif answer == ShowUserKeyboard.VIEW_TG_LOGIN:
         await message.answer('Введите логин Telegram', reply_markup=ReplyKeyboardRemove())
         await UserCardState.user_tg_login.set()
 
@@ -69,8 +69,8 @@ async def show_all(message: types.Message, state: FSMContext, page=1):
 async def show_user_by_id(message: types.Message, state: FSMContext):
     user_id = message.text
     try:
-        user = get_user_by_id(int(user_id))
-        await send_card(message, user)
+        user = await get_user_by_id(int(user_id))
+        await send_card(message.chat.id, user)
     except TypeError:
         await message.answer('Пользователь с таким id не найден.',
                              reply_markup=ReplyKeyboardRemove())
@@ -86,8 +86,8 @@ async def show_user_by_id(message: types.Message, state: FSMContext):
 async def show_user_by_tg_login(message: types.Message, state: FSMContext):
     user_tg_login = message.text
     try:
-        user = get_user_by_tg_login(user_tg_login)
-        await send_card(message, user)
+        user = await get_user_by_tg_login(user_tg_login)
+        await send_card(message.chat.id, user)
     except TypeError:
         await message.answer('Пользователь с таким логином не найден.',
                              reply_markup=ReplyKeyboardRemove())

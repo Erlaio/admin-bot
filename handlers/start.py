@@ -7,29 +7,24 @@ from aiogram.dispatcher.filters.builtin import CommandStart
 from aiogram.dispatcher.storage import FSMContext
 from aiogram.types import ReplyKeyboardRemove, ContentType
 
-from keyboard.default.agreement_keyboard import AgreementKeyboard
-from keyboard.default.check_access_keyboard import CheckAccessKeyboard
-from keyboard.default.choice_keyboard import ChoiceKeyboard
-from keyboard.default.departments_keyboard import DepartmentsKeyboard
-from keyboard.default.gender_keyboard import GenderKeyboard
-from keyboard.default.photo_keyboard import PhotoKeyboard
-from keyboard.default.yes_no_keyboard import YesNoKeyboard
-
+from keyboard.default.keyboards import *
 from loader import dp, bot
-from pkg.db.models.user import new_user
-from pkg.db.user_func import add_new_user, update_user_by_telegram_id, get_user_by_tg_login, delete_user_by_tg_id, \
-    get_user_by_tg_id, update_user_status
+from pkg.db.user_func import *
 from pkg.settings import settings
 from states.start_state import StartState
 from utils.config_utils import ConfigUtils
 from utils.context_helper import ContextHelper
+from utils.get_moder_chat_id import ModeratorUtils
+from utils.get_name import get_fio
+from utils.send_card import send_card
 
 
 @dp.message_handler(CommandStart())
 async def bot_start(message: types.Message):
-    text = 'Приветствую! 👋 \nЭто телеграм бот "Школа IT". Чтобы продолжить наше общение, тебе нужно будет ' \
+    text = 'Приветствую! 👋 \nЭто телеграм бот "Школа IT". ' \
+           'Чтобы продолжить наше общение, тебе нужно будет ' \
            'прочесть наши правила и согласиться с ними :)'
-    await message.answer(text, reply_markup=ChoiceKeyboard.KEYBOARD)
+    await message.answer(text, reply_markup=ChoiceKeyboard.get_reply_keyboard())
     await StartState.rules.set()
 
 
@@ -38,14 +33,17 @@ async def reading_rules(message: types.Message, state: FSMContext):
     answer = message.text
     if answer == ChoiceKeyboard.READ_RULES:
         rules = 'Приветствуем в Школе IT!' \
-                '\nДля того чтобы пройти дальше, нужно ознакомиться и согласиться с правилами Школы:\n\n' \
+                '\nДля того чтобы пройти дальше, нужно ознакомиться и ' \
+                'согласиться с правилами Школы:\n\n' \
                 "1. Еженедельные встречи.\n" \
-                "Каждую пятницу с 19:00 - 20:00 проходят очные встречи для жителей Москвы, территориально, в десяти" \
+                "Каждую пятницу с 19:00 - 20:00 проходят очные встречи для " \
+                "жителей Москвы, территориально, в десяти" \
                 ' минутах от станции метро "Деловой центр".' \
                 'Для жителей других городов, встречи проходят удалённо' \
                 ' (нужно подключиться к звонку в общей беседе "Школа IT")\n\n' \
                 '2. Личные карточки.\n' \
-                'При вступлении в Школу необходимо заполнить личную карточку и отправить боту в дальнейшей беседе в' \
+                'При вступлении в Школу необходимо заполнить личную карточку ' \
+                'и отправить боту в дальнейшей беседе в' \
                 ' этом чате.\n\n' \
                 '3. Дедлайны\n' \
                 'В Школе введена система передоговоров.' \
@@ -53,12 +51,13 @@ async def reading_rules(message: types.Message, state: FSMContext):
                 'Переносы обсуждаются с тимлидом направления.' \
                 'Пример: дедлайн на задачу 18.07, передоговориться на по ней можно не позже 17.07.'
         await message.answer(rules, reply_markup=ReplyKeyboardRemove())
-        await message.answer('Вы согласны с правилами?', reply_markup=AgreementKeyboard.KEYBOARD)
+        await message.answer('Вы согласны с правилами?', reply_markup=AgreementKeyboard.get_reply_keyboard())
         await StartState.decision.set()
     elif answer == ChoiceKeyboard.DONT_READ_RULES:
-        await message.answer('Очень жаль что наше с тобой общение подходит к концу 😔\nЕсли же ты передумаешь,'
-                             'то я всегда тут)) Нужно лишь повторно вызвать команду /start',
-                             reply_markup=ReplyKeyboardRemove())
+        await message.answer(
+            'Очень жаль что наше с тобой общение подходит к концу 😔\nЕсли же ты передумаешь,'
+            'то я всегда тут)) Нужно лишь повторно вызвать команду /start',
+            reply_markup=ReplyKeyboardRemove())
         await state.reset_state()
     else:
         await message.answer('Ошибка ввода! ⛔ \nВыберите один из предложенных вариантов')
@@ -69,16 +68,19 @@ async def reading_rules(message: types.Message, state: FSMContext):
 async def decision_about_rules(message: types.Message, state: FSMContext):
     answer = message.text
     if answer == AgreementKeyboard.AGREE_WITH_RULES:
-        if get_user_by_tg_id(tg_id=message.from_user.id) is None:
-            await message.answer('Введите ваше ФИО 🖊', reply_markup=ReplyKeyboardRemove())
+        if await get_user_by_tg_id(tg_id=message.from_user.id) is None:
+            await message.answer('Введите ваше ФИО 🖊',
+                                 reply_markup=ReplyKeyboardRemove())
             await StartState.gender.set()
         else:
             await message.answer('Вы уже зарегестрированы в системе. Хотите обновить данные?',
-                                 reply_markup=YesNoKeyboard.KEYBOARD)
+                                 reply_markup=YesNoKeyboard.get_reply_keyboard())
             await StartState.update_info.set()
     elif answer == AgreementKeyboard.DONT_AGREE_WITH_RULES:
-        await message.answer('Жаль, что вас не устроили наши правила 😔\nВ любой момент, если передумаете, можете'
-                             'попробовать снова, для этого нажмите команду /start', reply_markup=ReplyKeyboardRemove())
+        await message.answer('Жаль, что вас не устроили наши правила 😔\n'
+                             'В любой момент, если передумаете, можете'
+                             'попробовать снова, для этого нажмите команду /start',
+                             reply_markup=ReplyKeyboardRemove())
         await state.reset_state()
     else:
         await message.answer('Ошибка ввода! ⛔ \nВыберите один из предложенных вариантов')
@@ -89,65 +91,68 @@ async def decision_about_rules(message: types.Message, state: FSMContext):
 async def update_info(message: types.Message):
     answer = message.text
     if answer == YesNoKeyboard.YES:
-        await message.answer('Введите ваше ФИО 🖊', reply_markup=ReplyKeyboardRemove())
+        await message.answer('Введите ваше ФИО 🖊',
+                             reply_markup=ReplyKeyboardRemove())
         tg_id = message.from_user.id
-        delete_user_by_tg_id(telegram_id=tg_id)
+        await delete_user_by_tg_id(telegram_id=tg_id)
         await StartState.gender.set()
     elif answer == YesNoKeyboard.NO:
-        await message.answer('Хотите проверить Вашу анкету?', reply_markup=YesNoKeyboard.KEYBOARD)
-        await StartState.choise.set()
+        await message.answer('Хотите проверить Вашу анкету?',
+                             reply_markup=YesNoKeyboard.get_reply_keyboard())
+        await StartState.choice.set()
 
 
-@dp.message_handler(state=StartState.choise)
-async def choise(message: types.Message, state: FSMContext):
+@dp.message_handler(state=StartState.choice)
+async def questionnaire_choice(message: types.Message, state: FSMContext):
     answer = message.text
     if answer == YesNoKeyboard.YES:
-        await message.answer('Для проверки нажмите на кнопку ниже', reply_markup=CheckAccessKeyboard.KEYBOARD)
+        await message.answer('Для проверки нажмите на кнопку ниже',
+                             reply_markup=CheckAccessKeyboard.get_reply_keyboard())
         await StartState.check_questionnaire.set()
     elif answer == YesNoKeyboard.NO:
-        await message.answer('Ок. Возвращаю Вас в начало', reply_markup=ReplyKeyboardRemove())
+        await message.answer('Ок. Возвращаю Вас в начало',
+                             reply_markup=ReplyKeyboardRemove())
         await state.reset_state()
 
 
 @dp.message_handler(state=StartState.gender)
 async def get_user_gender(message: types.Message, state: FSMContext):
     answer = message.text
-    splitted_full_name = answer.split(" ")
-    user = new_user()
-    user.telegram_id = message.from_user.id
-    user.tg_login = f"@{message.from_user.username}"
-    user.surname = splitted_full_name[0]
-    try:
-        user.name = splitted_full_name[1]
-    except IndexError:
-        user.name = ""
-    try:
-        user.patronymic = splitted_full_name[2]
-    except IndexError:
-        user.patronymic = ""
-    add_new_user(user)
-    await ContextHelper.add_user(user, state)
-    await message.answer('Введите ваш пол', reply_markup=GenderKeyboard.KEYBOARD)
-    await StartState.photo.set()
+    surname, name, patronymic = get_fio(answer)
+    if name.isalpha():
+        user = new_user()
+        user.telegram_id = message.from_user.id
+        user.tg_login = f"@{message.from_user.username}"
+        user.surname, user.name, user.patronymic = surname, name, patronymic
+        await add_new_user(user)
+        await ContextHelper.add_user(user, state)
+        await message.answer('Введите ваш пол',
+                             reply_markup=GenderKeyboard.get_reply_keyboard())
+        await StartState.photo.set()
+    else:
+        await message.answer('Необходимо ввести ФИО\nПример: Иванов Иван Иванович\n'
+                             'Можно не указывать фамилию или отчество\nИмя указывать обязательно.')
+        await StartState.gender.set()
 
 
 @dp.message_handler(state=StartState.photo)
 async def ask_about_photo(message: types.Message, state: FSMContext):
     answer = message.text
     message_text = 'Хотите ли вы загрузить свое фото?'
-    reply_markup = PhotoKeyboard.KEYBOARD
     user = await ContextHelper.get_user(state)
     if answer == GenderKeyboard.MALE_GENDER:
         user.gender = "Мужской"
-        update_user_by_telegram_id(message.from_user.id, user)
+        await update_user_by_telegram_id(message.from_user.id, user)
         await ContextHelper.add_user(user, state)
-        await message.answer(message_text, reply_markup=reply_markup)
+        await message.answer(message_text,
+                             reply_markup=PhotoKeyboard.get_reply_keyboard())
         await StartState.decision_about_photo.set()
     elif answer == GenderKeyboard.FEMALE_GENDER:
         user.gender = "Женский"
-        update_user_by_telegram_id(message.from_user.id, user)
+        await update_user_by_telegram_id(message.from_user.id, user)
         await ContextHelper.add_user(user, state)
-        await message.answer(message_text, reply_markup=reply_markup)
+        await message.answer(message_text,
+                             reply_markup=PhotoKeyboard.get_reply_keyboard())
         await StartState.decision_about_photo.set()
     else:
         await message.answer('Ошибка ввода! ⛔ \nВыберите один из предложенных вариантов')
@@ -158,10 +163,12 @@ async def ask_about_photo(message: types.Message, state: FSMContext):
 async def decision_about_photo(message: types.Message):
     answer = message.text
     if answer == PhotoKeyboard.WANT_UPLOAD_PHOTO:
-        await message.answer('Супер! Просто отправьте его мне.', reply_markup=ReplyKeyboardRemove())
+        await message.answer('Супер! Просто отправьте его мне.',
+                             reply_markup=ReplyKeyboardRemove())
         await StartState.upload_photo.set()
     elif answer == PhotoKeyboard.DONT_WANT_UPLOAD_PHOTO:
-        await message.answer('Хорошо, тогда продолжаем анкетирование 📝', reply_markup=ReplyKeyboardRemove())
+        await message.answer('Хорошо, тогда продолжаем анкетирование 📝',
+                             reply_markup=ReplyKeyboardRemove())
         await message.answer('Введите вашу почту 📧')
         await StartState.gitlab.set()
     else:
@@ -186,7 +193,7 @@ async def upload_photo(message: types.Message, state: FSMContext):
             await StartState.upload_photo.set()
         else:
             user.photo = file.read()
-            update_user_by_telegram_id(message.from_user.id, user)
+            await update_user_by_telegram_id(message.from_user.id, user)
             await ContextHelper.add_user(user, state)
             await message.answer('Спасибо!')
             await message.answer('Введите вашу почту 📧')
@@ -200,7 +207,7 @@ async def get_gitlab(message: types.Message, state: FSMContext):
     answer = message.text
     user = await ContextHelper.get_user(state)
     user.email = answer
-    update_user_by_telegram_id(message.from_user.id, user)
+    await update_user_by_telegram_id(message.from_user.id, user)
     await ContextHelper.add_user(user, state)
     await message.answer('Введите вашу ссылку на gitlab 🌐')
     await StartState.design.set()
@@ -211,9 +218,9 @@ async def design(message: types.Message, state: FSMContext):
     answer = message.text
     user = await ContextHelper.get_user(state)
     user.git = answer
-    update_user_by_telegram_id(message.from_user.id, user)
+    await update_user_by_telegram_id(message.from_user.id, user)
     await ContextHelper.add_user(user, state)
-    await message.answer('Вы дизайнер? 🎨', reply_markup=YesNoKeyboard.KEYBOARD)
+    await message.answer('Вы дизайнер? 🎨', reply_markup=YesNoKeyboard.get_reply_keyboard())
     await StartState.decision_about_design.set()
 
 
@@ -222,10 +229,11 @@ async def get_department(message: types.Message, state: FSMContext):
     answer = message.text
     user = await ContextHelper.get_user(state)
     user.desired_department = answer
-    update_user_by_telegram_id(message.from_user.id, user)
+    await update_user_by_telegram_id(message.from_user.id, user)
     await ContextHelper.add_user(user, state)
     await message.answer('Введите ваши навыки\n'
-                         'Например: Python, Postgresql, Git, FastAPI, Django, Go, aiogramm, asyncio',
+                         'Например: Python, Postgresql, Git, FastAPI, Django, '
+                         'Go, aiogramm, asyncio',
                          reply_markup=ReplyKeyboardRemove())
     await StartState.goals.set()
 
@@ -236,13 +244,14 @@ async def decision_about_design(message: types.Message, state: FSMContext):
     user = await ContextHelper.get_user(state)
     if answer == YesNoKeyboard.YES:
         user.desired_department = 'Design'
-        update_user_by_telegram_id(message.from_user.id, user)
+        await update_user_by_telegram_id(message.from_user.id, user)
         await ContextHelper.add_user(user, state)
-        await message.answer('Введите вашу ссылку на беханс 🌐', reply_markup=ReplyKeyboardRemove())
+        await message.answer('Введите вашу ссылку на беханс 🌐',
+                             reply_markup=ReplyKeyboardRemove())
         await StartState.get_skills.set()
     elif answer == YesNoKeyboard.NO:
         await message.answer('В какой бы отдел Вы хотели попасть?',
-                             reply_markup=DepartmentsKeyboard.KEYBOARD)
+                             reply_markup=await DepartmentsKeyboard.get_reply_keyboard())
         await StartState.department.set()
     else:
         await message.answer('Ошибка ввода! ⛔ \nВыберите один из предложенных вариантов')
@@ -254,10 +263,11 @@ async def get_skills(message: types.Message, state: FSMContext):
     answer = message.text
     user = await ContextHelper.get_user(state)
     user.behance = answer
-    update_user_by_telegram_id(message.from_user.id, user)
+    await update_user_by_telegram_id(message.from_user.id, user)
     await ContextHelper.add_user(user, state)
     await message.answer('Введите ваши навыки\n'
-                         'Например: Python, Postgresql, Git, FastAPI, Django, Go, aiogramm, asyncio')
+                         'Например: Python, Postgresql, Git, FastAPI, '
+                         'Django, Go, aiogramm, asyncio')
     await StartState.goals.set()
 
 
@@ -266,10 +276,11 @@ async def get_goals(message: types.Message, state: FSMContext):
     answer = message.text
     user = await ContextHelper.get_user(state)
     user.skills = answer
-    update_user_by_telegram_id(message.from_user.id, user)
+    await update_user_by_telegram_id(message.from_user.id, user)
     await ContextHelper.add_user(user, state)
     await message.answer('Введите ваши цели\n'
-                         '1. Основные ожидания от школы: ...\n2. Вектор, куда ты хочешь развиваться:')
+                         '1. Основные ожидания от школы: ...\n2. '
+                         'Вектор, куда ты хочешь развиваться:')
     await StartState.finish_questions.set()
 
 
@@ -278,10 +289,14 @@ async def finish_questions(message: types.Message, state: FSMContext):
     answer = message.text
     user = await ContextHelper.get_user(state)
     user.goals = answer
-    update_user_by_telegram_id(message.from_user.id, user)
+    await update_user_by_telegram_id(message.from_user.id, user)
     await ContextHelper.add_user(user, state)
-    await message.answer('Ваша анкета отправлена на проверку. Пока ее не проверят функционал бота не доступен',
-                         reply_markup=CheckAccessKeyboard.KEYBOARD)
+    await message.answer('Ваша анкета отправлена на проверку. '
+                         'Пока ее не проверят функционал бота не доступен',
+                         reply_markup=CheckAccessKeyboard.get_reply_keyboard())
+    moder_chat_id = await ModeratorUtils().get_random_moder()
+    await bot.send_message(chat_id=moder_chat_id, text='Йо проверь карту пж')
+    await send_card(moder_chat_id, user)
     await StartState.check_questionnaire.set()
 
 
@@ -289,20 +304,21 @@ async def finish_questions(message: types.Message, state: FSMContext):
 async def check_questionnaire(message: types.Message, state: FSMContext):
     answer = message.text
     if answer == CheckAccessKeyboard.CHECK_ACCESS:
-        user = get_user_by_tg_login(f'@{message.from_user.username}')
+        user = await get_user_by_tg_login(f'@{message.from_user.username}')
         if user.is_approved:
-            await message.answer('Поздравляем', reply_markup=ReplyKeyboardRemove())
+            await message.answer('Поздравляем\n\nСсылка на общий чат:\nhttps://t.me/+qGGF9z5Jy8MwMDA8',
+                                 reply_markup=ReplyKeyboardRemove())
             await state.finish()
         else:
             await message.answer('Пока не одобрено',
-                                 reply_markup=CheckAccessKeyboard.KEYBOARD)
+                                 reply_markup=CheckAccessKeyboard.get_reply_keyboard())
             await StartState.check_questionnaire.set()
     elif answer == 'iammoder':
         await message.answer('Введите ключ доступа', reply_markup=ReplyKeyboardRemove())
         await StartState.get_moder.set()
     else:
         await message.answer('Чтобы проверить анкету нажмите на кнопку ниже',
-                             reply_markup=CheckAccessKeyboard.KEYBOARD)
+                             reply_markup=CheckAccessKeyboard.get_reply_keyboard())
         await StartState.check_questionnaire.set()
 
 
@@ -310,8 +326,9 @@ async def check_questionnaire(message: types.Message, state: FSMContext):
 async def get_moder(message: types.Message, state: FSMContext):
     answer = message.text
     if answer == settings.SECRET_KEY:
-        update_user_status(message.from_user.id)
-        await message.answer('Ваша анкета одобрена и права модератора получены', reply_markup=ReplyKeyboardRemove())
+        await update_user_status(message.from_user.id)
+        await message.answer('Ваша анкета одобрена и права модератора получены',
+                             reply_markup=ReplyKeyboardRemove())
         await state.finish()
     else:
         await message.answer('Неверный ключ доступа')

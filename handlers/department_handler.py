@@ -2,8 +2,7 @@ from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.types import ReplyKeyboardRemove
 
-from keyboard.default.department_commands_keyboard import DepartmentCommandsKeyboard
-from keyboard.default.departments_keyboard import DepartmentsKeyboard
+from keyboard.default.keyboards import DepartmentCommandsKeyboard
 from loader import dp
 from pkg.db.department_func import *
 from pkg.db.user_func import get_user_by_tg_id, update_user_department
@@ -14,17 +13,18 @@ from utils.check_is_available import is_department_available
 @dp.message_handler(commands='department')
 async def start_handler(message: types.Message, state: FSMContext):
     try:
-        user = get_user_by_tg_id(message.from_user.id)
+        user = await get_user_by_tg_id(message.from_user.id)
         if user.is_moderator:
             await message.answer('Что вы хотите сделать?',
-                                 reply_markup=DepartmentCommandsKeyboard.KEYBOARD)
+                                 reply_markup=DepartmentCommandsKeyboard.get_reply_keyboard())
             await DepartmentStates.moderator_choice.set()
         else:
             await message.answer('Вы не модератор',
                                  reply_markup=ReplyKeyboardRemove())
             await state.finish()
     except (TypeError, AttributeError):
-        await message.answer('Вас нет в базе, пожалуйста пройдите регистрацию')
+        await message.answer('Вас нет в базе, пожалуйста пройдите регистрацию',
+                             reply_markup=ReplyKeyboardRemove())
         await state.finish()
 
 
@@ -56,24 +56,22 @@ async def moderator_choice(message: types.Message, state: FSMContext):
 @dp.message_handler(state=DepartmentStates.new_department)
 async def new_department(message: types.Message, state: FSMContext):
     department_name = message.text
-    if await DepartmentsKeyboard.is_exist(department_name) is False:
-        add_new_department(department_name)
-        await DepartmentsKeyboard.add(department_name)
-        await message.answer(f'Отдел {department_name} создан')
+    if is_department_available(department_name):
+        await message.answer(f'Отдел {department_name} уже существует')
         await state.finish()
     else:
-        await message.answer(f'Отдел {department_name} уже существует')
+        await add_new_department(department_name)
+        await message.answer(f'Отдел {department_name} создан')
         await state.finish()
 
 
 @dp.message_handler(state=DepartmentStates.delete_department)
 async def delete_department(message: types.Message, state: FSMContext):
     department_name = message.text
-    if is_department_available(department_name) and await DepartmentsKeyboard.is_exist(department_name):
-        update_user_department(message.text, 'EmptyDepartment')
-        delete_department_by_name(message.text)
-        await DepartmentsKeyboard.delete(department_name)
-        await message.answer(f'Отдел {message.text} удален')
+    if await is_department_available(department_name):
+        await update_user_department(department_name, 'EmptyDepartment')
+        await delete_department_by_name(department_name)
+        await message.answer(f'Отдел {department_name} удален')
         await state.finish()
     else:
         await message.answer('Такого отдела нет')
@@ -82,9 +80,10 @@ async def delete_department(message: types.Message, state: FSMContext):
 
 @dp.message_handler(state=DepartmentStates.change_department_name_get_name)
 async def get_new_department_name(message: types.Message, state: FSMContext):
-    if is_department_available(message.text):
+    department_name = message.text
+    if await is_department_available(department_name):
         await message.answer('Введите новое название отдела')
-        await state.update_data(old_name=message.text)
+        await state.update_data(old_name=department_name)
         await DepartmentStates.change_department_name.set()
     else:
         await message.answer('Такого отдела нет')
@@ -95,22 +94,18 @@ async def get_new_department_name(message: types.Message, state: FSMContext):
 async def change_department_name(message: types.Message, state: FSMContext):
     old_name_dict = await state.get_data()
     old_name = old_name_dict.get('old_name', '')
-    if await DepartmentsKeyboard.is_exist(old_name):
-        new_name = message.text
-        update_department_name(old_name, new_name)
-        await DepartmentsKeyboard.rename(old_name=old_name, new_name=new_name)
-        await message.answer(f'Отдел {old_name} переименован в {new_name}')
-        await state.finish()
-    else:
-        await message.answer(f'{old_name} не существует')
-        await state.finish()
+    new_name = message.text
+    await update_department_name(old_name, new_name)
+    await message.answer(f'Отдел {old_name} переименован в {new_name}')
+    await state.finish()
 
 
 @dp.message_handler(state=DepartmentStates.change_team_lead_name_get_name)
 async def get_new_team_lead_name(message: types.Message, state: FSMContext):
-    if is_department_available(message.text):
+    department_name = message.text
+    if await is_department_available(department_name):
         await message.answer('Введите новое имя Тим лида отдела')
-        await state.update_data(department=message.text)
+        await state.update_data(department=department_name)
         await DepartmentStates.change_team_lead_name.set()
     else:
         await message.answer('Такого отдела нет')
@@ -121,6 +116,6 @@ async def get_new_team_lead_name(message: types.Message, state: FSMContext):
 async def change_team_lead_name(message: types.Message, state: FSMContext):
     department_name_dict = await state.get_data()
     department_name = department_name_dict.get('department', '')
-    attach_tl_to_department(department_name, message.text)
+    await attach_tl_to_department(department_name, message.text)
     await message.answer(f'К отделу {department_name} прикреплен Тим лид: {message.text}')
     await state.finish()

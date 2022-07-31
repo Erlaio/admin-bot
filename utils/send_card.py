@@ -2,8 +2,8 @@ from aiogram import types
 from aiogram.types import ReplyKeyboardRemove
 from aiogram.utils.exceptions import BadRequest
 
-from pkg.db.models.user import User
 from loader import bot
+from pkg.db.models.user import User
 
 
 async def send_card(message: types.Message, user: User, reply_markup=ReplyKeyboardRemove()) -> None:
