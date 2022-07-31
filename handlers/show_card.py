@@ -2,8 +2,9 @@ from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.types import ReplyKeyboardRemove
 
+from keyboard.default.pagination import Pagination, InlineKeyboardButton
 from keyboard.default.show_user_keyboard import ShowUserKeyboard
-from loader import dp
+from loader import dp, bot
 from pkg.db.user_func import get_user_by_id, get_all_users, get_user_by_tg_login
 from states.show_user_state import UserCardState
 from utils.send_card import send_card
@@ -20,15 +21,8 @@ async def show_user_start(message: types.Message):
 async def show_user_choice(message: types.Message, state: FSMContext):
     answer = message.text
     if answer == 'Посмотреть всех':
-        user_list = get_all_users()
-        if user_list:
-            for i_user in user_list:
-                await send_card(message, i_user)
-            await state.finish()
-        else:
-            await message.answer('Пользователи отсутствуют',
-                                 reply_markup=ReplyKeyboardRemove())
-            await state.finish()
+        await message.answer('Постраничный вывод всех пользователей', reply_markup=ReplyKeyboardRemove())
+        await show_all(message, state)
 
     elif answer == 'Посмотреть по ID':
         await message.answer('Введите id', reply_markup=ReplyKeyboardRemove())
