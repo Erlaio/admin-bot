@@ -28,13 +28,13 @@ async def characters_page_callback(call):
 async def callback_query(call, state: FSMContext):
     req = call.data.split('#')
     if req[0] == 'approve':
-        update_user_approve(user_id=req[2])
+        await update_user_approve(user_id=req[2])
         await bot.send_message(call.message.chat.id, 'Пользователь добавлен')
         await characters_page_callback(call)
     elif req[0] == 'refilling':
         pass            # TODO
     elif req[0] == 'delete_user':
-        delete_user_by_id(user_id=req[2])
+        await delete_user_by_id(user_id=req[2])
         await bot.send_message(call.message.chat.id, 'Пользователь удален')
         await characters_page_callback(call)
     elif req[0] == 'back':
@@ -47,7 +47,7 @@ async def callback_query(call, state: FSMContext):
 
 
 async def send_character_page(message: types.Message, page=1):
-    user_list = get_unapproved_users()
+    user_list = await get_unapproved_users()
     paginator = Pagination(
         len(user_list),
         current_page=page,
