@@ -31,7 +31,7 @@ async def callback_query(call, state: FSMContext):
         await bot.send_message(call.message.chat.id, 'Пользователь добавлен')
         await characters_page_callback(call)
     elif req[0] == 'refilling':
-        pass
+        pass            # TODO
     elif req[0] == 'delete_user':
         delete_user_by_id(user_id=req[2])
         await bot.send_message(call.message.chat.id, 'Пользователь удален')
