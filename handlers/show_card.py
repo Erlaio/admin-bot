@@ -3,7 +3,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram.types import ReplyKeyboardRemove
 
 from keyboard.default.pagination import Pagination, InlineKeyboardButton
-from keyboard.default.show_user_keyboard import ShowUserKeyboard
+from keyboard.default.keyboards import ShowUserKeyboard
 from loader import dp, bot
 from pkg.db.user_func import get_user_by_id, get_all_users, get_user_by_tg_login
 from states.show_user_state import UserCardState
@@ -45,7 +45,7 @@ async def characters_page_callback(call, state: FSMContext):
 
 @dp.message_handler(state=UserCardState.show_all)
 async def show_all(message: types.Message, state: FSMContext, page=1):
-    user_list = get_all_users()
+    user_list = await get_all_users()
     if user_list:
         paginator = Pagination(
             len(user_list),
@@ -53,7 +53,6 @@ async def show_all(message: types.Message, state: FSMContext, page=1):
             data_pattern='character#{page}'
         )
         paginator.add_after(InlineKeyboardButton('Вернуться на главную', callback_data='back'))
-
         await send_card(
             message,
             user=user_list[page - 1],
