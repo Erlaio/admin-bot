@@ -2,8 +2,9 @@ from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.types import ReplyKeyboardRemove
 
-from keyboard.default.keyboards import ShowUserKeyboard
-from loader import dp
+from keyboard.default.pagination import Pagination, InlineKeyboardButton
+from keyboard.default.show_user_keyboard import ShowUserKeyboard
+from loader import dp, bot
 from pkg.db.user_func import get_user_by_id, get_all_users, get_user_by_tg_login
 from states.show_user_state import UserCardState
 from utils.send_card import send_card
@@ -19,16 +20,9 @@ async def show_user_start(message: types.Message):
 @dp.message_handler(state=UserCardState.show_user_choice)
 async def show_user_choice(message: types.Message, state: FSMContext):
     answer = message.text
-    if answer == ShowUserKeyboard.VIEW_ALL:
-        user_list = await get_all_users()
-        if user_list:
-            for i_user in user_list:
-                await send_card(message.chat.id, i_user)
-            await state.finish()
-        else:
-            await message.answer('Пользователи отсутствуют',
-                                 reply_markup=ReplyKeyboardRemove())
-            await state.finish()
+    if answer == 'Посмотреть всех':
+        await message.answer('Постраничный вывод всех пользователей', reply_markup=ReplyKeyboardRemove())
+        await show_all(message, state)
 
     elif answer == ShowUserKeyboard.VIEW_ID:
         await message.answer('Введите id', reply_markup=ReplyKeyboardRemove())
@@ -37,6 +31,38 @@ async def show_user_choice(message: types.Message, state: FSMContext):
     elif answer == ShowUserKeyboard.VIEW_TG_LOGIN:
         await message.answer('Введите логин Telegram', reply_markup=ReplyKeyboardRemove())
         await UserCardState.user_tg_login.set()
+
+
+@dp.callback_query_handler(lambda call: call.data.split('#')[0] == 'character')
+async def characters_page_callback(call, state: FSMContext):
+    page = int(call.data.split('#')[1])
+    await bot.delete_message(
+        call.message.chat.id,
+        call.message.message_id
+    )
+    await show_all(call.message, state=state, page=page)
+
+
+@dp.message_handler(state=UserCardState.show_all)
+async def show_all(message: types.Message, state: FSMContext, page=1):
+    user_list = get_all_users()
+    if user_list:
+        paginator = Pagination(
+            len(user_list),
+            current_page=page,
+            data_pattern='character#{page}'
+        )
+        paginator.add_after(InlineKeyboardButton('Вернуться на главную', callback_data='back'))
+
+        await send_card(
+            message,
+            user=user_list[page - 1],
+            reply_markup=paginator.markup,
+        )
+    else:
+        await message.answer('Пользователи отсутствуют',
+                             reply_markup=ReplyKeyboardRemove())
+    await state.finish()
 
 
 @dp.message_handler(state=UserCardState.user_id)

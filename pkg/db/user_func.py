@@ -163,9 +163,28 @@ async def get_tg_id_if_moderator(cur: aiosqlite.Cursor):
 
 
 @connect_to_db
-async def update_user_department(cur: aiosqlite.Cursor, old_name: str, new_name: str) -> None:
-    await cur.execute("UPDATE users SET (desired_department) = (?) WHERE desired_department = ?",
-                      (new_name, old_name))
+def get_unapproved_users(cur: sqlite3.Cursor):
+    cur.execute(f"SELECT * from users WHERE is_approved = ?", (0, ))
+    records = cur.fetchall()
+    result = []
+    for rec in records:
+        data = new_user(user_id=rec[0], telegram_id=rec[1], surname=rec[2], name=rec[3], patronymic=rec[4],
+                        gender=rec[5], photo=rec[6], email=rec[7], git=rec[8], behance=rec[9],
+                        tg_login=rec[10], desired_department=rec[11], skills=rec[12], goals=rec[13],
+                        lead_description=rec[14], join_time=rec[15])
+        result.append(data)
+    return result
+
+
+@connect_to_db
+def update_user_approve(cur: sqlite3.Cursor, user_id: int) -> None:
+    cur.execute("UPDATE users SET (is_approved) = (?) WHERE user_id = ?", (1, user_id))
+
+# @connect_to_db                                                                # useless for now
+# def get_department_name(cur: sqlite3.Cursor, department_id: int):
+#     cur.execute(f"SELECT department FROM departments WHERE department_id = {department_id}")
+#     record = cur.fetchone()
+#     return record[0]
 
 
 if __name__ == '__main__':
