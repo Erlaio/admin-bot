@@ -38,6 +38,11 @@ async def show_user_choice(message: types.Message, state: FSMContext):
         await message.answer('Введите логин Telegram', reply_markup=ReplyKeyboardRemove())
         await UserCardState.user_tg_login.set()
 
+    else:
+        await message.answer('Выберите из предложенных кнопок ниже.',
+                             reply_markup=ShowUserKeyboard.get_reply_keyboard())
+        await UserCardState.show_user_choice.set()
+
 
 @dp.message_handler(state=UserCardState.user_id)
 async def show_user_by_id(message: types.Message, state: FSMContext):
