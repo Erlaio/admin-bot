@@ -4,7 +4,7 @@ from aiogram.dispatcher import FSMContext
 from keyboard.default.pagination import *
 
 from loader import dp, bot
-from pkg.db.user_func import get_unapproved_users, update_user_approve
+from pkg.db.user_func import get_unapproved_users, update_user_approve, delete_user_by_id
 from utils.send_card import send_card
 
 
