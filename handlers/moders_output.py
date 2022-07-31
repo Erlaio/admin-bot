@@ -25,14 +25,17 @@ async def characters_page_callback(call):
 
 @dp.callback_query_handler(lambda call: True)
 async def callback_query(call, state: FSMContext):
-    req = call.data.split('_')
+    req = call.data.split('#')
     if req[0] == 'approve':
-        # update_user_approve()
-        pass
+        update_user_approve(user_id=req[2])
+        await bot.send_message(call.message.chat.id, 'Пользователь добавлен')
+        await characters_page_callback(call)
     elif req[0] == 'refilling':
         pass
     elif req[0] == 'delete_user':
-        pass
+        delete_user_by_id(user_id=req[2])
+        await bot.send_message(call.message.chat.id, 'Пользователь удален')
+        await characters_page_callback(call)
     elif req[0] == 'back':
         await bot.send_message(call.message.chat.id, 'Возвращаю на главную')
         await bot.delete_message(
