@@ -61,7 +61,7 @@ async def send_character_page(message: types.Message, page=1):
         InlineKeyboardButton('Удалить',
                              callback_data='delete_user#{}#{}'.format(page, user_list[page - 1].user_id)),
     )
-    paginator.add_after(InlineKeyboardButton('Go back', callback_data='back'))
+    paginator.add_after(InlineKeyboardButton('Вернуться на главную', callback_data='back'))
 
     await send_card(
         message,
