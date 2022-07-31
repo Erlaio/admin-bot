@@ -33,6 +33,38 @@ async def show_user_choice(message: types.Message, state: FSMContext):
         await UserCardState.user_tg_login.set()
 
 
+@dp.callback_query_handler(lambda call: call.data.split('#')[0] == 'character')
+async def characters_page_callback(call, state: FSMContext):
+    page = int(call.data.split('#')[1])
+    await bot.delete_message(
+        call.message.chat.id,
+        call.message.message_id
+    )
+    await show_all(call.message, state=state, page=page)
+
+
+@dp.message_handler(state=UserCardState.show_all)
+async def show_all(message: types.Message, state: FSMContext, page=1):
+    user_list = get_all_users()
+    if user_list:
+        paginator = Pagination(
+            len(user_list),
+            current_page=page,
+            data_pattern='character#{page}'
+        )
+        paginator.add_after(InlineKeyboardButton('Вернуться на главную', callback_data='back'))
+
+        await send_card(
+            message,
+            user=user_list[page - 1],
+            reply_markup=paginator.markup,
+        )
+    else:
+        await message.answer('Пользователи отсутствуют',
+                             reply_markup=ReplyKeyboardRemove())
+    await state.finish()
+
+
 @dp.message_handler(state=UserCardState.user_id)
 async def show_user_by_id(message: types.Message, state: FSMContext):
     user_id = message.text
