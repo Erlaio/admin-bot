@@ -7,6 +7,7 @@ from aiogram.dispatcher.filters.builtin import CommandStart
 from aiogram.dispatcher.storage import FSMContext
 from aiogram.types import ReplyKeyboardRemove, ContentType
 
+from handlers.rules import RULES
 from keyboard.default.keyboards import *
 from loader import dp, bot
 from pkg.db.user_func import *
@@ -32,25 +33,7 @@ async def bot_start(message: types.Message):
 async def reading_rules(message: types.Message, state: FSMContext):
     answer = message.text
     if answer == ChoiceKeyboard.READ_RULES:
-        rules = 'Приветствуем в Школе IT!' \
-                '\nДля того чтобы пройти дальше, нужно ознакомиться и ' \
-                'согласиться с правилами Школы:\n\n' \
-                "1. Еженедельные встречи.\n" \
-                "Каждую пятницу с 19:00 - 20:00 проходят очные встречи для " \
-                "жителей Москвы, территориально, в десяти" \
-                ' минутах от станции метро "Деловой центр".' \
-                'Для жителей других городов, встречи проходят удалённо' \
-                ' (нужно подключиться к звонку в общей беседе "Школа IT")\n\n' \
-                '2. Личные карточки.\n' \
-                'При вступлении в Школу необходимо заполнить личную карточку ' \
-                'и отправить боту в дальнейшей беседе в' \
-                ' этом чате.\n\n' \
-                '3. Дедлайны\n' \
-                'В Школе введена система передоговоров.' \
-                'За день до дедлайна можно перенести дату.' \
-                'Переносы обсуждаются с тимлидом направления.' \
-                'Пример: дедлайн на задачу 18.07, передоговориться на по ней можно не позже 17.07.'
-        await message.answer(rules, reply_markup=ReplyKeyboardRemove())
+        await message.answer(RULES, reply_markup=ReplyKeyboardRemove())
         await message.answer('Вы согласны с правилами?', reply_markup=AgreementKeyboard.get_reply_keyboard())
         await StartState.decision.set()
     elif answer == ChoiceKeyboard.DONT_READ_RULES:
