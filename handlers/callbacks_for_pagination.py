@@ -3,7 +3,7 @@ from aiogram.types import ReplyKeyboardRemove
 
 from handlers.moders_output import characters_page_callback
 from loader import dp, bot
-from pkg.db.user_func import update_user_approve, delete_user_by_id, delete_user_by_tg_id
+from pkg.db.user_func import update_user_approve, delete_user_by_tg_id
 
 
 @dp.callback_query_handler(lambda call: call.data.split('#')[0] == 'approve')
