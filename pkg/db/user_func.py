@@ -182,8 +182,8 @@ async def get_unapproved_users(cur: aiosqlite.Cursor):
 
 
 @connect_to_db
-async def update_user_approve(cur: aiosqlite.Cursor, user_id: int) -> None:
-    await cur.execute("UPDATE users SET (is_approved) = (?) WHERE user_id = ?", (1, user_id))
+async def update_user_approve(cur: aiosqlite.Cursor, telegram_id: int) -> None:
+    await cur.execute("UPDATE users SET (is_approved) = (?) WHERE telegram_id = ?", (1, telegram_id))
 
 # @connect_to_db                                                                # useless for now
 # def get_department_name(cur: sqlite3.Cursor, department_id: int):

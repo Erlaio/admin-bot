@@ -7,7 +7,7 @@ from pkg.db.user_func import update_user_approve, delete_user_by_id
 
 @dp.callback_query_handler(lambda call: call.data.split('#')[0] == 'approve')
 async def callback_approve(call):
-    await update_user_approve(user_id=call.data.split('#')[2])
+    await update_user_approve(telegram_id=call.data.split('#')[2])
     await bot.send_message(call.message.chat.id, 'Пользователь добавлен')
 
 
