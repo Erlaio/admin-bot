@@ -1,5 +1,3 @@
-import random
-
 from pkg.db.user_func import get_tg_id_if_moderator
 
 

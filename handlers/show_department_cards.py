@@ -14,7 +14,8 @@ from utils.send_card import send_card
 @dp.message_handler(commands="show_department_cards")
 async def show_user_by_department_start(message: types.Message):
     text = 'Выберите отдел для вывода'
-    await message.answer(text, reply_markup=await DepartmentsKeyboard.get_reply_keyboard())
+    await message.answer(text,
+                         reply_markup=await DepartmentsKeyboard.get_reply_keyboard(one_time=True))
     await UserCardState.show_departments.set()
 
 
