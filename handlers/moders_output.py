@@ -25,23 +25,6 @@ async def characters_page_callback(call):
     await send_character_page(call.message, page)
 
 
-@dp.callback_query_handler(
-    lambda call: call.data.split('#')[0] in ('approve', 'refilling', 'delete_user', 'back'))
-async def callback_query(call, state: FSMContext):
-    req = call.data.split('#')
-    if req[0] == 'approve':
-        await callback_approve(call)
-        await characters_page_callback(call)
-    elif req[0] == 'refilling':
-        await callback_refilling(call)
-        await characters_page_callback(call)
-    elif req[0] == 'delete_user':
-        await callback_delete_user(call)
-        await characters_page_callback(call)
-    elif req[0] == 'back':
-        await callback_back(call, state)
-
-
 async def send_character_page(message: types.Message, page=1):
     user_list = await get_unapproved_users()
     if user_list:
