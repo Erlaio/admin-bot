@@ -65,3 +65,7 @@ class ShowUserKeyboard(ButtonFactory):
 class YesNoKeyboard(ButtonFactory):
     YES = 'Да ✅'
     NO = 'Нет ❌'
+
+
+class StopBotKeyboard(ButtonFactory):
+    pass
