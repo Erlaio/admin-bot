@@ -3,7 +3,7 @@ import os.path
 import time
 
 from aiogram import types
-from aiogram.dispatcher.filters.builtin import CommandStart
+from aiogram.dispatcher.filters.builtin import CommandStart, Text
 from aiogram.dispatcher.storage import FSMContext
 from aiogram.types import ReplyKeyboardRemove, ContentType
 
@@ -27,6 +27,14 @@ async def bot_start(message: types.Message):
            'прочесть наши правила и согласиться с ними :)'
     await message.answer(text, reply_markup=ChoiceKeyboard.get_reply_keyboard())
     await StartState.rules.set()
+
+
+@dp.message_handler(commands='stop', state='*')
+@dp.message_handler(Text(equals='Вернуться в начало'), state='*')
+async def bot_stop(message: types.Message, state: FSMContext):
+    text = 'И вот мы снова в начале пути...'
+    await message.answer(text, reply_markup=types.ReplyKeyboardRemove())
+    await state.finish()
 
 
 @dp.message_handler(state=StartState.rules)
