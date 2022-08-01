@@ -20,18 +20,13 @@ async def show_user_by_department_start(message: types.Message):
 
 @dp.callback_query_handler(lambda call: True)
 async def characters_page_callback(call, state: FSMContext):
-    if call.data == 'back':
-        await bot.send_message(call.message.chat.id, 'Возвращаю на главную',
-                               reply_markup=ReplyKeyboardRemove())
-        await state.finish()
-    else:
-        page = int(call.data.split('#')[1])
-        department_name = call.data.split('#')[0]
-        await bot.delete_message(
-            call.message.chat.id,
-            call.message.message_id
-        )
-        await show_all(department_name, call.message, state=state, page=page)
+    page = int(call.data.split('#')[1])
+    department_name = call.data.split('#')[0]
+    await bot.delete_message(
+        call.message.chat.id,
+        call.message.message_id
+    )
+    await show_all(department_name, call.message, state=state, page=page)
 
 
 @dp.message_handler(state=UserCardState.show_departments)
