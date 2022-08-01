@@ -1,7 +1,7 @@
 import math
 from abc import ABC
 
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardButton
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardButton, InlineKeyboardMarkup
 
 
 class ButtonFactory(ABC):
@@ -21,10 +21,10 @@ class ButtonFactory(ABC):
     def get_inline_keyboard(self):
         key_list = self.__dict__
 
-        button_list = []
+        inline_keyboard = InlineKeyboardMarkup(resize_keyboard=True)
 
         for i_key in key_list.values():
             for j_key, j_value in i_key.items():
-                button_list.append(InlineKeyboardButton(text=j_key, callback_data=j_value))
+                inline_keyboard.insert(InlineKeyboardButton(text=j_key, callback_data=j_value))
 
-        return button_list
+        return inline_keyboard

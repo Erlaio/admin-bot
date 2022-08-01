@@ -1,4 +1,5 @@
 import datetime
+
 from pydantic import BaseModel, EmailStr
 
 
@@ -26,7 +27,8 @@ class User(BaseModel):
         arbitrary_types_allowed = True
 
 
-def new_user(user_id=-1, telegram_id=-1, surname='', name='', patronymic='', gender='', photo=bytearray([]), email='',
+def new_user(user_id=-1, telegram_id=-1, surname='', name='', patronymic='', gender='', photo=bytearray([]),
+             email='',
              git='', behance='', tg_login='', desired_department=-1, skills='', goals='', lead_description='',
              join_time=None, is_moderator=False, is_approved=False):
     if join_time is None:
