@@ -32,6 +32,11 @@ async def show_user_choice(message: types.Message, state: FSMContext):
         await message.answer('Введите логин Telegram', reply_markup=ReplyKeyboardRemove())
         await UserCardState.user_tg_login.set()
 
+    else:
+        await message.answer('Выберите из предложенных кнопок ниже.',
+                             reply_markup=ShowUserKeyboard.get_reply_keyboard())
+        await UserCardState.show_user_choice.set()
+
 
 @dp.callback_query_handler(lambda call: call.data.split('#')[0] == 'character')
 async def characters_page_callback(call, state: FSMContext):
