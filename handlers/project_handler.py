@@ -2,7 +2,7 @@ from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.types import ReplyKeyboardRemove
 
-from keyboard.default.keyboards import ProjectCommandsKeyboard
+from keyboard.default.keyboards import ProjectCommandsKeyboard, StopBotKeyboard
 from loader import dp
 from pkg.db.project_func import *
 from pkg.db.user_func import get_user_by_tg_id
@@ -32,19 +32,19 @@ async def moderator_choice(message: types.Message, state: FSMContext):
     answer = message.text
     if answer == ProjectCommandsKeyboard.CREATE_PROJECT:
         await message.answer('Введите название проекта который хотите создать',
-                             reply_markup=ReplyKeyboardRemove())
+                             reply_markup=StopBotKeyboard.get_reply_keyboard())
         await ProjectStates.new_project.set()
     elif answer == ProjectCommandsKeyboard.DELETE_PROJECT:
         await message.answer('Введите название проекта который хотите удалить',
-                             reply_markup=ReplyKeyboardRemove())
+                             reply_markup=StopBotKeyboard.get_reply_keyboard())
         await ProjectStates.delete_project.set()
     elif answer == ProjectCommandsKeyboard.CHANGE_PROJECT_NAME:
         await message.answer('Введите название проекта который хотите поменять',
-                             reply_markup=ReplyKeyboardRemove())
+                             reply_markup=StopBotKeyboard.get_reply_keyboard())
         await ProjectStates.change_project_name_get_name.set()
     elif answer == ProjectCommandsKeyboard.CHANGE_PROJECT_LEAD:
         await message.answer('Введите название проекта тим лидера которого вы хотите поменять',
-                             reply_markup=ReplyKeyboardRemove())
+                             reply_markup=StopBotKeyboard.get_reply_keyboard())
         await ProjectStates.change_team_lead_name_get_name.set()
     else:
         await message.answer(f'⚠️ {answer} неверный ответ.',
@@ -74,7 +74,7 @@ async def delete_department(message: types.Message, state: FSMContext):
 @dp.message_handler(state=ProjectStates.change_project_name_get_name)
 async def get_new_department_name(message: types.Message, state: FSMContext):
     if is_project_available(message.text):
-        await message.answer('Введите новое название проекта')
+        await message.answer('Введите новое название проекта', reply_markup=StopBotKeyboard.get_reply_keyboard())
         await state.update_data(old_name=message.text)
         await ProjectStates.change_project_name.set()
     else:
@@ -94,7 +94,7 @@ async def change_department_name(message: types.Message, state: FSMContext):
 @dp.message_handler(state=ProjectStates.change_team_lead_name_get_name)
 async def get_new_team_lead_name(message: types.Message, state: FSMContext):
     if is_project_available(message.text):
-        await message.answer('Введите новое имя Тим лида проекта')
+        await message.answer('Введите новое имя Тим лида проекта', reply_markup=StopBotKeyboard.get_reply_keyboard())
         await state.update_data(department=message.text)
         await ProjectStates.change_team_lead_name.set()
     else:
