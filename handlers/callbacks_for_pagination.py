@@ -1,6 +1,7 @@
 from aiogram.dispatcher import FSMContext
 from aiogram.types import ReplyKeyboardRemove
 
+from handlers.moders_output import characters_page_callback
 from loader import dp, bot
 from pkg.db.user_func import update_user_approve, delete_user_by_id
 
@@ -9,6 +10,7 @@ from pkg.db.user_func import update_user_approve, delete_user_by_id
 async def callback_approve(call):
     await update_user_approve(telegram_id=call.data.split('#')[2])
     await bot.send_message(call.message.chat.id, 'Пользователь добавлен')
+    await characters_page_callback(call)
 
 
 @dp.callback_query_handler(lambda call: call.data.split('#')[0] == 'refilling')
@@ -21,6 +23,7 @@ async def callback_refilling(call):
 async def callback_delete_user(call):
     await delete_user_by_id(user_id=call.data.split('#')[2])
     await bot.send_message(call.message.chat.id, 'Пользователь удален')
+    await characters_page_callback(call)
 
 
 @dp.callback_query_handler(lambda call: call.data.split('#')[0] == 'back')

@@ -1,12 +1,9 @@
 from aiogram import types
-from aiogram.dispatcher import FSMContext
 from aiogram.types import ReplyKeyboardRemove
 
-from keyboard.default.inline_keyboards import ModeratorInlineKeyboard
-from handlers.callbacks_for_pagination import callback_approve, callback_refilling, callback_delete_user, callback_back
 from keyboard.default.pagination import *
 from loader import dp, bot
-from pkg.db.user_func import get_unapproved_users, update_user_approve, delete_user_by_id
+from pkg.db.user_func import get_unapproved_users
 from utils.send_card import send_card
 
 
@@ -36,11 +33,13 @@ async def send_character_page(message: types.Message, page=1):
 
         paginator.add_before(
             InlineKeyboardButton('Одобрить',
-                                 callback_data='approve#{}#{}'.format(page, user_list[page - 1].user_id)),
+                                 callback_data='approve#{}#{}'.format(page, user_list[page - 1].telegram_id)),
             InlineKeyboardButton('Перезаполнение',
-                                 callback_data='refilling#{}#{}'.format(page, user_list[page - 1].user_id)),
+                                 callback_data='refilling#{}#{}'.format(page,
+                                                                        user_list[page - 1].telegram_id)),
             InlineKeyboardButton('Удалить',
-                                 callback_data='delete_user#{}#{}'.format(page, user_list[page - 1].user_id)),
+                                 callback_data='delete_user#{}#{}'.format(page,
+                                                                          user_list[page - 1].telegram_id)),
         )
         paginator.add_after(InlineKeyboardButton('Вернуться на главную', callback_data='back'))
         await send_card(
