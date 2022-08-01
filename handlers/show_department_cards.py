@@ -3,6 +3,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram.types import ReplyKeyboardRemove
 
 from keyboard.default.keyboards import DepartmentsKeyboard
+from keyboard.default.pagination import Pagination, InlineKeyboardButton
 from loader import dp, bot
 from pkg.db.user_func import get_users_from_department_name
 from states.show_user_state import UserCardState
@@ -17,18 +18,49 @@ async def show_user_by_department_start(message: types.Message):
     await UserCardState.show_departments.set()
 
 
+@dp.callback_query_handler(lambda call: True)
+async def characters_page_callback(call, state: FSMContext):
+    if call.data == 'back':
+        await bot.send_message(call.message.chat.id, 'Возвращаю на главную',
+                               reply_markup=ReplyKeyboardRemove())
+        await state.finish()
+    else:
+        page = int(call.data.split('#')[1])
+        department_name = call.data.split('#')[0]
+        await bot.delete_message(
+            call.message.chat.id,
+            call.message.message_id
+        )
+        await show_all(department_name, call.message, state=state, page=page)
+
+
 @dp.message_handler(state=UserCardState.show_departments)
-async def show_users_by_department(message: types.Message, state: FSMContext):
+async def show_users_by_department(message: types.Message, state: FSMContext, page=1):
     department_name = message.text
     if await is_department_available(department_name):
-        data = await get_users_from_department_name(department_name=department_name)
-        if not data:
-            await bot.send_message(message.chat.id, 'Никто не привязан к отделу',
-                                   reply_markup=ReplyKeyboardRemove())
-        for user in data:
-            await send_card(message.chat.id, user)
-        await state.finish()
+        await show_all(department_name, message, state=state, page=page)
     else:
         await bot.send_message(message.chat.id, 'Такой отдел не найден.',
                                reply_markup=ReplyKeyboardRemove())
         await state.finish()
+
+
+@dp.message_handler(state=UserCardState.show_all)
+async def show_all(department_name, message: types.Message, state: FSMContext, page=1):
+    user_list = await get_users_from_department_name(department_name=department_name)
+    if user_list:
+        paginator = Pagination(
+            len(user_list),
+            current_page=page,
+            data_pattern=f'{department_name}#{{page}}'
+        )
+        paginator.add_after(InlineKeyboardButton('Вернуться на главную', callback_data='back'))
+        await send_card(
+            message.chat.id,
+            user=user_list[page - 1],
+            reply_markup=paginator.markup,
+        )
+    else:
+        await message.answer('Никто не привязан к отделу',
+                             reply_markup=ReplyKeyboardRemove())
+    await state.finish()
