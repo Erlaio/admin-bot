@@ -14,7 +14,7 @@ async def start_review(message: types.Message):
     await send_character_page(message)
 
 
-@dp.callback_query_handler(lambda call: call.data.split('#')[0] == 'character')
+@dp.callback_query_handler(lambda call: call.data.split('#')[0] == 'unapproved_character')
 async def characters_page_callback(call):
     page = int(call.data.split('#')[1])
     await bot.delete_message(
@@ -51,7 +51,7 @@ async def send_character_page(message: types.Message, page=1):
     paginator = Pagination(
         len(user_list),
         current_page=page,
-        data_pattern='character#{page}'
+        data_pattern='unapproved_character#{page}'
     )
 
     paginator.add_before(
@@ -63,7 +63,6 @@ async def send_character_page(message: types.Message, page=1):
                              callback_data='delete_user#{}#{}'.format(page, user_list[page - 1].user_id)),
     )
     paginator.add_after(InlineKeyboardButton('Вернуться на главную', callback_data='back'))
-
     await send_card(
         message,
         user=user_list[page - 1],
