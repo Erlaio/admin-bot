@@ -3,7 +3,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram.types import ReplyKeyboardRemove
 
 from keyboard.default.pagination import Pagination, InlineKeyboardButton
-from keyboard.default.keyboards import ShowUserKeyboard
+from keyboard.default.keyboards import ShowUserKeyboard, StopBotKeyboard
 from loader import dp, bot
 from pkg.db.user_func import get_user_by_id, get_all_users, get_user_by_tg_login
 from states.show_user_state import UserCardState
@@ -25,11 +25,11 @@ async def show_user_choice(message: types.Message, state: FSMContext):
         await show_all(message, state)
 
     elif answer == ShowUserKeyboard.VIEW_ID:
-        await message.answer('Введите id', reply_markup=ReplyKeyboardRemove())
+        await message.answer('Введите id', reply_markup=StopBotKeyboard.get_reply_keyboard())
         await UserCardState.user_id.set()
 
     elif answer == ShowUserKeyboard.VIEW_TG_LOGIN:
-        await message.answer('Введите логин Telegram', reply_markup=ReplyKeyboardRemove())
+        await message.answer('Введите логин Telegram', reply_markup=StopBotKeyboard.get_reply_keyboard())
         await UserCardState.user_tg_login.set()
 
     else:
