@@ -3,6 +3,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram.types import ReplyKeyboardRemove
 
 from keyboard.default.inline_keyboards import ModeratorInlineKeyboard
+from handlers.callbacks_for_pagination import callback_approve, callback_refilling, callback_delete_user, callback_back
 from keyboard.default.pagination import *
 from loader import dp, bot
 from pkg.db.user_func import get_unapproved_users, update_user_approve, delete_user_by_id
@@ -29,23 +30,16 @@ async def characters_page_callback(call):
 async def callback_query(call, state: FSMContext):
     req = call.data.split('#')
     if req[0] == 'approve':
-        await update_user_approve(user_id=req[2])
-        await bot.send_message(call.message.chat.id, 'Пользователь добавлен')
+        await callback_approve(call)
         await characters_page_callback(call)
     elif req[0] == 'refilling':
-        pass  # TODO
+        await callback_refilling(call)
+        await characters_page_callback(call)
     elif req[0] == 'delete_user':
-        await delete_user_by_id(user_id=req[2])
-        await bot.send_message(call.message.chat.id, 'Пользователь удален')
+        await callback_delete_user(call)
         await characters_page_callback(call)
     elif req[0] == 'back':
-        await bot.send_message(call.message.chat.id, 'Возвращаю на главную',
-                               reply_markup=ReplyKeyboardRemove())
-        await bot.delete_message(
-            call.message.chat.id,
-            call.message.message_id
-        )
-        await state.finish()
+        await callback_back(call, state)
 
 
 async def send_character_page(message: types.Message, page=1):
@@ -58,8 +52,18 @@ async def send_character_page(message: types.Message, page=1):
         )
 
         paginator.add_before(
-            *ModeratorInlineKeyboard(page=page, user_id=user_list[page - 1].user_id).get_inline_keyboard())
+            InlineKeyboardButton('Одобрить',
+                                 callback_data='approve#{}#{}'.format(page, user_list[page - 1].user_id)),
+            InlineKeyboardButton('Перезаполнение',
+                                 callback_data='refilling#{}#{}'.format(page, user_list[page - 1].user_id)),
+            InlineKeyboardButton('Удалить',
+                                 callback_data='delete_user#{}#{}'.format(page, user_list[page - 1].user_id)),
+        )
         paginator.add_after(InlineKeyboardButton('Вернуться на главную', callback_data='back'))
-        await send_card(message.chat.id, user=user_list[page - 1], reply_markup=paginator.markup)
+        await send_card(
+            message.chat.id,
+            user=user_list[page - 1],
+            reply_markup=paginator.markup,
+        )
     else:
         await message.answer('Некого апрувить', reply_markup=ReplyKeyboardRemove())
