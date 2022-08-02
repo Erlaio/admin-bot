@@ -281,7 +281,8 @@ async def finish_questions(message: types.Message, state: FSMContext):
     moder_chat_id = await ModeratorUtils().get_random_moder()
     await bot.send_message(chat_id=moder_chat_id, text='Йо проверь карту пж')
     await send_card(moder_chat_id, user,
-                    reply_markup=ModeratorInlineKeyboard(page=1, telegram_id=user.telegram_id).get_inline_keyboard())
+                    reply_markup=ModeratorInlineKeyboard(page=0,
+                                                         telegram_id=user.telegram_id).get_inline_keyboard())
     await StartState.check_questionnaire.set()
 
 
