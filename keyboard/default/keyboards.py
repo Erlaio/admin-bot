@@ -23,7 +23,7 @@ class AgreementKeyboard(ButtonFactory):
     DONT_AGREE_WITH_RULES = 'Я не согласен с правилами 🤔'
 
 
-class CheckAccessKeyboard(ButtonFactory):
+class CheckAccessKeyboard(ButtonFactory):           # TODO без stop
     CHECK_ACCESS = 'Проверить состояние анкеты ✅'
 
 
