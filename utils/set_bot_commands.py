@@ -8,5 +8,7 @@ async def set_default_commands(dp):
         types.BotCommand("show_card", 'Показать карточку пользователя'),
         types.BotCommand("show_department_cards", 'Показать карточку пользователей отдела'),
         types.BotCommand("department", 'Работа с отделами'),
+        types.BotCommand("rules", 'Правила школы'),
+        types.BotCommand("review_cards", 'Просмотр карточек для одобрения')
         # types.BotCommand("project", "Работа с проектами")         # Отложено до второго этапа
     ])
