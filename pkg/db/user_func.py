@@ -1,4 +1,6 @@
 import asyncio
+import random
+
 from typing import List
 
 import aiosqlite
@@ -164,12 +166,13 @@ async def get_tg_id_if_moderator(cur: aiosqlite.Cursor):
 
 @connect_to_db
 async def update_user_department(cur: aiosqlite.Cursor, old_name: str, new_name: str) -> None:
-    await cur.execute("UPDATE users SET (desired_department) = (?) WHERE desired_department = ?", (new_name, old_name))
+    await cur.execute("UPDATE users SET (desired_department) = (?) WHERE desired_department = ?",
+                      (new_name, old_name))
 
 
 @connect_to_db
 async def get_unapproved_users(cur: aiosqlite.Cursor):
-    await cur.execute(f"SELECT * from users WHERE is_approved = ?", (0, ))
+    await cur.execute(f"SELECT * from users WHERE is_approved = ?", (0,))
     records = await cur.fetchall()
     result = []
     for rec in records:
@@ -182,8 +185,24 @@ async def get_unapproved_users(cur: aiosqlite.Cursor):
 
 
 @connect_to_db
-async def update_user_approve(cur: aiosqlite.Cursor, user_id: int) -> None:
-    await cur.execute("UPDATE users SET (is_approved) = (?) WHERE user_id = ?", (1, user_id))
+async def update_user_approve(cur: aiosqlite.Cursor, telegram_id: int) -> None:
+    await cur.execute("UPDATE users SET (is_approved) = (?) WHERE telegram_id = ?", (1, telegram_id))
+
+
+@connect_to_db
+async def get_random_moder(cur: aiosqlite.Cursor) -> User:
+    await cur.execute(f"SELECT * FROM users WHERE is_moderator = ?", (1,))
+    records = await cur.fetchall()
+    result = []
+    for rec in records:
+        data = new_user(user_id=rec[0], telegram_id=rec[1], surname=rec[2], name=rec[3], patronymic=rec[4],
+                        gender=rec[5], photo=rec[6], email=rec[7], git=rec[8], behance=rec[9],
+                        tg_login=rec[10], desired_department=rec[11], skills=rec[12], goals=rec[13],
+                        lead_description=rec[14], join_time=rec[15], is_moderator=rec[16],
+                        is_approved=rec[17])
+        result.append(data)
+    return random.choice(result)
+
 
 # @connect_to_db                                                                # useless for now
 # def get_department_name(cur: sqlite3.Cursor, department_id: int):
