@@ -29,7 +29,7 @@ async def bot_start(message: types.Message):
     await StartState.rules.set()
 
 
-@dp.message_handler(commands='stop', state='*')
+@dp.message_handler(commands='stop', state='*')                     # TODO постараться избавиться от 1 из 2 handlers
 @dp.message_handler(Text(equals='Вернуться в начало'), state='*')
 async def bot_stop(message: types.Message, state: FSMContext):
     text = 'И вот мы снова в начале пути...'
