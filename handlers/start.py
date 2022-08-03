@@ -98,7 +98,7 @@ async def questionnaire_choice(message: types.Message, state: FSMContext):
     answer = message.text
     if answer == YesNoKeyboard.YES:
         await message.answer('Для проверки нажмите на кнопку ниже',
-                             reply_markup=CheckAccessKeyboard.get_reply_keyboard())
+                             reply_markup=CheckAccessKeyboard.get_reply_keyboard(add_stop=False))
         await StartState.check_questionnaire.set()
     elif answer == YesNoKeyboard.NO:
         await message.answer('Ок. Возвращаю Вас в начало',
@@ -284,7 +284,7 @@ async def finish_questions(message: types.Message, state: FSMContext):
     await ContextHelper.add_user(user, state)
     await message.answer('Ваша анкета отправлена на проверку. '
                          'Пока ее не проверят функционал бота не доступен',
-                         reply_markup=CheckAccessKeyboard.get_reply_keyboard())
+                         reply_markup=CheckAccessKeyboard.get_reply_keyboard(add_stop=False))
     moder_chat_id = await ModeratorUtils().get_random_moder()
     await bot.send_message(chat_id=moder_chat_id, text='Йо проверь карту пж')
     await send_card(moder_chat_id, user)
@@ -302,14 +302,14 @@ async def check_questionnaire(message: types.Message, state: FSMContext):
             await state.finish()
         else:
             await message.answer('Пока не одобрено',
-                                 reply_markup=CheckAccessKeyboard.get_reply_keyboard())
+                                 reply_markup=CheckAccessKeyboard.get_reply_keyboard(add_stop=False))
             await StartState.check_questionnaire.set()
     elif answer == 'iammoder':
         await message.answer('Введите ключ доступа', reply_markup=StopBotKeyboard.get_reply_keyboard())
         await StartState.get_moder.set()
     else:
         await message.answer('Чтобы проверить анкету нажмите на кнопку ниже',
-                             reply_markup=CheckAccessKeyboard.get_reply_keyboard())
+                             reply_markup=CheckAccessKeyboard.get_reply_keyboard(add_stop=False))
         await StartState.check_questionnaire.set()
 
 
