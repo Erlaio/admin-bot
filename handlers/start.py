@@ -286,9 +286,9 @@ async def finish_questions(message: types.Message, state: FSMContext):
     await message.answer('Ваша анкета отправлена на проверку. '
                          'Пока ее не проверят функционал бота не доступен',
                          reply_markup=CheckAccessKeyboard.get_reply_keyboard(add_stop=False))
-    moder_chat_id = await ModeratorUtils().get_random_moder()
-    await bot.send_message(chat_id=moder_chat_id, text='Йо проверь карту пж')
-    await send_card(moder_chat_id, user,
+    # moder_chat_id = await ModeratorUtils().get_random_moder()
+    await bot.send_message(chat_id=-1001658648627, text='Йо проверь карту пж')
+    await send_card(chat_id=-1001658648627, user=user,
                     reply_markup=ModeratorInlineKeyboard(page=0,
                                                          telegram_id=user.telegram_id).get_inline_keyboard())
     await StartState.check_questionnaire.set()
