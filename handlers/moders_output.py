@@ -1,15 +1,27 @@
 from aiogram import types
+from aiogram.dispatcher import FSMContext
 from aiogram.types import ReplyKeyboardRemove
 
 from keyboard.default.pagination import *
 from loader import dp, bot
-from pkg.db.user_func import get_unapproved_users
+from pkg.db.user_func import get_unapproved_users, get_user_by_tg_id
 from utils.send_card import send_card
 
 
 @dp.message_handler(commands='review_cards')
-async def start_review(message: types.Message):
-    await send_character_page(message)
+async def start_review(message: types.Message, state: FSMContext):
+    try:
+        user = await get_user_by_tg_id(message.from_user.id)
+        if user.is_moderator:
+            await send_character_page(message)
+        else:
+            await message.answer('Вы не модератор',
+                                 reply_markup=ReplyKeyboardRemove())
+            await state.finish()
+    except (TypeError, AttributeError):
+        await message.answer('Вас нет в базе, пожалуйста пройдите регистрацию',
+                             reply_markup=ReplyKeyboardRemove())
+        await state.finish()
 
 
 @dp.callback_query_handler(lambda call: call.data.split('#')[0] == 'unapproved_character')
