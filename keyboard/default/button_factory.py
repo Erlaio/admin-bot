@@ -5,6 +5,7 @@ from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardBut
 
 
 class ButtonFactory(ABC):
+    __STOP_MESSAGE = 'Вернуться на главную'
 
     @classmethod
     def get_reply_keyboard(cls, add_stop=True, one_time=False) -> ReplyKeyboardMarkup:
@@ -17,7 +18,7 @@ class ButtonFactory(ABC):
                                        one_time_keyboard=one_time).add(*key_list)
 
         if add_stop:
-            keyboard.row(KeyboardButton('Вернуться на главную'))
+            keyboard.row(KeyboardButton(cls.__STOP_MESSAGE))
 
         return keyboard
 
@@ -31,3 +32,7 @@ class ButtonFactory(ABC):
                 inline_keyboard.insert(InlineKeyboardButton(text=j_key, callback_data=j_value))
 
         return inline_keyboard
+
+    @classmethod
+    def get_stop_message(cls):
+        return cls.__STOP_MESSAGE

@@ -31,6 +31,7 @@ async def bot_start(message: types.Message):
 
 
 @dp.message_handler(commands='stop', state='*')
+@dp.message_handler(Text(equals=ButtonFactory.get_stop_message()), state='*')
 async def bot_stop(message: types.Message, state: FSMContext):
     text = 'Главная страница'
     await message.answer(text, reply_markup=types.ReplyKeyboardRemove())
