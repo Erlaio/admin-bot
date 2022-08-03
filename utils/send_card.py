@@ -1,4 +1,3 @@
-from aiogram import types
 from aiogram.types import ReplyKeyboardRemove
 from aiogram.utils.exceptions import BadRequest
 
@@ -6,7 +5,7 @@ from loader import bot
 from pkg.db.models.user import User
 
 
-async def send_card(message: types.Message, user: User, reply_markup=ReplyKeyboardRemove()) -> None:
+async def send_card(chat_id: int, user: User, reply_markup=ReplyKeyboardRemove()) -> None:
     caption = f'ФИО: {user.surname} {user.name} {user.patronymic}\n' \
               f'Пол: {user.gender}\n' \
               f'Логин в Telegram: {user.tg_login}\n' \
@@ -20,8 +19,8 @@ async def send_card(message: types.Message, user: User, reply_markup=ReplyKeyboa
     if user.is_moderator == 1:
         caption += 'Модератор\n'
     try:
-        await bot.send_photo(message.chat.id, user.photo, caption=caption,
+        await bot.send_photo(chat_id, user.photo, caption=caption,
                              reply_markup=reply_markup)
     except BadRequest:
-        await message.answer(caption + '\nФото отсутствует в бд',
-                             reply_markup=reply_markup)
+        await bot.send_message(chat_id, caption + '\nФото отсутствует в бд',
+                               reply_markup=reply_markup)

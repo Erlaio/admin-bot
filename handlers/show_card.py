@@ -59,7 +59,7 @@ async def show_all(message: types.Message, state: FSMContext, page=1):
         )
         paginator.add_after(InlineKeyboardButton('Вернуться на главную', callback_data='back'))
         await send_card(
-            message,
+            message.chat.id,
             user=user_list[page - 1],
             reply_markup=paginator.markup,
         )

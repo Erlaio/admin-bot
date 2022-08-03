@@ -56,7 +56,7 @@ async def moderator_choice(message: types.Message, state: FSMContext):
 @dp.message_handler(state=DepartmentStates.new_department)
 async def new_department(message: types.Message, state: FSMContext):
     department_name = message.text
-    if is_department_available(department_name):
+    if await is_department_available(department_name):
         await message.answer(f'Отдел {department_name} уже существует')
         await state.finish()
     else:

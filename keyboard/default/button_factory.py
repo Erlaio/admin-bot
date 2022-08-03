@@ -1,7 +1,7 @@
 import math
 from abc import ABC
 
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardButton, InlineKeyboardMarkup
 
 
 class ButtonFactory(ABC):
@@ -13,9 +13,21 @@ class ButtonFactory(ABC):
 
         row = 3 if len(key_list) < 5 else math.ceil(len(key_list) / 2)
 
-        keyboard = ReplyKeyboardMarkup(resize_keyboard=True, row_width=row).add(*key_list)
+        keyboard = ReplyKeyboardMarkup(resize_keyboard=True, row_width=row,
+                                       one_time_keyboard=one_time).add(*key_list)
 
         if add_stop:
             keyboard.row(KeyboardButton('Вернуться на главную'))
 
         return keyboard
+
+    def get_inline_keyboard(self):
+        key_list = self.__dict__
+
+        inline_keyboard = InlineKeyboardMarkup(resize_keyboard=True)
+
+        for i_key in key_list.values():
+            for j_key, j_value in i_key.items():
+                inline_keyboard.insert(InlineKeyboardButton(text=j_key, callback_data=j_value))
+
+        return inline_keyboard

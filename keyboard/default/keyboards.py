@@ -15,7 +15,7 @@ class DepartmentsKeyboard(ButtonFactory):
     @classmethod
     async def get_reply_keyboard(cls, one_time=False, **kwargs) -> ReplyKeyboardMarkup:
         await cls.__get_department()
-        return super().get_reply_keyboard()
+        return super().get_reply_keyboard(one_time=one_time)
 
 
 class StopBotKeyboard(ButtonFactory):
