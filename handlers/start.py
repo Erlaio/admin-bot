@@ -31,9 +31,8 @@ async def bot_start(message: types.Message):
 
 
 @dp.message_handler(commands='stop', state='*')
-@dp.message_handler(Text(equals=StopBotKeyboard.STOP_BOT), state='*')
 async def bot_stop(message: types.Message, state: FSMContext):
-    text = 'И вот мы снова в начале пути...'
+    text = 'Главная страница'
     await message.answer(text, reply_markup=types.ReplyKeyboardRemove())
     await state.finish()
 
