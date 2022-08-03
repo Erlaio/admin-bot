@@ -2,7 +2,7 @@ from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.types import ReplyKeyboardRemove
 
-from keyboard.default.keyboards import DepartmentCommandsKeyboard
+from keyboard.default.keyboards import DepartmentCommandsKeyboard, StopBotKeyboard
 from loader import dp
 from pkg.db.department_func import *
 from pkg.db.user_func import get_user_by_tg_id, update_user_department
@@ -33,19 +33,19 @@ async def moderator_choice(message: types.Message, state: FSMContext):
     answer = message.text
     if answer == 'Создать новый отдел':
         await message.answer('Введите название отдела который хотите создать',
-                             reply_markup=ReplyKeyboardRemove())
+                             reply_markup=StopBotKeyboard.get_reply_keyboard())
         await DepartmentStates.new_department.set()
     elif answer == 'Удалить отдел':
         await message.answer('Введите название отдела который хотите удалить',
-                             reply_markup=ReplyKeyboardRemove())
+                             reply_markup=StopBotKeyboard.get_reply_keyboard())
         await DepartmentStates.delete_department.set()
     elif answer == 'Сменить имя отдела':
         await message.answer('Введите название отдела который хотите поменять',
-                             reply_markup=ReplyKeyboardRemove())
+                             reply_markup=StopBotKeyboard.get_reply_keyboard())
         await DepartmentStates.change_department_name_get_name.set()
     elif answer == 'Сменить/добавить тим лида отдела':
         await message.answer('Введите название отдела тим лидера которого вы хотите поменять',
-                             reply_markup=ReplyKeyboardRemove())
+                             reply_markup=StopBotKeyboard.get_reply_keyboard())
         await DepartmentStates.change_team_lead_name_get_name.set()
     else:
         await message.answer(f'⚠️ {answer} неверный ответ.',
@@ -82,7 +82,7 @@ async def delete_department(message: types.Message, state: FSMContext):
 async def get_new_department_name(message: types.Message, state: FSMContext):
     department_name = message.text
     if await is_department_available(department_name):
-        await message.answer('Введите новое название отдела')
+        await message.answer('Введите новое название отдела', reply_markup=StopBotKeyboard.get_reply_keyboard())
         await state.update_data(old_name=department_name)
         await DepartmentStates.change_department_name.set()
     else:
@@ -104,7 +104,7 @@ async def change_department_name(message: types.Message, state: FSMContext):
 async def get_new_team_lead_name(message: types.Message, state: FSMContext):
     department_name = message.text
     if await is_department_available(department_name):
-        await message.answer('Введите новое имя Тим лида отдела')
+        await message.answer('Введите новое имя Тим лида отдела', reply_markup=StopBotKeyboard.get_reply_keyboard())
         await state.update_data(department=department_name)
         await DepartmentStates.change_team_lead_name.set()
     else:

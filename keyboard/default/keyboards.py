@@ -13,9 +13,18 @@ class DepartmentsKeyboard(ButtonFactory):
             setattr(cls, department.department.upper(), department.department)
 
     @classmethod
-    async def get_reply_keyboard(cls, one_time=False) -> ReplyKeyboardMarkup:
+    async def get_reply_keyboard(cls, one_time=False, **kwargs) -> ReplyKeyboardMarkup:
         await cls.__get_department()
         return super().get_reply_keyboard(one_time=one_time)
+
+
+class StopBotKeyboard(ButtonFactory):
+    pass
+
+
+class ChoiceKeyboard(ButtonFactory):
+    READ_RULES = 'Ознакомиться с правилами 🤓'
+    DONT_READ_RULES = 'Я не буду читать правила 😐'
 
 
 class AgreementKeyboard(ButtonFactory):
@@ -25,11 +34,6 @@ class AgreementKeyboard(ButtonFactory):
 
 class CheckAccessKeyboard(ButtonFactory):
     CHECK_ACCESS = 'Проверить состояние анкеты ✅'
-
-
-class ChoiceKeyboard(ButtonFactory):
-    READ_RULES = 'Ознакомиться с правилами 🤓'
-    DONT_READ_RULES = 'Я не буду читать правила 😐'
 
 
 class DepartmentCommandsKeyboard(ButtonFactory):
@@ -65,3 +69,7 @@ class ShowUserKeyboard(ButtonFactory):
 class YesNoKeyboard(ButtonFactory):
     YES = 'Да ✅'
     NO = 'Нет ❌'
+
+
+class StopBotKeyboard(ButtonFactory):
+    pass

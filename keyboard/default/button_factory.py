@@ -7,7 +7,7 @@ from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardBut
 class ButtonFactory(ABC):
 
     @classmethod
-    def get_reply_keyboard(cls, one_time=False) -> ReplyKeyboardMarkup:
+    def get_reply_keyboard(cls, add_stop=True, one_time=False) -> ReplyKeyboardMarkup:
         key_list = [KeyboardButton(getattr(cls, i_const)) for i_const in dir(cls)[::-1]
                     if any([i_const.isupper(), i_const.isdigit()])]
 
@@ -15,6 +15,9 @@ class ButtonFactory(ABC):
 
         keyboard = ReplyKeyboardMarkup(resize_keyboard=True, row_width=row,
                                        one_time_keyboard=one_time).add(*key_list)
+
+        if add_stop:
+            keyboard.row(KeyboardButton('Вернуться на главную'))
 
         return keyboard
 
