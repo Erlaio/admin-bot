@@ -13,7 +13,7 @@ class DepartmentsKeyboard(ButtonFactory):
             setattr(cls, department.department.upper(), department.department)
 
     @classmethod
-    async def get_reply_keyboard(cls, **kwargs) -> ReplyKeyboardMarkup:
+    async def get_reply_keyboard(cls, one_time=False, **kwargs) -> ReplyKeyboardMarkup:
         await cls.__get_department()
         return super().get_reply_keyboard()
 

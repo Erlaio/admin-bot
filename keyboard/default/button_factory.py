@@ -7,7 +7,7 @@ from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 class ButtonFactory(ABC):
 
     @classmethod
-    def get_reply_keyboard(cls, add_stop=True) -> ReplyKeyboardMarkup:
+    def get_reply_keyboard(cls, add_stop=True, one_time=False) -> ReplyKeyboardMarkup:
         key_list = [KeyboardButton(getattr(cls, i_const)) for i_const in dir(cls)[::-1]
                     if any([i_const.isupper(), i_const.isdigit()])]
 
