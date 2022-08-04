@@ -16,7 +16,6 @@ from pkg.settings import settings
 from states.start_state import StartState
 from utils.config_utils import ConfigUtils
 from utils.context_helper import ContextHelper
-from utils.get_moder_chat_id import ModeratorUtils
 from utils.get_name import get_fio
 from utils.send_card import send_card
 
@@ -65,7 +64,7 @@ async def decision_about_rules(message: types.Message, state: FSMContext):
                                  reply_markup=StopBotKeyboard.get_reply_keyboard())
             await StartState.gender.set()
         else:
-            await message.answer('Вы уже зарегестрированы в системе. Хотите обновить данные?',
+            await message.answer('Вы уже зарегистрированы в системе. Хотите обновить данные?',
                                  reply_markup=YesNoKeyboard.get_reply_keyboard())
             await StartState.update_info.set()
     elif answer == AgreementKeyboard.DONT_AGREE_WITH_RULES:
@@ -114,7 +113,7 @@ async def get_user_gender(message: types.Message, state: FSMContext):
     if name.isalpha():
         user = new_user()
         user.telegram_id = message.from_user.id
-        user.tg_login = f"@{message.from_user.username}"
+        user.tg_login = f'@{message.from_user.username}'
         user.surname, user.name, user.patronymic = surname, name, patronymic
         await add_new_user(user)
         await ContextHelper.add_user(user, state)
@@ -133,14 +132,14 @@ async def ask_about_photo(message: types.Message, state: FSMContext):
     message_text = 'Хотите ли вы загрузить свое фото?'
     user = await ContextHelper.get_user(state)
     if answer == GenderKeyboard.MALE_GENDER:
-        user.gender = "Мужской"
+        user.gender = 'Мужской'
         await update_user_by_telegram_id(message.from_user.id, user)
         await ContextHelper.add_user(user, state)
         await message.answer(message_text,
                              reply_markup=PhotoKeyboard.get_reply_keyboard())
         await StartState.decision_about_photo.set()
     elif answer == GenderKeyboard.FEMALE_GENDER:
-        user.gender = "Женский"
+        user.gender = 'Женский'
         await update_user_by_telegram_id(message.from_user.id, user)
         await ContextHelper.add_user(user, state)
         await message.answer(message_text,
@@ -168,10 +167,11 @@ async def decision_about_photo(message: types.Message):
         await StartState.decision_about_photo.set()
 
 
-@dp.message_handler(state=StartState.upload_photo, content_types=[ContentType.PHOTO, ContentType.DOCUMENT])
+@dp.message_handler(state=StartState.upload_photo,
+                    content_types=[ContentType.PHOTO, ContentType.DOCUMENT])
 async def upload_photo(message: types.Message, state: FSMContext):
-    timestamp = str(time.time()).replace(".", "")
-    file_name = f"photo_{timestamp}.jpg"
+    timestamp = str(time.time()).replace('.', '')
+    file_name = f'photo_{timestamp}.jpg'
     file_path = os.path.join(ConfigUtils.get_temp_path(), file_name)
     user = await ContextHelper.get_user(state)
     if not message.content_type == 'photo':
@@ -181,7 +181,7 @@ async def upload_photo(message: types.Message, state: FSMContext):
         await message.photo[-1].download(destination_file=file_path)
     with open(file_path, 'rb') as file:
         if not imghdr.what(file):
-            await message.reply("Отправьте изображение.", reply_markup=StopBotKeyboard.get_reply_keyboard())
+            await message.reply('Отправьте изображение.', reply_markup=StopBotKeyboard.get_reply_keyboard())
             await StartState.upload_photo.set()
         else:
             user.photo = file.read()
@@ -201,7 +201,8 @@ async def get_gitlab(message: types.Message, state: FSMContext):
     user.email = answer
     await update_user_by_telegram_id(message.from_user.id, user)
     await ContextHelper.add_user(user, state)
-    await message.answer('Введите вашу ссылку на gitlab 🌐', reply_markup=StopBotKeyboard.get_reply_keyboard())
+    await message.answer('Введите вашу ссылку на gitlab 🌐',
+                         reply_markup=StopBotKeyboard.get_reply_keyboard())
     await StartState.design.set()
 
 
@@ -272,7 +273,8 @@ async def get_goals(message: types.Message, state: FSMContext):
     await ContextHelper.add_user(user, state)
     await message.answer('Введите ваши цели\n'
                          '1. Основные ожидания от школы: ...\n2. '
-                         'Вектор, куда ты хочешь развиваться:', reply_markup=StopBotKeyboard.get_reply_keyboard())
+                         'Вектор, куда ты хочешь развиваться:',
+                         reply_markup=StopBotKeyboard.get_reply_keyboard())
     await StartState.finish_questions.set()
 
 
@@ -287,10 +289,13 @@ async def finish_questions(message: types.Message, state: FSMContext):
                          'Пока ее не проверят функционал бота не доступен',
                          reply_markup=CheckAccessKeyboard.get_reply_keyboard(add_stop=False))
     # moder_chat_id = await ModeratorUtils().get_random_moder()
-    await bot.send_message(chat_id=-1001658648627, text='Йо проверь карту пж')
+    await bot.send_message(chat_id=-1001658648627, text=f'Пришла карточка {user.tg_login}')
     await send_card(chat_id=-1001658648627, user=user,
-                    reply_markup=ModeratorInlineKeyboard(page=0,
-                                                         telegram_id=user.telegram_id).get_inline_keyboard())
+                    reply_markup=ModeratorInlineKeyboard(
+                        page=0,
+                        telegram_id=user.telegram_id,
+                        user_name=user.tg_login
+                    ).get_inline_keyboard())
     await StartState.check_questionnaire.set()
 
 
@@ -298,14 +303,20 @@ async def finish_questions(message: types.Message, state: FSMContext):
 async def check_questionnaire(message: types.Message, state: FSMContext):
     answer = message.text
     if answer == CheckAccessKeyboard.CHECK_ACCESS:
-        user = await get_user_by_tg_login(f'@{message.from_user.username}')
-        if user.is_approved:
-            await message.answer('Поздравляем\n\nСсылка на общий чат:\nhttps://t.me/+qGGF9z5Jy8MwMDA8',
-                                 reply_markup=StopBotKeyboard.get_reply_keyboard())
-            await state.finish()
-        else:
-            await message.answer('Пока не одобрено',
-                                 reply_markup=CheckAccessKeyboard.get_reply_keyboard(add_stop=False))
+        try:
+            user = await get_user_by_tg_login(f'@{message.from_user.username}')
+            if user.is_approved:
+                await message.answer('Поздравляем\n\nСсылка на общий чат:\nhttps://t.me/+qGGF9z5Jy8MwMDA8',
+                                     reply_markup=StopBotKeyboard.get_reply_keyboard())
+                await state.finish()
+            else:
+                await message.answer('Пока не одобрено',
+                                     reply_markup=CheckAccessKeyboard.get_reply_keyboard(add_stop=False))
+        except TypeError:
+            await bot.send_message(chat_id=message.chat.id,
+                                   text='Неверно заполнена анкета, заполните как в примере')
+            moder = await get_random_moder()
+            await send_card(message.chat.id, moder)
             await StartState.check_questionnaire.set()
     elif answer == 'iammoder':
         await message.answer('Введите ключ доступа', reply_markup=StopBotKeyboard.get_reply_keyboard())

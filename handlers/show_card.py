@@ -10,7 +10,7 @@ from states.show_user_state import UserCardState
 from utils.send_card import send_card
 
 
-@dp.message_handler(commands="show_card")
+@dp.message_handler(commands='show_card')
 async def show_user_start(message: types.Message):
     text = 'Вы хотите посмотреть всех пользователей или кого-то конкретного?'
     await message.answer(text, reply_markup=ShowUserKeyboard.get_reply_keyboard())
@@ -57,7 +57,10 @@ async def show_all(message: types.Message, state: FSMContext, page=1):
             current_page=page,
             data_pattern='character#{page}'
         )
-        paginator.add_after(InlineKeyboardButton('Вернуться на главную', callback_data='back'))
+        paginator.add_after(
+            InlineKeyboardButton(
+                'Вернуться на главную',
+                callback_data='back'))
         await send_card(
             message.chat.id,
             user=user_list[page - 1],
