@@ -23,49 +23,49 @@ class StopBotKeyboard(ButtonFactory):
 
 
 class ChoiceKeyboard(ButtonFactory):
-    READ_RULES = 'Ознакомиться с правилами 🤓'
-    DONT_READ_RULES = 'Я не буду читать правила 😐'
+    B_READ_RULES = 'Ознакомиться с правилами 🤓'
+    A_DONT_READ_RULES = 'Я не буду читать правила 😐'
 
 
 class AgreementKeyboard(ButtonFactory):
-    AGREE_WITH_RULES = 'Я согласен с правилами 😎'
-    DONT_AGREE_WITH_RULES = 'Я не согласен с правилами 🤔'
+    B_AGREE_WITH_RULES = 'Я согласен с правилами 😎'
+    A_DONT_AGREE_WITH_RULES = 'Я не согласен с правилами 🤔'
 
 
 class CheckAccessKeyboard(ButtonFactory):
-    CHECK_ACCESS = 'Проверить состояние анкеты ✅'
+    A_CHECK_ACCESS = 'Проверить состояние анкеты ✅'
 
 
 class DepartmentCommandsKeyboard(ButtonFactory):
-    CREATE_DEPARTMENT = 'Создать новый отдел'
-    DELETE_DEPARTMENT = 'Удалить отдел'
-    CHANGE_DEPARTMENT_NAME = 'Сменить имя отдела'
-    CHANGE_DEPARTMENT_LEAD = 'Сменить/добавить тим лида отдела'
+    D_CREATE_DEPARTMENT = 'Создать новый отдел'
+    C_DELETE_DEPARTMENT = 'Удалить отдел'
+    B_CHANGE_DEPARTMENT_NAME = 'Сменить имя отдела'
+    A_CHANGE_DEPARTMENT_LEAD = 'Сменить/добавить тим лида отдела'
 
 
 class GenderKeyboard(ButtonFactory):
-    MALE_GENDER = 'Мужской 👨'
-    FEMALE_GENDER = 'Женский 👩‍🦰'
+    B_MALE_GENDER = 'Мужской 👨'
+    A_FEMALE_GENDER = 'Женский 👩‍🦰'
 
 
 class PhotoKeyboard(ButtonFactory):
-    WANT_UPLOAD_PHOTO = 'Да! Хочу загрузить свою фоточку 😎'
-    DONT_WANT_UPLOAD_PHOTO = 'Нет, не буду загружать свое фото 🙂'
+    B_WANT_UPLOAD_PHOTO = 'Да! Хочу загрузить свою фоточку 😎'
+    A_DONT_WANT_UPLOAD_PHOTO = 'Нет, не буду загружать свое фото 🙂'
 
 
 class ProjectCommandsKeyboard(ButtonFactory):
-    CREATE_PROJECT = 'Создать новый проект'
-    DELETE_PROJECT = 'Удалить проект'
-    CHANGE_PROJECT_NAME = 'Сменить имя проекта'
-    CHANGE_PROJECT_LEAD = 'Сменить/добавить тим лида проекта'
+    D_CREATE_PROJECT = 'Создать новый проект'
+    C_DELETE_PROJECT = 'Удалить проект'
+    B_CHANGE_PROJECT_NAME = 'Сменить имя проекта'
+    A_CHANGE_PROJECT_LEAD = 'Сменить/добавить тим лида проекта'
 
 
 class ShowUserKeyboard(ButtonFactory):
-    VIEW_ALL = 'Посмотреть всех'
-    VIEW_ID = 'Посмотреть по ID'
-    VIEW_TG_LOGIN = 'Посмотреть по Логину в Telegram'
+    C_VIEW_ALL = 'Посмотреть всех'
+    B_VIEW_ID = 'Посмотреть по ID'
+    A_VIEW_TG_LOGIN = 'Посмотреть по Логину в Telegram'
 
 
 class YesNoKeyboard(ButtonFactory):
-    YES = 'Да ✅'
-    NO = 'Нет ❌'
+    B_YES = 'Да ✅'
+    A_NO = 'Нет ❌'
