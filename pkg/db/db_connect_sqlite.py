@@ -1,7 +1,6 @@
 import pathlib
 from pkg.settings import settings
 from utils.config_utils import ConfigUtils
-from contextlib import asynccontextmanager
 import aiosqlite
 
 
@@ -13,11 +12,9 @@ def connect_to_db(func):
             cur = await conn.cursor()
             result = await func(cur, *args, **kwargs)
         except aiosqlite.Error as e:
-            print("aiosqlite Error: ", e)
+            print('aiosqlite Error: ', e)
         finally:
             await conn.commit()
             await conn.close()
         return result
     return wrapper
-
-

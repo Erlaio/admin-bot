@@ -1,7 +1,5 @@
 import aiosqlite
-import asyncio
 from .db_connect_sqlite import connect_to_db
-from .department_func import add_new_department
 
 
 @connect_to_db
@@ -43,7 +41,7 @@ async def create_database(cur: aiosqlite.Cursor):
 
         CREATE UNIQUE INDEX IF NOT EXISTS "department_id_index" ON "departments" (
             "department_id");
-            
+
         /*  Table Projects  */
         CREATE TABLE IF NOT EXISTS "projects" (
             "project_id"	INTEGER NOT NULL UNIQUE,
@@ -53,7 +51,7 @@ async def create_database(cur: aiosqlite.Cursor):
 
 
         CREATE UNIQUE INDEX IF NOT EXISTS "project_id_index" ON "projects" (
-            "project_id"); 
+            "project_id");
         ''')
 
 

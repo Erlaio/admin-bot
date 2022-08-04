@@ -2,7 +2,7 @@ from utils.set_bot_commands import set_default_commands
 
 
 async def on_startup(dp):
-    print("Start Bot")
+    print('Start Bot')
     await set_default_commands(dp)
 
 

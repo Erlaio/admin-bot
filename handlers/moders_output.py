@@ -24,7 +24,8 @@ async def start_review(message: types.Message, state: FSMContext):
         await state.finish()
 
 
-@dp.callback_query_handler(lambda call: call.data.split('#')[0] == 'unapproved_character')
+@dp.callback_query_handler(lambda call: call.data.split('#')
+                           [0] == 'unapproved_character')
 async def characters_page_callback(call):
     page = int(call.data.split('#')[1])
     await bot.delete_message(
@@ -53,7 +54,10 @@ async def send_character_page(message: types.Message, page=1):
                                  callback_data='delete_user#{}#{}'.format(page,
                                                                           user_list[page - 1].telegram_id)),
         )
-        paginator.add_after(InlineKeyboardButton('Вернуться на главную', callback_data='back'))
+        paginator.add_after(
+            InlineKeyboardButton(
+                'Вернуться на главную',
+                callback_data='back'))
         await send_card(
             message.chat.id,
             user=user_list[page - 1],

@@ -8,7 +8,8 @@ class ButtonFactory(ABC):
     __STOP_MESSAGE = 'Вернуться на главную'
 
     @classmethod
-    def get_reply_keyboard(cls, add_stop=True, one_time=False) -> ReplyKeyboardMarkup:
+    def get_reply_keyboard(cls, add_stop=True,
+                           one_time=False) -> ReplyKeyboardMarkup:
         key_list = [KeyboardButton(getattr(cls, i_const)) for i_const in dir(cls)[::-1]
                     if any([i_const.isupper(), i_const.isdigit()])]
 
@@ -29,7 +30,9 @@ class ButtonFactory(ABC):
 
         for i_key in key_list.values():
             for j_key, j_value in i_key.items():
-                inline_keyboard.insert(InlineKeyboardButton(text=j_key, callback_data=j_value))
+                inline_keyboard.insert(
+                    InlineKeyboardButton(
+                        text=j_key, callback_data=j_value))
 
         return inline_keyboard
 

@@ -11,7 +11,7 @@ from utils.check_is_available import is_department_available
 from utils.send_card import send_card
 
 
-@dp.message_handler(commands="show_department_cards")
+@dp.message_handler(commands='show_department_cards')
 async def show_user_by_department_start(message: types.Message):
     text = 'Выберите отдел для вывода'
     await message.answer(text,
@@ -50,7 +50,10 @@ async def show_all(department_name, message: types.Message, state: FSMContext, p
             current_page=page,
             data_pattern=f'{department_name}#{{page}}'
         )
-        paginator.add_after(InlineKeyboardButton('Вернуться на главную', callback_data='back'))
+        paginator.add_after(
+            InlineKeyboardButton(
+                'Вернуться на главную',
+                callback_data='back'))
         await send_card(
             message.chat.id,
             user=user_list[page - 1],
