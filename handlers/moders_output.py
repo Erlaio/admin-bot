@@ -13,7 +13,7 @@ async def start_review(message: types.Message, state: FSMContext):
     try:
         user = await get_user_by_tg_id(message.from_user.id)
         if user.is_moderator:
-            await send_character_page(message)
+            await send_character_page_for_approve(message)
         else:
             await message.answer('Вы не модератор',
                                  reply_markup=ReplyKeyboardRemove())
@@ -32,10 +32,10 @@ async def characters_page_callback(call):
         call.message.chat.id,
         call.message.message_id
     )
-    await send_character_page(call.message, page)
+    await send_character_page_for_approve(call.message, page)
 
 
-async def send_character_page(message: types.Message, page=1):
+async def send_character_page_for_approve(message: types.Message, page=1):
     user_list = await get_unapproved_users()
     if user_list:
         paginator = Pagination(
