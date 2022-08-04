@@ -16,7 +16,7 @@ from pkg.settings import settings
 from states.start_state import StartState
 from utils.config_utils import ConfigUtils
 from utils.context_helper import ContextHelper
-from utils.get_name import get_fio
+from utils.get_name import split_fullname
 from utils.send_card import send_card
 
 
@@ -109,7 +109,7 @@ async def questionnaire_choice(message: types.Message, state: FSMContext):
 @dp.message_handler(state=StartState.gender)
 async def get_user_gender(message: types.Message, state: FSMContext):
     answer = message.text
-    surname, name, patronymic = get_fio(answer)
+    surname, name, patronymic = split_fullname(answer)
     if name.isalpha():
         user = new_user()
         user.telegram_id = message.from_user.id
