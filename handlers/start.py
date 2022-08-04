@@ -133,21 +133,16 @@ async def ask_about_photo(message: types.Message, state: FSMContext):
     user = await ContextHelper.get_user(state)
     if answer == GenderKeyboard.B_MALE_GENDER:
         user.gender = 'Мужской'
-        await update_user_by_telegram_id(message.from_user.id, user)
-        await ContextHelper.add_user(user, state)
-        await message.answer(message_text,
-                             reply_markup=PhotoKeyboard.get_reply_keyboard())
-        await StartState.decision_about_photo.set()
     elif answer == GenderKeyboard.A_FEMALE_GENDER:
         user.gender = 'Женский'
-        await update_user_by_telegram_id(message.from_user.id, user)
-        await ContextHelper.add_user(user, state)
-        await message.answer(message_text,
-                             reply_markup=PhotoKeyboard.get_reply_keyboard())
-        await StartState.decision_about_photo.set()
     else:
         await message.answer('Ошибка ввода! ⛔ \nВыберите один из предложенных вариантов')
         await StartState.photo.set()
+    await update_user_by_telegram_id(message.from_user.id, user)
+    await ContextHelper.add_user(user, state)
+    await message.answer(message_text,
+                         reply_markup=PhotoKeyboard.get_reply_keyboard())
+    await StartState.decision_about_photo.set()
 
 
 @dp.message_handler(state=StartState.decision_about_photo)
