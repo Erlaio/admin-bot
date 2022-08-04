@@ -117,7 +117,7 @@ async def get_user_gender(message: types.Message, state: FSMContext):
         user.surname, user.name, user.patronymic = surname, name, patronymic
         await add_new_user(user)
         await ContextHelper.add_user(user, state)
-        await message.answer('Введите ваш пол',
+        await message.answer('Выберите ваш пол',
                              reply_markup=GenderKeyboard.get_reply_keyboard())
         await StartState.photo.set()
     else:
@@ -238,7 +238,7 @@ async def decision_about_design(message: types.Message, state: FSMContext):
                              reply_markup=StopBotKeyboard.get_reply_keyboard())
         await StartState.get_skills.set()
     elif answer == YesNoKeyboard.A_NO:
-        await message.answer('В какой бы отдел Вы хотели попасть?',
+        await message.answer('Выберите, в какой бы отдел Вы хотели попасть?',
                              reply_markup=await DepartmentsKeyboard.get_reply_keyboard())
         await StartState.department.set()
     else:
