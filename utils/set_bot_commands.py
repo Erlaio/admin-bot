@@ -12,5 +12,6 @@ async def set_default_commands(dp):
         types.BotCommand('department', 'Работа с отделами'),
         types.BotCommand('rules', 'Правила школы'),
         types.BotCommand('review_cards', 'Просмотр карточек для одобрения'),
-        types.BotCommand('project', 'Работа с проектами')
+        types.BotCommand('project', 'Работа с проектами'),
+        types.BotCommand('add_lead_description', 'Добавление описания тимлида на карточке')
     ])
