@@ -2,6 +2,7 @@ from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.types import ReplyKeyboardRemove
 
+from keyboard.default.inline_keyboards import ModeratorInlineKeyboard, BackInlineKeyboard
 from keyboard.default.pagination import *
 from loader import dp, bot
 from pkg.db.user_func import get_unapproved_users, get_user_by_tg_id
@@ -43,21 +44,12 @@ async def send_character_page_for_approve(message: types.Message, page=1):
             current_page=page,
             data_pattern='unapproved_character#{page}'
         )
-
+        user = user_list[page - 1]
         paginator.add_before(
-            InlineKeyboardButton('Одобрить',
-                                 callback_data='approve#{}#{}'.format(page, user_list[page - 1].telegram_id)),
-            InlineKeyboardButton('Перезаполнение',
-                                 callback_data='refilling#{}#{}'.format(page,
-                                                                        user_list[page - 1].telegram_id)),
-            InlineKeyboardButton('Удалить',
-                                 callback_data='delete_user#{}#{}'.format(page,
-                                                                          user_list[page - 1].telegram_id)),
-        )
+            *ModeratorInlineKeyboard(page, user.telegram_id, user.tg_login).get_inline_keyboard(is_key=True))
         paginator.add_after(
-            InlineKeyboardButton(
-                'Вернуться на главную',
-                callback_data='back'))
+            *BackInlineKeyboard().get_inline_keyboard(is_key=True)
+        )
         await send_card(
             message.chat.id,
             user=user_list[page - 1],
