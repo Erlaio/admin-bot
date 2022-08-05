@@ -6,6 +6,7 @@ from aiogram import types
 from aiogram.dispatcher.filters.builtin import CommandStart, Text
 from aiogram.dispatcher.storage import FSMContext
 from aiogram.types import ReplyKeyboardRemove, ContentType
+from aiogram import bot
 
 from handlers.rules import RULES
 from keyboard.default.inline_keyboards import ModeratorInlineKeyboard
@@ -295,15 +296,16 @@ async def finish_questions(message: types.Message, state: FSMContext):
 
 
 @dp.message_handler(state=StartState.check_questionnaire)
-async def check_questionnaire(message: types.Message, state: FSMContext):
+async def check_questionnaire(message: types.Message, channels=CHANNELS_LIST):
     answer = message.text
     if answer == CheckAccessKeyboard.A_CHECK_ACCESS:
         try:
             user = await get_user_by_tg_login(f'@{message.from_user.username}')
             if user.is_approved:
-                await message.answer('Поздравляем\n\nСсылка на общий чат:\nhttps://t.me/+qGGF9z5Jy8MwMDA8',
+                await message.answer(f'Поздравляем\n\nТебе необходимо вступить во все '
+                                     f'следующие группы в течение 2 дней:\n {channels}',
                                      reply_markup=StopBotKeyboard.get_reply_keyboard())
-                await state.finish()
+                await StartState.check_membership.set()
             else:
                 await message.answer('Пока не одобрено',
                                      reply_markup=CheckAccessKeyboard.get_reply_keyboard(add_stop=False))
