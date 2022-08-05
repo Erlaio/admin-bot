@@ -6,7 +6,6 @@ from aiogram import types
 from aiogram.dispatcher.filters.builtin import CommandStart, Text
 from aiogram.dispatcher.storage import FSMContext
 from aiogram.types import ReplyKeyboardRemove, ContentType
-from aiogram import bot
 
 from handlers.rules import RULES
 from keyboard.default.inline_keyboards import ModeratorInlineKeyboard
@@ -19,6 +18,10 @@ from utils.config_utils import ConfigUtils
 from utils.context_helper import ContextHelper
 from utils.get_name import split_fullname
 from utils.send_card import send_card
+from utils.delete_user import delete_user
+
+#  Не знаю куда воткнуть список с каналами )) Бот должен быть в каналах с админскими правами
+CHECK_CHANNELS = ('@yaplakal', '@cbrstocks')
 
 
 @dp.message_handler(CommandStart())
@@ -296,7 +299,7 @@ async def finish_questions(message: types.Message, state: FSMContext):
 
 
 @dp.message_handler(state=StartState.check_questionnaire)
-async def check_questionnaire(message: types.Message, channels=CHANNELS_LIST):
+async def check_questionnaire(message: types.Message, channels=CHECK_CHANNELS):
     answer = message.text
     if answer == CheckAccessKeyboard.A_CHECK_ACCESS:
         try:
@@ -335,3 +338,38 @@ async def get_moder(message: types.Message, state: FSMContext):
     else:
         await message.answer('Неверный ключ доступа')
         await StartState.check_questionnaire.set()
+
+
+# @dp.message_handler(commands='check', state='*')
+@dp.message_handler(state=StartState.check_membership)
+async def check_membership(message: types.Message, state: FSMContext, channels=CHECK_CHANNELS):
+    """
+    Проверяет является ли пользователь участником списка групп CHECK_CHANNELS. Запускается проверка два раза с
+    промежутком в 24 часа.
+    При первой итерации напоминает, что нужно вступить, при повторной удаляет
+    """
+    is_first_check = True
+    user_id = message.from_user.id
+
+    while True:
+        is_member = True
+        await asyncio.sleep(86_400)
+        for channel in channels:
+            user_status = await bot.get_chat_member(chat_id=channel, user_id=user_id)
+            if user_status["status"] == 'left':
+                is_member = False
+                if is_first_check:
+                    await message.answer('А не пора ли вступить в группы? Осталось всего 24 часа...',
+                                         reply_markup=ReplyKeyboardRemove())
+                    is_first_check = False
+                    break
+                else:
+                    await message.answer('Ты так и не вступил в наши ряды...пока-пока',
+                                         reply_markup=ReplyKeyboardRemove())
+                    await delete_user(user_id, channels)
+                    await state.finish()
+
+        if is_member:
+            await message.answer('Спасибо, что ты с нами!', reply_markup=ReplyKeyboardRemove())
+            await state.finish()
+            break
