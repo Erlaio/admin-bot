@@ -23,16 +23,25 @@ class ButtonFactory(ABC):
 
         return keyboard
 
-    def get_inline_keyboard(self):
+    def get_inline_keyboard(self, is_key=False):
         key_list = self.__dict__
 
-        inline_keyboard = InlineKeyboardMarkup(resize_keyboard=True)
+        if is_key:
+            inline_keyboard = []
 
-        for i_key in key_list.values():
-            for j_key, j_value in i_key.items():
-                inline_keyboard.insert(
-                    InlineKeyboardButton(
-                        text=j_key, callback_data=j_value))
+            for i_key in key_list.values():
+                for j_key, j_value in i_key.items():
+                    inline_keyboard.append(
+                        InlineKeyboardButton(
+                            text=j_key, callback_data=j_value))
+        else:
+            inline_keyboard = InlineKeyboardMarkup(resize_keyboard=True)
+
+            for i_key in key_list.values():
+                for j_key, j_value in i_key.items():
+                    inline_keyboard.insert(
+                        InlineKeyboardButton(
+                            text=j_key, callback_data=j_value))
 
         return inline_keyboard
 
