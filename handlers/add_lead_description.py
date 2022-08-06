@@ -3,13 +3,13 @@ from aiogram.dispatcher import FSMContext
 from aiogram.types import ReplyKeyboardRemove
 
 from keyboard.default.pagination import Pagination, InlineKeyboardButton
-from loader import dp
+from loader import dp, bot
 from pkg.db.user_func import get_user_by_tg_id, get_all_users
 from utils.send_card import send_card
 
 
 @dp.message_handler(commands='add_lead_description')
-async def add_lead_description(message: types.Message, state: FSMContext):
+async def start(message: types.Message, state: FSMContext):
     try:
         user = await get_user_by_tg_id(message.from_user.id)
         if user.is_moderator:
@@ -24,6 +24,17 @@ async def add_lead_description(message: types.Message, state: FSMContext):
         await state.finish()
 
 
+@dp.callback_query_handler(lambda call: call.data.split('#')
+                           [0] == 'user')
+async def characters_page_callback(call):
+    page = int(call.data.split('#')[1])
+    await bot.delete_message(
+        call.message.chat.id,
+        call.message.message_id
+    )
+    await send_character_page(call.message, page)
+
+
 async def send_character_page(message: types.Message, page=1):
     user_list = await get_all_users()
     if user_list:
@@ -33,10 +44,12 @@ async def send_character_page(message: types.Message, page=1):
             data_pattern='user#{page}'
         )
 
+        user = user_list[page - 1]
+
         paginator.add_before(
             InlineKeyboardButton(
                 text='Исправить описание тимлида',
-                callback_data='change_description#{}'.format(user_list[page - 1])
+                callback_data=f'change_description#{page}#{user.telegram_id}#{user.tg_login}'
             )
         )
 
