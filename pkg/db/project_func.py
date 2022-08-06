@@ -1,7 +1,10 @@
 import aiosqlite
 from typing import List
+
+from pydantic import parse_obj_as
+
 from pkg.db.db_connect_sqlite import connect_to_db
-from pkg.db.models.project import Project, new_project
+from pkg.db.models.project import Project
 
 
 @connect_to_db
@@ -18,10 +21,7 @@ async def attach_tl_to_project(cur: aiosqlite.Cursor, project_name: str, team_le
 async def get_all_projects(cur: aiosqlite.Cursor) -> List[Project]:
     await cur.execute('SELECT * FROM projects')
     records = await cur.fetchall()
-    result = []
-    for record in records:
-        data = new_project(record[0], record[1], record[2])
-        result.append(data)
+    result = parse_obj_as(List[Project], records)
     return result
 
 
