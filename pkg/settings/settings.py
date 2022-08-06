@@ -10,7 +10,7 @@ class _Settings(pydantic.BaseSettings):
 class Settings(_Settings):
     SQLITE_FILENAME: str
     SECRET_KEY: str
-    TELEGRAM_MODERS_CHAT_IT: int
+    TELEGRAM_MODERS_CHAT_ID: int
 
 
 def _get_settings() -> Settings:

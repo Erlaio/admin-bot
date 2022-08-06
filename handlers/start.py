@@ -284,8 +284,8 @@ async def finish_questions(message: types.Message, state: FSMContext):
                          'Пока ее не проверят функционал бота не доступен',
                          reply_markup=CheckAccessKeyboard.get_reply_keyboard(add_stop=False))
     # moder_chat_id = await ModeratorUtils().get_random_moder()         # функционал для отправки модеру в личку
-    await bot.send_message(chat_id=settings.TELEGRAM_MODERS_CHAT_IT, text=f'Пришла карточка {user.tg_login}')
-    await send_card(chat_id=settings.TELEGRAM_MODERS_CHAT_IT, user=user,
+    await bot.send_message(chat_id=settings.TELEGRAM_MODERS_CHAT_ID, text=f'Пришла карточка {user.tg_login}')
+    await send_card(chat_id=settings.TELEGRAM_MODERS_CHAT_ID, user=user,
                     reply_markup=ModeratorInlineKeyboard(
                         page=0,
                         telegram_id=user.telegram_id,
