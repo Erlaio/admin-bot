@@ -37,6 +37,12 @@ async def bot_stop(message: types.Message, state: FSMContext):
     await state.finish()
 
 
+@dp.message_handler(commands='iammoder')
+async def reading_rules(message: types.Message):
+    await message.answer('Введите ключ доступа', reply_markup=StopBotKeyboard.get_reply_keyboard())
+    await StartState.get_moder.set()
+
+
 @dp.message_handler(state=StartState.rules)
 async def reading_rules(message: types.Message, state: FSMContext):
     answer = message.text
@@ -313,9 +319,6 @@ async def check_questionnaire(message: types.Message, state: FSMContext):
             moder = await get_random_moder()
             await send_card(message.chat.id, moder)
             await StartState.check_questionnaire.set()
-    elif answer == 'iammoder':
-        await message.answer('Введите ключ доступа', reply_markup=StopBotKeyboard.get_reply_keyboard())
-        await StartState.get_moder.set()
     else:
         await message.answer('Чтобы проверить анкету нажмите на кнопку ниже',
                              reply_markup=CheckAccessKeyboard.get_reply_keyboard(add_stop=False))
