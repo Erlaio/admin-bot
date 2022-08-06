@@ -37,6 +37,12 @@ async def bot_stop(message: types.Message, state: FSMContext):
     await state.finish()
 
 
+@dp.message_handler(commands='iammoder')
+async def reading_rules(message: types.Message):
+    await message.answer('Введите ключ доступа', reply_markup=StopBotKeyboard.get_reply_keyboard())
+    await StartState.get_moder.set()
+
+
 @dp.message_handler(state=StartState.rules)
 async def reading_rules(message: types.Message, state: FSMContext):
     answer = message.text
@@ -284,8 +290,8 @@ async def finish_questions(message: types.Message, state: FSMContext):
                          'Пока ее не проверят функционал бота не доступен',
                          reply_markup=CheckAccessKeyboard.get_reply_keyboard(add_stop=False))
     # moder_chat_id = await ModeratorUtils().get_random_moder()         # функционал для отправки модеру в личку
-    await bot.send_message(chat_id=settings.TELEGRAM_MODERS_CHAT_IT, text=f'Пришла карточка {user.tg_login}')
-    await send_card(chat_id=settings.TELEGRAM_MODERS_CHAT_IT, user=user,
+    await bot.send_message(chat_id=settings.TELEGRAM_MODERS_CHAT_ID, text=f'Пришла карточка {user.tg_login}')
+    await send_card(chat_id=settings.TELEGRAM_MODERS_CHAT_ID, user=user,
                     reply_markup=ModeratorInlineKeyboard(
                         page=0,
                         telegram_id=user.telegram_id,
@@ -313,9 +319,6 @@ async def check_questionnaire(message: types.Message, state: FSMContext):
             moder = await get_random_moder()
             await send_card(message.chat.id, moder)
             await StartState.check_questionnaire.set()
-    elif answer == 'iammoder':
-        await message.answer('Введите ключ доступа', reply_markup=StopBotKeyboard.get_reply_keyboard())
-        await StartState.get_moder.set()
     else:
         await message.answer('Чтобы проверить анкету нажмите на кнопку ниже',
                              reply_markup=CheckAccessKeyboard.get_reply_keyboard(add_stop=False))
