@@ -24,11 +24,11 @@ async def show_user_choice(message: types.Message, state: FSMContext):
         await message.answer('Постраничный вывод всех пользователей', reply_markup=ReplyKeyboardRemove())
         await show_all(message, state)
 
-    elif answer == ShowUserKeyboard.VIEW_ID:
+    elif answer == ShowUserKeyboard.B_VIEW_ID:
         await message.answer('Введите id', reply_markup=StopBotKeyboard.get_reply_keyboard())
         await UserCardState.user_id.set()
 
-    elif answer == ShowUserKeyboard.VIEW_TG_LOGIN:
+    elif answer == ShowUserKeyboard.A_VIEW_TG_LOGIN:
         await message.answer('Введите логин Telegram', reply_markup=StopBotKeyboard.get_reply_keyboard())
         await UserCardState.user_tg_login.set()
 
