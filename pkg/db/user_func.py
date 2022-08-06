@@ -128,6 +128,12 @@ async def update_user_by_department(cur: aiosqlite.Cursor, user_id: int, data: U
 
 
 @connect_to_db
+async def update_lead_description(cur: aiosqlite.Cursor, telegram_id: int, description: str):
+    await cur.execute('UPDATE users SET (lead_description) = (?)'
+                      ' WHERE (telegram_id) = (?)', (description, telegram_id))
+
+
+@connect_to_db
 # useless for now
 async def get_users_from_department(cur: aiosqlite.Cursor, department_id: int):
     await cur.execute(f'SELECT * from users WHERE desired_department = {department_id};')
