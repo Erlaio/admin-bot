@@ -14,7 +14,7 @@ class User(BaseModel):
     photo: bytes = bytearray([])
     email: str = ''
     git: str = ''
-    behance: str = ''
+    behance: Optional[str] = ''
     tg_login: str = ''
     desired_department: str = 'EmptyDepartment'
     skills: str = ''
