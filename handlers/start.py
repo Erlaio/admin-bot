@@ -6,6 +6,7 @@ from aiogram import types
 from aiogram.dispatcher.filters.builtin import CommandStart, Text
 from aiogram.dispatcher.storage import FSMContext
 from aiogram.types import ReplyKeyboardRemove, ContentType
+from pydantic.error_wrappers import ValidationError
 
 from handlers.rules import RULES
 from keyboard.default.inline_keyboards import ModeratorInlineKeyboard
@@ -313,7 +314,7 @@ async def check_questionnaire(message: types.Message, state: FSMContext):
             else:
                 await message.answer('Пока не одобрено',
                                      reply_markup=CheckAccessKeyboard.get_reply_keyboard(add_stop=False))
-        except TypeError:
+        except ValidationError:
             await bot.send_message(chat_id=message.chat.id,
                                    text='Неверно заполнена анкета, заполните как в примере')
             moder = await get_random_moder()
