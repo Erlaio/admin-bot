@@ -44,6 +44,13 @@ async def get_moder(message: types.Message):
     await StartState.get_moder.set()
 
 
+@dp.message_handler(state=StartState.rules_for_refilling)
+async def get_rules(message: types.Message):
+    text = 'Чтобы перезаполнить анкету, напомним правила :)'
+    await message.answer(text, reply_markup=ChoiceKeyboard.get_reply_keyboard())
+    await StartState.rules.set()
+
+
 @dp.message_handler(state=StartState.rules)
 async def reading_rules(message: types.Message, state: FSMContext):
     answer = message.text
@@ -319,7 +326,10 @@ async def check_questionnaire(message: types.Message, state: FSMContext):
                                    text='Неверно заполнена анкета, заполните как в примере')
             moder = await get_random_moder()
             await send_card(message.chat.id, moder)
-            await StartState.check_questionnaire.set()
+            await bot.send_message(chat_id=message.chat.id,
+                                   text='Для перезаполнения анкеты нажмите на кнопку ниже',
+                                   reply_markup=MoveToRefilling.get_reply_keyboard(add_stop=False))
+            await StartState.rules_for_refilling.set()
     else:
         await message.answer('Чтобы проверить анкету нажмите на кнопку ниже',
                              reply_markup=CheckAccessKeyboard.get_reply_keyboard(add_stop=False))
