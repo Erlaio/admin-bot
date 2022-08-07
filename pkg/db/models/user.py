@@ -11,7 +11,7 @@ class User(BaseModel):
     name: str = ''
     patronymic: Optional[str] = ''
     gender: str = ''
-    photo: bytes = bytearray([])
+    photo: Optional[bytes] = bytearray([])
     email: str = ''
     git: str = ''
     behance: Optional[str] = ''
@@ -20,7 +20,7 @@ class User(BaseModel):
     skills: str = ''
     goals: str = ''
     lead_description: str = ''
-    join_time: datetime.date = datetime.date(day=1, month=1, year=1)
+    join_time: datetime.date = datetime.date.today()
     is_moderator: bool = False
     is_approved: bool = False
 
