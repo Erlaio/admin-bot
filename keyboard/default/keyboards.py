@@ -69,3 +69,7 @@ class ShowUserKeyboard(ButtonFactory):
 class YesNoKeyboard(ButtonFactory):
     B_YES = 'Да ✅'
     A_NO = 'Нет ❌'
+
+
+class MoveToRefilling(ButtonFactory):
+    A_MOVE_TO = 'Перезаполнить анкету'
