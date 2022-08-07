@@ -39,7 +39,7 @@ async def bot_stop(message: types.Message, state: FSMContext):
 
 
 @dp.message_handler(commands='iammoder')
-async def reading_rules(message: types.Message):
+async def get_moder(message: types.Message):
     await message.answer('Введите ключ доступа', reply_markup=StopBotKeyboard.get_reply_keyboard())
     await StartState.get_moder.set()
 
