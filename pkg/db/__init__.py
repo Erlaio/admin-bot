@@ -18,7 +18,7 @@ async def create_database(cur: aiosqlite.Cursor):
             "git"	TEXT,
             "behance"   TEXT,
             "tg_login"	TEXT,
-            "desired_department"	INTEGER,
+            "desired_department"	TEXT,
             "skills"	TEXT,
             "goals"	TEXT,
             "lead_description"	TEXT,
