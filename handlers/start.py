@@ -21,7 +21,7 @@ from utils.send_card import send_card
 from utils.delete_user import delete_user
 
 #  Не знаю куда воткнуть список с каналами )) Бот должен быть в каналах с админскими правами
-CHECK_CHANNELS = ('@yaplakal', '@cbrstocks')
+# CHECK_CHANNELS = (-1001770112839, -1001658648627)
 
 
 @dp.message_handler(CommandStart())
@@ -288,8 +288,8 @@ async def finish_questions(message: types.Message, state: FSMContext):
                          'Пока ее не проверят функционал бота не доступен',
                          reply_markup=CheckAccessKeyboard.get_reply_keyboard(add_stop=False))
     # moder_chat_id = await ModeratorUtils().get_random_moder()         # функционал для отправки модеру в личку
-    await bot.send_message(chat_id=settings.TELEGRAM_MODERS_CHAT_IT, text=f'Пришла карточка {user.tg_login}')
-    await send_card(chat_id=settings.TELEGRAM_MODERS_CHAT_IT, user=user,
+    await bot.send_message(chat_id=settings.TELEGRAM_MODERS_CHAT_ID, text=f'Пришла карточка {user.tg_login}')
+    await send_card(chat_id=settings.TELEGRAM_MODERS_CHAT_ID, user=user,
                     reply_markup=ModeratorInlineKeyboard(
                         page=0,
                         telegram_id=user.telegram_id,
@@ -299,7 +299,7 @@ async def finish_questions(message: types.Message, state: FSMContext):
 
 
 @dp.message_handler(state=StartState.check_questionnaire)
-async def check_questionnaire(message: types.Message, channels=CHECK_CHANNELS):
+async def check_questionnaire(message: types.Message, channels=settings.TELEGRAM_MODERS_CHAT_ID):
     answer = message.text
     if answer == CheckAccessKeyboard.A_CHECK_ACCESS:
         try:
@@ -342,7 +342,7 @@ async def get_moder(message: types.Message, state: FSMContext):
 
 # @dp.message_handler(commands='check', state='*')
 @dp.message_handler(state=StartState.check_membership)
-async def check_membership(message: types.Message, state: FSMContext, channels=CHECK_CHANNELS):
+async def check_membership(message: types.Message, state: FSMContext, channels=settings.TELEGRAM_SCHOOL_CHATS):
     """
     Проверяет является ли пользователь участником списка групп CHECK_CHANNELS. Запускается проверка два раза с
     промежутком в 24 часа.
@@ -350,7 +350,6 @@ async def check_membership(message: types.Message, state: FSMContext, channels=C
     """
     is_first_check = True
     user_id = message.from_user.id
-
     while True:
         is_member = True
         await asyncio.sleep(86_400)
