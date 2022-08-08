@@ -307,7 +307,7 @@ async def check_questionnaire(message: types.Message):
             user = await get_user_by_tg_login(f'@{message.from_user.username}')
             if user.is_approved:
                 await message.answer(f'Поздравляем\n\nТебе необходимо вступить во все '
-                                     f'следующие группы в течение 2 дней:\n {channels}',
+                                     f'следующие группы в течение 2 дней:\n{channels}',
                                      reply_markup=CheckAccessKeyboard.get_reply_keyboard(add_stop=False))
                 await StartState.check_membership.set()
             else:
@@ -368,6 +368,7 @@ async def check_membership(message: types.Message, state: FSMContext, channels=s
                                          reply_markup=ReplyKeyboardRemove())
                     await delete_user(user_id, channels)
                     await state.finish()
+                    return
 
         if is_member:
             await message.answer('Спасибо, что ты с нами!', reply_markup=ReplyKeyboardRemove())
