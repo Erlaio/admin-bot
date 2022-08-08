@@ -299,7 +299,8 @@ async def finish_questions(message: types.Message, state: FSMContext):
 
 
 @dp.message_handler(state=StartState.check_questionnaire)
-async def check_questionnaire(message: types.Message, channels=settings.TELEGRAM_MODERS_CHAT_ID):
+async def check_questionnaire(message: types.Message):
+    channels = settings.TELEGRAM_SCHOOL_CHATS
     answer = message.text
     if answer == CheckAccessKeyboard.A_CHECK_ACCESS:
         try:
@@ -307,7 +308,7 @@ async def check_questionnaire(message: types.Message, channels=settings.TELEGRAM
             if user.is_approved:
                 await message.answer(f'Поздравляем\n\nТебе необходимо вступить во все '
                                      f'следующие группы в течение 2 дней:\n {channels}',
-                                     reply_markup=StopBotKeyboard.get_reply_keyboard())
+                                     reply_markup=CheckAccessKeyboard.get_reply_keyboard(add_stop=False))
                 await StartState.check_membership.set()
             else:
                 await message.answer('Пока не одобрено',
@@ -333,7 +334,7 @@ async def get_moder(message: types.Message, state: FSMContext):
     if answer == settings.SECRET_KEY:
         await update_user_status(message.from_user.id)
         await message.answer('Ваша анкета одобрена и права модератора получены',
-                             reply_markup=StopBotKeyboard.get_reply_keyboard())
+                             reply_markup=CheckAccessKeyboard.get_reply_keyboard(add_stop=False))
         await state.finish()
     else:
         await message.answer('Неверный ключ доступа')
