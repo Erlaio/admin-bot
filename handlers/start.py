@@ -20,9 +20,6 @@ from utils.get_name import split_fullname
 from utils.send_card import send_card
 from utils.delete_user import delete_user
 
-#  Не знаю куда воткнуть список с каналами )) Бот должен быть в каналах с админскими правами
-# CHECK_CHANNELS = (-1001770112839, -1001658648627)
-
 
 @dp.message_handler(CommandStart())
 async def bot_start(message: types.Message):
@@ -142,6 +139,7 @@ async def ask_about_photo(message: types.Message, state: FSMContext):
     else:
         await message.answer('Ошибка ввода! ⛔ \nВыберите один из предложенных вариантов')
         await StartState.photo.set()
+        return
     await update_user_by_telegram_id(message.from_user.id, user)
     await ContextHelper.add_user(user, state)
     await message.answer(message_text,
@@ -299,7 +297,7 @@ async def finish_questions(message: types.Message, state: FSMContext):
 
 
 @dp.message_handler(state=StartState.check_questionnaire)
-async def check_questionnaire(message: types.Message):
+async def check_questionnaire(message: types.Message, state: FSMContext):
     channels = settings.TELEGRAM_SCHOOL_CHATS
     answer = message.text
     if answer == CheckAccessKeyboard.A_CHECK_ACCESS:
@@ -307,9 +305,36 @@ async def check_questionnaire(message: types.Message):
             user = await get_user_by_tg_login(f'@{message.from_user.username}')
             if user.is_approved:
                 await message.answer(f'Поздравляем\n\nТебе необходимо вступить во все '
-                                     f'следующие группы в течение 2 дней:\n{channels}',
-                                     reply_markup=CheckAccessKeyboard.get_reply_keyboard(add_stop=False))
-                await StartState.check_membership.set()
+                                     f'следующие группы в течение 2 дней:\n{channels}\n'
+                                     f'*Пока айдишки. Потом на теги надо перевести',
+                                     reply_markup=ReplyKeyboardRemove())
+
+                is_first_check = True
+                user_id = message.from_user.id
+                while True:
+                    is_member = True
+                    await asyncio.sleep(86_400)
+                    for channel in channels:
+                        user_status = await bot.get_chat_member(chat_id=channel, user_id=user_id)
+                        print(user_status['status'])
+                        if user_status['status'] == 'left':
+                            is_member = False
+                            if is_first_check:
+                                await message.answer('А не пора ли вступить в группы? Осталось всего 24 часа...',
+                                                     reply_markup=ReplyKeyboardRemove())
+                                is_first_check = False
+                                break
+                            else:
+                                await message.answer('Ты так и не вступил в наши ряды...пока-пока',
+                                                     reply_markup=ReplyKeyboardRemove())
+                                await delete_user(user_id, channels)
+                                await state.finish()
+                                return
+
+                    if is_member:
+                        await message.answer('Спасибо, что ты с нами!', reply_markup=ReplyKeyboardRemove())
+                        await state.finish()
+                        break
             else:
                 await message.answer('Пока не одобрено',
                                      reply_markup=CheckAccessKeyboard.get_reply_keyboard(add_stop=False))
@@ -339,38 +364,3 @@ async def get_moder(message: types.Message, state: FSMContext):
     else:
         await message.answer('Неверный ключ доступа')
         await StartState.check_questionnaire.set()
-
-
-# @dp.message_handler(commands='check', state='*')
-@dp.message_handler(state=StartState.check_membership)
-async def check_membership(message: types.Message, state: FSMContext, channels=settings.TELEGRAM_SCHOOL_CHATS):
-    """
-    Проверяет является ли пользователь участником списка групп CHECK_CHANNELS. Запускается проверка два раза с
-    промежутком в 24 часа.
-    При первой итерации напоминает, что нужно вступить, при повторной удаляет
-    """
-    is_first_check = True
-    user_id = message.from_user.id
-    while True:
-        is_member = True
-        await asyncio.sleep(86_400)
-        for channel in channels:
-            user_status = await bot.get_chat_member(chat_id=channel, user_id=user_id)
-            if user_status["status"] == 'left':
-                is_member = False
-                if is_first_check:
-                    await message.answer('А не пора ли вступить в группы? Осталось всего 24 часа...',
-                                         reply_markup=ReplyKeyboardRemove())
-                    is_first_check = False
-                    break
-                else:
-                    await message.answer('Ты так и не вступил в наши ряды...пока-пока',
-                                         reply_markup=ReplyKeyboardRemove())
-                    await delete_user(user_id, channels)
-                    await state.finish()
-                    return
-
-        if is_member:
-            await message.answer('Спасибо, что ты с нами!', reply_markup=ReplyKeyboardRemove())
-            await state.finish()
-            break
