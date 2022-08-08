@@ -316,8 +316,13 @@ async def check_questionnaire(message: types.Message, state: FSMContext):
                     await asyncio.sleep(86_400)
                     for channel in channels:
                         user_status = await bot.get_chat_member(chat_id=channel, user_id=user_id)
-                        print(user_status['status'])
-                        if user_status['status'] == 'left':
+                        if user_status['status'] == 'kicked':
+                            await message.answer('Вы заблокированы в одном из наших чатов.'
+                                                 'Обратитесь к тимлиду или модератору',
+                                                 reply_markup=ReplyKeyboardRemove())
+                            await state.finish()
+                            return
+                        elif user_status['status'] == 'left':
                             is_member = False
                             if is_first_check:
                                 await message.answer('А не пора ли вступить в группы? Осталось всего 24 часа...',
