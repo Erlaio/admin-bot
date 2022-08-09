@@ -69,3 +69,7 @@ class ShowUserKeyboard(ButtonFactory):
 class YesNoKeyboard(ButtonFactory):
     B_YES = 'Да ✅'
     A_NO = 'Нет ❌'
+
+
+class JoinedKeyboard(ButtonFactory):
+    A_USER_JOINED = 'Я вступил!'
