@@ -6,6 +6,7 @@ from aiogram import types
 from aiogram.dispatcher.filters.builtin import CommandStart, Text
 from aiogram.dispatcher.storage import FSMContext
 from aiogram.types import ReplyKeyboardRemove, ContentType
+from pydantic.error_wrappers import ValidationError
 
 from handlers.rules import RULES
 from keyboard.default.inline_keyboards import ModeratorInlineKeyboard
@@ -36,6 +37,19 @@ async def bot_stop(message: types.Message, state: FSMContext):
     text = 'Главная страница'
     await message.answer(text, reply_markup=types.ReplyKeyboardRemove())
     await state.finish()
+
+
+@dp.message_handler(commands='iammoder')
+async def get_moder(message: types.Message):
+    await message.answer('Введите ключ доступа', reply_markup=StopBotKeyboard.get_reply_keyboard())
+    await StartState.get_moder.set()
+
+
+@dp.message_handler(state=StartState.rules_for_refilling)
+async def get_rules(message: types.Message):
+    text = 'Чтобы перезаполнить анкету, напомним правила :)'
+    await message.answer(text, reply_markup=ChoiceKeyboard.get_reply_keyboard())
+    await StartState.rules.set()
 
 
 @dp.message_handler(state=StartState.rules)
@@ -112,7 +126,7 @@ async def get_user_gender(message: types.Message, state: FSMContext):
     answer = message.text
     surname, name, patronymic = split_fullname(answer)
     if name.isalpha():
-        user = new_user()
+        user = User()
         user.telegram_id = message.from_user.id
         user.tg_login = f'@{message.from_user.username}'
         user.surname, user.name, user.patronymic = surname, name, patronymic
@@ -313,15 +327,15 @@ async def check_questionnaire(message: types.Message):
             else:
                 await message.answer('Пока не одобрено',
                                      reply_markup=CheckAccessKeyboard.get_reply_keyboard(add_stop=False))
-        except TypeError:
+        except ValidationError:
             await bot.send_message(chat_id=message.chat.id,
                                    text='Неверно заполнена анкета, заполните как в примере')
             moder = await get_random_moder()
             await send_card(message.chat.id, moder)
-            await StartState.check_questionnaire.set()
-    elif answer == 'iammoder':
-        await message.answer('Введите ключ доступа', reply_markup=StopBotKeyboard.get_reply_keyboard())
-        await StartState.get_moder.set()
+            await bot.send_message(chat_id=message.chat.id,
+                                   text='Для перезаполнения анкеты нажмите на кнопку ниже',
+                                   reply_markup=MoveToRefilling.get_reply_keyboard(add_stop=False))
+            await StartState.rules_for_refilling.set()
     else:
         await message.answer('Чтобы проверить анкету нажмите на кнопку ниже',
                              reply_markup=CheckAccessKeyboard.get_reply_keyboard(add_stop=False))
