@@ -312,15 +312,17 @@ async def finish_questions(message: types.Message, state: FSMContext):
 
 @dp.message_handler(state=StartState.check_questionnaire)
 async def check_questionnaire(message: types.Message):
-    channels = settings.TELEGRAM_SCHOOL_CHATS
+    # channels = settings.TELEGRAM_SCHOOL_CHATS
     answer = message.text
     if answer == CheckAccessKeyboard.A_CHECK_ACCESS:
         try:
             user = await get_user_by_tg_login(f'@{message.from_user.username}')
             if user.is_approved:
-                formatted_channels = ' '.join(map(str, channels))
+                # formatted_channels = ' '.join(map(str, channels))
                 text = 'Анкета одобрена, поздравляем!\n\nТебе необходимо вступить во все ' \
-                       'следующие группы в течение 2 дней:\n{}\n'.format(formatted_channels)
+                       'следующие группы в течение 2 дней:\n{}\n'. \
+                    format('Школа IT:\nhttps://t.me/+qGGF9z5Jy8MwMDA8'
+                           '\n\nПроекты:\nhttps://t.me/+HwhF6emf-asxYmMy')
                 await message.answer(text,
                                      reply_markup=JoinedKeyboard.get_reply_keyboard(add_stop=False))
                 await StartState.check_membership.set()
@@ -350,7 +352,6 @@ async def check_membership(message: types.Message, state: FSMContext):
     user_id = message.from_user.id
 
     while True:
-        await asyncio.sleep(86_400)
         for channel in channels:
             user_status = await bot.get_chat_member(chat_id=channel, user_id=user_id)
             if user_status.status == 'kicked':
@@ -367,6 +368,7 @@ async def check_membership(message: types.Message, state: FSMContext):
                                          'в течение следующих суток, Ваша анкета будет удалена',
                                          reply_markup=ReplyKeyboardRemove())
                     is_first_check = False
+                    await asyncio.sleep(86_400)
                     break
                 else:
                     await message.answer('Жаль, но придется нам расстаться. До свидания',
