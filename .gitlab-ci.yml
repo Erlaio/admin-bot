@@ -8,6 +8,8 @@ before_script:
   - echo "KEY=\"$KEY\"" > .env
   - echo "SQLITE_FILENAME=\"$SQLITE_FILENAME\"" >> .env
   - echo "SECRET_KEY=\"$SECRET_KEY\"" >> .env
+  - echo "TELEGRAM_MODERS_CHAT_ID=\"$TELEGRAM_MODERS_CHAT_ID\"" >> .env
+  - echo "TELEGRAM_SCHOOL_CHATS=\"$TELEGRAM_SCHOOL_CHATS\"" >> .env
 
 BuildApp:
     stage: build
