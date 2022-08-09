@@ -305,7 +305,7 @@ async def check_questionnaire(message: types.Message):
             user = await get_user_by_tg_login(f'@{message.from_user.username}')
             if user.is_approved:
                 formatted_channels = ' '.join(map(str, channels))
-                text = 'Поздравляем\n\nТебе необходимо вступить во все ' \
+                text = 'Анкета одобрена, поздравляем!\n\nТебе необходимо вступить во все ' \
                        'следующие группы в течение 2 дней:\n{}\n'.format(formatted_channels)
                 await message.answer(text,
                                      reply_markup=JoinedKeyboard.get_reply_keyboard(add_stop=False))
@@ -340,7 +340,7 @@ async def check_membership(message: types.Message, state: FSMContext):
         for channel in channels:
             user_status = await bot.get_chat_member(chat_id=channel, user_id=user_id)
             if user_status.status == 'kicked':
-                await message.answer('Вы заблокированы в одном из наших чатов.'
+                await message.answer('Вы заблокированы в одном из наших чатов. '
                                      'Обратитесь к тимлиду или модератору',
                                      reply_markup=ReplyKeyboardRemove())
                 await delete_user(user_id, channels)
@@ -349,12 +349,13 @@ async def check_membership(message: types.Message, state: FSMContext):
             elif user_status.status == 'left':
                 is_member = False
                 if is_first_check:
-                    await message.answer('А не пора ли вступить в группы? Осталось всего 24 часа...',
+                    await message.answer('Прошли уже сутки! Если Вы не вступите '
+                                         'в течение следующих суток, Ваша анкета будет удалена',
                                          reply_markup=ReplyKeyboardRemove())
                     is_first_check = False
                     break
                 else:
-                    await message.answer('Ты так и не вступил в наши ряды...пока-пока',
+                    await message.answer('Жаль, но придется нам расстаться. До свидания',
                                          reply_markup=ReplyKeyboardRemove())
                     await delete_user(user_id, channels)
                     await state.finish()
