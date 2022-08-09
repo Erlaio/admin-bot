@@ -22,3 +22,5 @@ class StartState(StatesGroup):
     update_info = State()
     choice = State()
     get_moder = State()
+    check_membership = State()
+    cycle = State()

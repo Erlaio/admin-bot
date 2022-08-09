@@ -11,6 +11,7 @@ async def callback_approve(call):
     _, page, telegram_id, user_name = call.data.split('#')
     await update_user_approve(telegram_id)
     await bot.send_message(call.message.chat.id, f'Пользователь {user_name} добавлен')
+    await bot.send_message(telegram_id, text='Анкета обновлена, проверьте состояние')
     if page == '0':
         await bot.delete_message(call.message.chat.id, call.message.message_id)
     else:

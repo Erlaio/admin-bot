@@ -71,5 +71,9 @@ class YesNoKeyboard(ButtonFactory):
     A_NO = 'Нет ❌'
 
 
+class JoinedKeyboard(ButtonFactory):
+    A_USER_JOINED = 'Я вступил!'
+
+
 class MoveToRefilling(ButtonFactory):
     A_MOVE_TO = 'Перезаполнить анкету'

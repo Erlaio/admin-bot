@@ -19,6 +19,7 @@ from utils.config_utils import ConfigUtils
 from utils.context_helper import ContextHelper
 from utils.get_name import split_fullname
 from utils.send_card import send_card
+from utils.delete_user import delete_user
 
 
 @dp.message_handler(CommandStart())
@@ -152,6 +153,7 @@ async def ask_about_photo(message: types.Message, state: FSMContext):
     else:
         await message.answer('Ошибка ввода! ⛔ \nВыберите один из предложенных вариантов')
         await StartState.photo.set()
+        return
     await update_user_by_telegram_id(message.from_user.id, user)
     await ContextHelper.add_user(user, state)
     await message.answer(message_text,
@@ -309,15 +311,19 @@ async def finish_questions(message: types.Message, state: FSMContext):
 
 
 @dp.message_handler(state=StartState.check_questionnaire)
-async def check_questionnaire(message: types.Message, state: FSMContext):
+async def check_questionnaire(message: types.Message):
+    channels = settings.TELEGRAM_SCHOOL_CHATS
     answer = message.text
     if answer == CheckAccessKeyboard.A_CHECK_ACCESS:
         try:
             user = await get_user_by_tg_login(f'@{message.from_user.username}')
             if user.is_approved:
-                await message.answer('Поздравляем\n\nСсылка на общий чат:\nhttps://t.me/+qGGF9z5Jy8MwMDA8',
-                                     reply_markup=StopBotKeyboard.get_reply_keyboard())
-                await state.finish()
+                formatted_channels = ' '.join(map(str, channels))
+                text = 'Анкета одобрена, поздравляем!\n\nТебе необходимо вступить во все ' \
+                       'следующие группы в течение 2 дней:\n{}\n'.format(formatted_channels)
+                await message.answer(text,
+                                     reply_markup=JoinedKeyboard.get_reply_keyboard(add_stop=False))
+                await StartState.check_membership.set()
             else:
                 await message.answer('Пока не одобрено',
                                      reply_markup=CheckAccessKeyboard.get_reply_keyboard(add_stop=False))
@@ -336,14 +342,57 @@ async def check_questionnaire(message: types.Message, state: FSMContext):
         await StartState.check_questionnaire.set()
 
 
+@dp.message_handler(state=StartState.check_membership)
+async def check_membership(message: types.Message, state: FSMContext):
+    is_member = True
+    channels = settings.TELEGRAM_SCHOOL_CHATS
+    is_first_check = True
+    user_id = message.from_user.id
+
+    while True:
+        await asyncio.sleep(86_400)
+        for channel in channels:
+            user_status = await bot.get_chat_member(chat_id=channel, user_id=user_id)
+            if user_status.status == 'kicked':
+                await message.answer('Вы заблокированы в одном из наших чатов. '
+                                     'Обратитесь к тимлиду или модератору',
+                                     reply_markup=ReplyKeyboardRemove())
+                await delete_user(user_id, channels)
+                await state.finish()
+                return
+            elif user_status.status == 'left':
+                is_member = False
+                if is_first_check:
+                    await message.answer('Прошли уже сутки! Если Вы не вступите '
+                                         'в течение следующих суток, Ваша анкета будет удалена',
+                                         reply_markup=ReplyKeyboardRemove())
+                    is_first_check = False
+                    break
+                else:
+                    await message.answer('Жаль, но придется нам расстаться. До свидания',
+                                         reply_markup=ReplyKeyboardRemove())
+                    await delete_user(user_id, channels)
+                    await StartState.cycle.set()
+                    return
+        if is_member:
+            await message.answer('Спасибо, что ты с нами!', reply_markup=ReplyKeyboardRemove())
+            await state.finish()
+            return
+
+
 @dp.message_handler(state=StartState.get_moder)
 async def get_moder(message: types.Message, state: FSMContext):
     answer = message.text
     if answer == settings.SECRET_KEY:
         await update_user_status(message.from_user.id)
         await message.answer('Ваша анкета одобрена и права модератора получены',
-                             reply_markup=StopBotKeyboard.get_reply_keyboard())
+                             reply_markup=CheckAccessKeyboard.get_reply_keyboard(add_stop=False))
         await state.finish()
     else:
         await message.answer('Неверный ключ доступа')
         await StartState.check_questionnaire.set()
+
+
+@dp.message_handler(state=StartState.cycle)
+async def cycle(message: types.Message):
+    await StartState.cycle.set()
