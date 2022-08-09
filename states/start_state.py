@@ -3,6 +3,7 @@ from aiogram.dispatcher.filters.state import StatesGroup, State
 
 class StartState(StatesGroup):
     rules = State()
+    rules_for_refilling = State()
     decision = State()
     user_name = State()
     gender = State()
@@ -19,5 +20,7 @@ class StartState(StatesGroup):
     finish_questions = State()
     check_questionnaire = State()
     update_info = State()
-    choise = State()
+    choice = State()
     get_moder = State()
+    check_membership = State()
+    cycle = State()

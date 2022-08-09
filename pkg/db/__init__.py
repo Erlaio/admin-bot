@@ -1,12 +1,10 @@
-import sqlite3
-
+import aiosqlite
 from .db_connect_sqlite import connect_to_db
-from .department_func import add_new_department
 
 
 @connect_to_db
-def create_database(cur: sqlite3.Cursor):
-    cur.executescript('''
+async def create_database(cur: aiosqlite.Cursor):
+    await cur.executescript('''
             /*  Table Users  */
         CREATE TABLE IF NOT EXISTS "users" (
             "user_id"	INTEGER NOT NULL UNIQUE,
@@ -20,7 +18,7 @@ def create_database(cur: sqlite3.Cursor):
             "git"	TEXT,
             "behance"   TEXT,
             "tg_login"	TEXT,
-            "desired_department"	INTEGER,
+            "desired_department"	TEXT,
             "skills"	TEXT,
             "goals"	TEXT,
             "lead_description"	TEXT,
@@ -43,7 +41,7 @@ def create_database(cur: sqlite3.Cursor):
 
         CREATE UNIQUE INDEX IF NOT EXISTS "department_id_index" ON "departments" (
             "department_id");
-            
+
         /*  Table Projects  */
         CREATE TABLE IF NOT EXISTS "projects" (
             "project_id"	INTEGER NOT NULL UNIQUE,
@@ -53,8 +51,8 @@ def create_database(cur: sqlite3.Cursor):
 
 
         CREATE UNIQUE INDEX IF NOT EXISTS "project_id_index" ON "projects" (
-            "project_id"); 
+            "project_id");
         ''')
 
 
-create_database()
+# asyncio.run(create_database())

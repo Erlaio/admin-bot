@@ -13,6 +13,14 @@ class ContextHelper:
         await ContextHelper._set_context(user, 'user', context)
 
     @staticmethod
+    async def get_tg_id(context: FSMContext) -> User:
+        return await ContextHelper._get_context_by_tg_id('telegram_id', context)
+
+    @staticmethod
+    async def add_tg_id(telegram_id, context: FSMContext):
+        await ContextHelper._set_context(telegram_id, 'telegram_id', context)
+
+    @staticmethod
     async def _set_context(data: ..., key: str, context: FSMContext) -> None:
         async with context.proxy() as context:
             context[key] = data
@@ -22,4 +30,11 @@ class ContextHelper:
         context = await context.get_data(name)
         if context is not None:
             return context.get(name)
-        raise ValueError(f"Data for key: [{name}] is not found.")
+        raise ValueError(f'Data for key: [{name}] is not found.')
+
+    @staticmethod
+    async def _get_context_by_tg_id(tg_id: str, context: FSMContext) -> ...:
+        context = await context.get_data(tg_id)
+        if context is not None:
+            return context.get(tg_id)
+        raise ValueError(f'Data for key: [{tg_id}] is not found.')
