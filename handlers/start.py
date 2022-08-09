@@ -358,7 +358,7 @@ async def check_membership(message: types.Message, state: FSMContext):
                     await message.answer('Жаль, но придется нам расстаться. До свидания',
                                          reply_markup=ReplyKeyboardRemove())
                     await delete_user(user_id, channels)
-                    await state.finish()
+                    await StartState.cycle.set()
                     return
         if is_member:
             await message.answer('Спасибо, что ты с нами!', reply_markup=ReplyKeyboardRemove())
@@ -377,3 +377,8 @@ async def get_moder(message: types.Message, state: FSMContext):
     else:
         await message.answer('Неверный ключ доступа')
         await StartState.check_questionnaire.set()
+
+
+@dp.message_handler(state=StartState.cycle)
+async def cycle(message: types.Message):
+    await StartState.cycle.set()
