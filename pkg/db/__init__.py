@@ -1,3 +1,5 @@
+import asyncio
+
 import aiosqlite
 from .db_connect_sqlite import connect_to_db
 
@@ -55,4 +57,5 @@ async def create_database(cur: aiosqlite.Cursor):
         ''')
 
 
-# asyncio.run(create_database())
+if __name__ == '__main__':
+    asyncio.run(create_database())
