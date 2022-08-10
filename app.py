@@ -1,8 +1,10 @@
+from pkg.db import create_database
 from utils.set_bot_commands import set_default_commands
 
 
 async def on_startup(dp):
     print('Start Bot')
+    await create_database()
     await set_default_commands(dp)
 
 
