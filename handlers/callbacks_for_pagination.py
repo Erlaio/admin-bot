@@ -13,7 +13,9 @@ async def callback_approve(call):
     await bot.send_message(call.message.chat.id, f'Пользователь {user_name} добавлен')
     await bot.send_message(telegram_id, text='Анкета обновлена, проверьте состояние')
     if page == '0':
-        await bot.delete_message(call.message.chat.id, call.message.message_id)
+        await bot.edit_message_reply_markup(chat_id=call.message.chat.id,
+                                            message_id=call.message.message_id,
+                                            reply_markup=None)
     else:
         await characters_page_callback(call)
 
@@ -25,7 +27,9 @@ async def callback_refilling(call):
     await bot.send_message(call.message.chat.id, f'Пользователь {user_name} отправлен на перезаполнение')
     await bot.send_message(telegram_id, text='Анкета обновлена, проверьте состояние')
     if page == '0':
-        await bot.delete_message(call.message.chat.id, call.message.message_id)
+        await bot.edit_message_reply_markup(chat_id=call.message.chat.id,
+                                            message_id=call.message.message_id,
+                                            reply_markup=None)
     else:
         await characters_page_callback(call)
 
@@ -37,7 +41,9 @@ async def callback_delete_user(call):
     await delete_user_by_tg_id(telegram_id)
     await bot.send_message(call.message.chat.id, f'Пользователь {user_name} удален')
     if page == '0':
-        await bot.delete_message(call.message.chat.id, call.message.message_id)
+        await bot.edit_message_reply_markup(chat_id=call.message.chat.id,
+                                            message_id=call.message.message_id,
+                                            reply_markup=None)
     else:
         await characters_page_callback(call)
 
