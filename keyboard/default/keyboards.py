@@ -61,9 +61,9 @@ class ProjectCommandsKeyboard(ButtonFactory):
 
 
 class ShowUserKeyboard(ButtonFactory):
-    C_VIEW_ALL = 'Посмотреть всех'
-    B_VIEW_ID = 'Посмотреть по ID'
-    A_VIEW_TG_LOGIN = 'Посмотреть по Логину в Telegram'
+    C_VIEW_ALL = 'Все'
+    B_VIEW_ID = 'По ID в DB'
+    A_VIEW_TG_LOGIN = 'По логину в TG'
 
 
 class YesNoKeyboard(ButtonFactory):
