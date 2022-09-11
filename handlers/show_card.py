@@ -78,14 +78,10 @@ async def show_user_by_id(message: types.Message, state: FSMContext):
     try:
         user = await get_user_by_id(int(user_id))
         await send_card(message.chat.id, user)
-    except TypeError:
-        await message.answer('Пользователь с таким id не найден.',
-                             reply_markup=ReplyKeyboardRemove())
         await state.finish()
     except ValueError:
-        await message.answer('Введите id в числовом формате.')
-        await UserCardState.user_id.set()
-    else:
+        await message.answer('Пользователь с таким id не найден.',
+                             reply_markup=ReplyKeyboardRemove())
         await state.finish()
 
 
@@ -95,9 +91,8 @@ async def show_user_by_tg_login(message: types.Message, state: FSMContext):
     try:
         user = await get_user_by_tg_login(user_tg_login)
         await send_card(message.chat.id, user)
-    except TypeError:
+        await state.finish()
+    except ValueError:
         await message.answer('Пользователь с таким логином не найден.',
                              reply_markup=ReplyKeyboardRemove())
-        await state.finish()
-    else:
         await state.finish()
