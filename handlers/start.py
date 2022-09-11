@@ -404,3 +404,9 @@ async def get_moder(message: types.Message, state: FSMContext):
 @dp.message_handler(state=StartState.cycle)
 async def cycle(message: types.Message):
     await StartState.cycle.set()
+
+
+async def is_command(text: str) -> bool:
+    if text.startswith('/'):
+        return True
+    return False

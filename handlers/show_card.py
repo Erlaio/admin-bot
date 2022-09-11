@@ -2,6 +2,7 @@ from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.types import ReplyKeyboardRemove
 
+from handlers.start import is_command
 from keyboard.default.pagination import Pagination, InlineKeyboardButton
 from keyboard.default.keyboards import ShowUserKeyboard, StopBotKeyboard
 from loader import dp, bot
@@ -20,12 +21,12 @@ async def show_user_start(message: types.Message):
 @dp.message_handler(state=UserCardState.show_user_choice)
 async def show_user_choice(message: types.Message, state: FSMContext):
     answer = message.text
-    if answer == 'Посмотреть всех':
+    if answer == ShowUserKeyboard.C_VIEW_ALL:
         await message.answer('Постраничный вывод всех пользователей', reply_markup=ReplyKeyboardRemove())
         await show_all(message, state)
 
     elif answer == ShowUserKeyboard.B_VIEW_ID:
-        await message.answer('Введите id', reply_markup=StopBotKeyboard.get_reply_keyboard())
+        await message.answer('Введите внутренний ID', reply_markup=StopBotKeyboard.get_reply_keyboard())
         await UserCardState.user_id.set()
 
     elif answer == ShowUserKeyboard.A_VIEW_TG_LOGIN:
@@ -75,24 +76,32 @@ async def show_all(message: types.Message, state: FSMContext, page=1):
 @dp.message_handler(state=UserCardState.user_id)
 async def show_user_by_id(message: types.Message, state: FSMContext):
     user_id = message.text
-    try:
-        user = await get_user_by_id(int(user_id))
-        await send_card(message.chat.id, user)
-        await state.finish()
-    except ValueError:
-        await message.answer('Пользователь с таким id не найден.',
+    if not await is_command(message.text):
+        try:
+            user = await get_user_by_id(int(user_id))
+            await send_card(message.chat.id, user)
+            await state.finish()
+        except ValueError:
+            await message.answer('Пользователь с таким ID не найден.',
+                                 reply_markup=ReplyKeyboardRemove())
+            await state.finish()
+    else:
+        await message.answer('Введите, пожалуйста, внутренний ID пользователя',
                              reply_markup=ReplyKeyboardRemove())
-        await state.finish()
 
 
 @dp.message_handler(state=UserCardState.user_tg_login)
 async def show_user_by_tg_login(message: types.Message, state: FSMContext):
     user_tg_login = message.text
-    try:
-        user = await get_user_by_tg_login(user_tg_login)
-        await send_card(message.chat.id, user)
-        await state.finish()
-    except ValueError:
-        await message.answer('Пользователь с таким логином не найден.',
+    if not await is_command(message.text):
+        try:
+            user = await get_user_by_tg_login(user_tg_login)
+            await send_card(message.chat.id, user)
+            await state.finish()
+        except ValueError:
+            await message.answer('Пользователь с таким логином не найден.',
+                                 reply_markup=ReplyKeyboardRemove())
+            await state.finish()
+    else:
+        await message.answer('Введите, пожалуйста, TG тег (@name) пользователя',
                              reply_markup=ReplyKeyboardRemove())
-        await state.finish()
