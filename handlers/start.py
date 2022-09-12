@@ -370,7 +370,7 @@ async def check_membership(message: types.Message, state: FSMContext):
             elif user_status.status == 'left':
                 is_member = False
                 if is_first_check:
-                    await message.answer('Прошли уже сутки! Если Вы не вступите '
+                    await message.answer('Если Вы не вступите '
                                          'в течение следующих суток, Ваша анкета будет удалена',
                                          reply_markup=ReplyKeyboardRemove())
                     is_first_check = False
