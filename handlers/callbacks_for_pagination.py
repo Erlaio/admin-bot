@@ -4,13 +4,16 @@ from aiogram.types import ReplyKeyboardRemove
 from handlers.moders_output import characters_page_callback
 from loader import dp, bot
 from pkg.db.user_func import delete_user_by_tg_id, update_user_approve
+from pkg.settings import settings
 
 
 @dp.callback_query_handler(lambda call: call.data.split('#')[0] == 'approve')
 async def callback_approve(call):
+    moder_tg = call['from']['username']
     _, page, telegram_id, user_name = call.data.split('#')
     await update_user_approve(telegram_id)
-    await bot.send_message(call.message.chat.id, f'Пользователь {user_name} добавлен')
+    await bot.send_message(chat_id=settings.TELEGRAM_MODERS_CHAT_ID,
+                           text=f'Пользователь {user_name} добавлен модератором @{moder_tg}')
     await bot.send_message(telegram_id, text='Анкета обновлена, проверьте состояние')
     if page == '0':
         await bot.edit_message_reply_markup(chat_id=call.message.chat.id,
@@ -22,9 +25,11 @@ async def callback_approve(call):
 
 @dp.callback_query_handler(lambda call: call.data.split('#')[0] == 'refilling')
 async def callback_refilling(call):
+    moder_tg = call['from']['username']
     _, page, telegram_id, user_name = call.data.split('#')
     await delete_user_by_tg_id(telegram_id)
-    await bot.send_message(call.message.chat.id, f'Пользователь {user_name} отправлен на перезаполнение')
+    await bot.send_message(chat_id=settings.TELEGRAM_MODERS_CHAT_ID,
+                           text=f'Пользователь {user_name} отправлен на перезаполнение модератором @{moder_tg}')
     await bot.send_message(telegram_id, text='Анкета обновлена, проверьте состояние')
     if page == '0':
         await bot.edit_message_reply_markup(chat_id=call.message.chat.id,
@@ -37,9 +42,11 @@ async def callback_refilling(call):
 @dp.callback_query_handler(lambda call: call.data.split('#')
                                         [0] == 'delete_user')
 async def callback_delete_user(call):
+    moder_tg = call['from']['username']
     _, page, telegram_id, user_name = call.data.split('#')
     await delete_user_by_tg_id(telegram_id)
-    await bot.send_message(call.message.chat.id, f'Пользователь {user_name} удален')
+    await bot.send_message(chat_id=settings.TELEGRAM_MODERS_CHAT_ID,
+                           text=f'Пользователь {user_name} удален модератором @{moder_tg}')
     if page == '0':
         await bot.edit_message_reply_markup(chat_id=call.message.chat.id,
                                             message_id=call.message.message_id,

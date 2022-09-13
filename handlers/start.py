@@ -370,13 +370,16 @@ async def check_membership(message: types.Message, state: FSMContext):
             elif user_status.status == 'left':
                 is_member = False
                 if is_first_check:
-                    await message.answer('Прошли уже сутки! Если Вы не вступите '
+                    await message.answer('Если Вы не вступите '
                                          'в течение следующих суток, Ваша анкета будет удалена',
                                          reply_markup=ReplyKeyboardRemove())
                     is_first_check = False
                     await asyncio.sleep(86_400)
                     break
                 else:
+                    await bot.send_message(chat_id=settings.TELEGRAM_MODERS_CHAT_ID,
+                                           text=f'Пользователь @{message.from_user.username} кикнут'
+                                                f' по истечению двух суток')
                     await message.answer('Жаль, но придется нам расстаться. До свидания',
                                          reply_markup=ReplyKeyboardRemove())
                     await delete_user(user_id, channels)
@@ -404,3 +407,9 @@ async def get_moder(message: types.Message, state: FSMContext):
 @dp.message_handler(state=StartState.cycle)
 async def cycle(message: types.Message):
     await StartState.cycle.set()
+
+
+async def is_command(text: str) -> bool:
+    if text.startswith('/'):
+        return True
+    return False

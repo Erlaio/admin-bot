@@ -2,6 +2,7 @@ from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.types import ReplyKeyboardRemove
 
+from handlers.start import is_command
 from keyboard.default.keyboards import DepartmentsKeyboard
 from keyboard.default.pagination import Pagination, InlineKeyboardButton
 from loader import dp, bot
@@ -33,15 +34,20 @@ async def characters_page_callback(call, state: FSMContext):
 @dp.message_handler(state=UserCardState.show_departments)
 async def show_users_by_department(message: types.Message, state: FSMContext, page=1):
     department_name = message.text
-    if await is_department_available(department_name):
-        await show_all(department_name, message, state=state, page=page)
+    if not await is_command(department_name):
+        if await is_department_available(department_name):
+            await message.answer(text=f'Был выбран отдел {department_name}', reply_markup=ReplyKeyboardRemove())
+            await show_all(department_name, message, state=state, page=page)
+        else:
+            await bot.send_message(message.chat.id, 'Такой отдел не найден.',
+                                   reply_markup=ReplyKeyboardRemove())
+            await state.finish()
     else:
-        await bot.send_message(message.chat.id, 'Такой отдел не найден.',
-                               reply_markup=ReplyKeyboardRemove())
-        await state.finish()
+        await message.answer('Вы ввели команду. Выберите, пожалуйста, отдел из клавиатуры'
+                             ' или вернитесь на главную страницу')
 
 
-@dp.message_handler(state=UserCardState.show_all)
+@dp.message_handler(state=UserCardState.show_all) # вроде как лишний стейт
 async def show_all(department_name, message: types.Message, state: FSMContext, page=1):
     user_list = await get_users_from_department_name(department_name=department_name)
     if user_list:

@@ -1,6 +1,7 @@
 import asyncio
 import random
 from typing import List
+import datetime
 
 import aiosqlite
 from pydantic import parse_obj_as
@@ -11,6 +12,7 @@ from pkg.db.models.user import User
 
 @connect_to_db
 async def add_new_user(cur: aiosqlite.Cursor, data: User) -> None:
+    join_time = datetime.date.today()
     sql = '''INSERT INTO users (telegram_id, surname, name, patronymic, gender, photo, email, git, behance, 
     tg_login, desired_department, skills, goals, lead_description, join_time, is_moderator, is_approved) 
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?); '''
@@ -18,7 +20,7 @@ async def add_new_user(cur: aiosqlite.Cursor, data: User) -> None:
                       (data.telegram_id, data.surname, data.name, data.patronymic, data.gender, data.photo,
                        data.email, data.git, data.behance, data.tg_login, data.desired_department,
                        data.skills,
-                       data.goals, data.lead_description, data.join_time, data.is_moderator,
+                       data.goals, data.lead_description, join_time, data.is_moderator,
                        data.is_approved))
 
 
