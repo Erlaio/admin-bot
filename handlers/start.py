@@ -133,6 +133,7 @@ async def get_user_gender(message: types.Message, state: FSMContext):
     surname, name, patronymic = split_fullname(answer)
     if name.isalpha():
         user = User()
+        user.join_time = datetime.date.today()
         user.telegram_id = message.from_user.id
         user.tg_login = f'@{message.from_user.username}'
         user.surname, user.name, user.patronymic = surname, name, patronymic
