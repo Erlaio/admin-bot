@@ -153,22 +153,26 @@ async def get_user_gender(message: types.Message, state: FSMContext):
         await message.answer('Вы ввели команду. Пожалуйста, введите ваше ФИО',
                              reply_markup=StopBotKeyboard.get_reply_keyboard())
     else:
-        surname, name, patronymic = split_fullname(answer)
-        if name.isalpha():
-            user = User()
-            user.join_time = datetime.date.today()
-            user.telegram_id = message.from_user.id
-            user.tg_login = f'@{message.from_user.username}'
-            user.surname, user.name, user.patronymic = surname, name, patronymic
-            await add_new_user(user)
-            await ContextHelper.add_user(user, state)
-            await message.answer('Выберите ваш пол',
-                                 reply_markup=GenderKeyboard.get_reply_keyboard())
-            await StartState.photo.set()
+        if len(answer.split(' ')) < 2:
+            await message.answer('Пожалуйста, введите хотя бы фамилию и имя',
+                                 reply_markup=StopBotKeyboard.get_reply_keyboard())
         else:
-            await message.answer('Необходимо ввести ФИО\nПример: Иванов Иван Иванович\n'
-                                 'Можно не указывать фамилию или отчество\nИмя указывать обязательно.')
-            await StartState.gender.set()
+            surname, name, patronymic = split_fullname(answer)
+            if name.isalpha():
+                user = User()
+                user.join_time = datetime.date.today()
+                user.telegram_id = message.from_user.id
+                user.tg_login = f'@{message.from_user.username}'
+                user.surname, user.name, user.patronymic = surname, name, patronymic
+                await add_new_user(user)
+                await ContextHelper.add_user(user, state)
+                await message.answer('Выберите ваш пол',
+                                     reply_markup=GenderKeyboard.get_reply_keyboard())
+                await StartState.photo.set()
+            else:
+                await message.answer('Необходимо ввести ФИО\nПример: Иванов Иван Иванович\n'
+                                     'Можно не указывать фамилию или отчество\nИмя указывать обязательно.')
+                await StartState.gender.set()
 
 
 @dp.message_handler(state=StartState.photo)
