@@ -32,14 +32,14 @@ async def is_command(text: str) -> bool:
 @dp.message_handler(CommandStart())
 async def bot_start(message: types.Message):
     text = 'Привет! ' \
-           'Рады тебя приветствовать в Школе IT! ' \
+           'Рады приветствовать Вас в Школе IT! ' \
            '\nШкола IT Terra создана для помощи благотворительным фондам и людям.' \
            ' Каждый участник вносит вклад в общее дело. ' \
            'Школа – это комьюнити, которое помогает прокачивать навыки всем желающим. Мы учимся новому и всегда ' \
            'готовы помочь каждому участнику разобраться с возникшим вопросом.  ' \
            '\nЗдесь собрались самые любознательные, целеустремленные и приветливые люди.' \
-           ' Мы объединяем новичков и специалистов разных возрастов не только из разных городов России, но и стран. ' \
-           '\nДля того, чтобы попасть в Школу просим ответить на несколько вопросов…'
+           ' Мы объединяем новичков и специалистов разных возрастов не только из разных городов России, но и мира. ' \
+           '\nДля того чтобы попасть в Школу, просим ответить на несколько вопросов'
     await message.answer(text, reply_markup=ChoiceKeyboard.get_reply_keyboard())
     await StartState.rules.set()
 
@@ -77,8 +77,8 @@ async def reading_rules(message: types.Message, state: FSMContext):
         await StartState.decision.set()
     elif answer == ChoiceKeyboard.A_DONT_READ_RULES:
         await message.answer(
-            'Очень жаль что наше с тобой общение подходит к концу 😔\nЕсли же ты передумаешь,'
-            'то я всегда тут)) Нужно лишь повторно вызвать команду /start',
+            'Очень жаль, что наше с Вами общение подходит к концу 😔\nЕсли Вы передумаете, '
+            'то я всегда тут! Нужно лишь повторно вызвать команду /start',
             reply_markup=ReplyKeyboardRemove())
         await state.reset_state()
     else:
@@ -103,7 +103,7 @@ async def decision_about_rules(message: types.Message, state: FSMContext):
             await StartState.update_info.set()
     elif answer == AgreementKeyboard.A_DONT_AGREE_WITH_RULES:
         await message.answer('Жаль, что вас не устроили наши правила 😔\n'
-                             'В любой момент, если передумаете, можете'
+                             'В любой момент, если передумаете, можете '
                              'попробовать снова, для этого нажмите команду /start',
                              reply_markup=ReplyKeyboardRemove())
         await state.reset_state()
@@ -166,7 +166,7 @@ async def get_user_gender(message: types.Message, state: FSMContext):
                 user.surname, user.name, user.patronymic = surname, name, patronymic
                 await add_new_user(user)
                 await ContextHelper.add_user(user, state)
-                await message.answer('Выберите ваш пол',
+                await message.answer('Выберите Ваш пол',
                                      reply_markup=GenderKeyboard.get_reply_keyboard())
                 await StartState.photo.set()
             else:
@@ -182,7 +182,7 @@ async def ask_about_photo(message: types.Message, state: FSMContext):
         await message.answer('Вы ввели команду. Пожалуйста, выберите один из предложенных вариантов ответа',
                              reply_markup=GenderKeyboard.get_reply_keyboard())
     else:
-        message_text = 'Хотите ли вы загрузить свое фото?'
+        message_text = 'Хотите ли Вы загрузить свое фото?'
         user = await ContextHelper.get_user(state)
         if answer == GenderKeyboard.B_MALE_GENDER:
             user.gender = 'Мужской'
@@ -356,7 +356,7 @@ async def get_goals(message: types.Message, state: FSMContext):
         await ContextHelper.add_user(user, state)
         await message.answer('Введите ваши цели\n'
                              '1. Основные ожидания от школы: ...\n2. '
-                             'Вектор, куда ты хочешь развиваться:',
+                             'Вектор, куда Вы хотите развиваться:',
                              reply_markup=StopBotKeyboard.get_reply_keyboard())
         await StartState.finish_questions.set()
 
@@ -373,7 +373,7 @@ async def finish_questions(message: types.Message, state: FSMContext):
         await update_user_by_telegram_id(message.from_user.id, user)
         await ContextHelper.add_user(user, state)
         await message.answer('Ваша анкета отправлена на проверку. '
-                             'Пока ее не проверят функционал бота не доступен',
+                             'Пока ее не проверят, функционал бота не доступен',
                              reply_markup=CheckAccessKeyboard.get_reply_keyboard(add_stop=False))
         await bot.send_message(chat_id=settings.TELEGRAM_MODERS_CHAT_ID, text=f'Пришла карточка {user.tg_login}')
         await send_card(chat_id=settings.TELEGRAM_MODERS_CHAT_ID, user=user,
@@ -464,7 +464,7 @@ async def check_membership(message: types.Message, state: FSMContext):
                     await StartState.cycle.set()
                     return
         if is_member:
-            await message.answer('Спасибо, что ты с нами!', reply_markup=ReplyKeyboardRemove())
+            await message.answer('Спасибо, что Вы с нами!', reply_markup=ReplyKeyboardRemove())
             await state.finish()
             return
 
