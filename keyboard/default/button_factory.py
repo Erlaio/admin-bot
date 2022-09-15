@@ -13,7 +13,7 @@ class ButtonFactory(ABC):
         key_list = [KeyboardButton(getattr(cls, i_const)) for i_const in dir(cls)[::-1]
                     if any([i_const.isupper(), i_const.isdigit()])]
 
-        row = 3 if len(key_list) < 5 else math.ceil(len(key_list) / 2)
+        row = 3 if len(key_list) < 5 else math.ceil(len(key_list) / 5)
 
         keyboard = ReplyKeyboardMarkup(resize_keyboard=True, row_width=row,
                                        one_time_keyboard=one_time).add(*key_list)
