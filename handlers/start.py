@@ -2,6 +2,7 @@ import imghdr
 import os.path
 import time
 
+import validators
 from aiogram import types
 from aiogram.dispatcher.filters.builtin import CommandStart, Text
 from aiogram.dispatcher.storage import FSMContext
@@ -248,7 +249,7 @@ async def get_gitlab(message: types.Message, state: FSMContext):
     if await is_command(answer):
         await message.answer('Вы ввели команду. Пожалуйста, введите вашу почту',
                              reply_markup=StopBotKeyboard.get_reply_keyboard())
-    else:
+    elif validators.email(answer):
         user = await ContextHelper.get_user(state)
         user.email = answer
         await update_user_by_telegram_id(message.from_user.id, user)
@@ -256,6 +257,9 @@ async def get_gitlab(message: types.Message, state: FSMContext):
         await message.answer('Введите вашу ссылку на gitlab 🌐',
                              reply_markup=StopBotKeyboard.get_reply_keyboard())
         await StartState.design.set()
+    else:
+        await message.answer('Вы ввели неверный формат почты',
+                             reply_markup=StopBotKeyboard.get_reply_keyboard())
 
 
 @dp.message_handler(state=StartState.design)
@@ -264,13 +268,16 @@ async def design(message: types.Message, state: FSMContext):
     if await is_command(answer):
         await message.answer('Вы ввели команду. Пожалуйста, введите вашу ссылку на gitlab 🌐 ',
                              reply_markup=StopBotKeyboard.get_reply_keyboard())
-    else:
+    elif validators.url(answer):
         user = await ContextHelper.get_user(state)
         user.git = answer
         await update_user_by_telegram_id(message.from_user.id, user)
         await ContextHelper.add_user(user, state)
         await message.answer('Вы дизайнер? 🎨', reply_markup=YesNoKeyboard.get_reply_keyboard())
         await StartState.decision_about_design.set()
+    else:
+        await message.answer('Вы ввели неверный формат ссылки',
+                             reply_markup=StopBotKeyboard.get_reply_keyboard())
 
 
 @dp.message_handler(state=StartState.department)
