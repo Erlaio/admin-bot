@@ -399,14 +399,25 @@ async def check_questionnaire(message: types.Message):
                 await message.answer('Пока не одобрено',
                                      reply_markup=CheckAccessKeyboard.get_reply_keyboard(add_stop=False))
         except ValidationError:
-            await bot.send_message(chat_id=message.chat.id,
-                                   text='Неверно заполнена анкета, заполните как в примере')
-            moder = await get_random_moder()
-            await send_card(message.chat.id, moder)
-            await bot.send_message(chat_id=message.chat.id,
-                                   text='Для перезаполнения анкеты нажмите на кнопку ниже',
-                                   reply_markup=MoveToRefilling.get_reply_keyboard(add_stop=False))
-            await StartState.rules_for_refilling.set()
+            channels = settings.TELEGRAM_SCHOOL_CHATS
+            user_id = message.from_user.id
+            user_status = await bot.get_chat_member(chat_id=channels[0], user_id=user_id)
+
+            if user_status.status == 'kicked':
+                await bot.send_message(text='Вы заблокированы в одном из наших чатов. '
+                                            'Обратитесь к тимлиду или модератору',
+                                       chat_id=message.chat.id,
+                                       reply_markup=ReplyKeyboardRemove())
+                await StartState.cycle.set()
+            else:
+                await bot.send_message(chat_id=message.chat.id,
+                                       text='Неверно заполнена анкета, заполните как в примере')
+                moder = await get_random_moder()
+                await send_card(message.chat.id, moder)
+                await bot.send_message(chat_id=message.chat.id,
+                                       text='Для перезаполнения анкеты нажмите на кнопку ниже',
+                                       reply_markup=MoveToRefilling.get_reply_keyboard(add_stop=False))
+                await StartState.rules_for_refilling.set()
     else:
         await message.answer('Чтобы проверить анкету нажмите на кнопку ниже',
                              reply_markup=CheckAccessKeyboard.get_reply_keyboard(add_stop=False))
