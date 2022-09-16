@@ -7,4 +7,4 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     volumes:
-      - /var/admin-bot/db:/usr/local/lib/python3.8/db
+      - /usr/local/lib/python3.8/db:/var/admin-bot/db
