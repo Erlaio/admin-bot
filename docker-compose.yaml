@@ -1,4 +1,4 @@
-version: "3.4"
+version: "3.5"
 
 services:
   endpoints:
@@ -7,4 +7,4 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     volumes:
-      - /var/admin-bot/db:./db
+      - /var/admin-bot/db:/usr/src/python3.8/
