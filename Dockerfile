@@ -1,6 +1,7 @@
 FROM python:3.8
 
 RUN mkdir -p /usr/src/python3.8
+RUN mkdir -p /usr/src/python3.8/db
 
 WORKDIR /usr/src/python3.8
 
