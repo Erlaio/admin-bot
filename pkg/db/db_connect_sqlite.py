@@ -1,3 +1,4 @@
+import os.path
 import pathlib
 import sqlite3
 
@@ -12,7 +13,7 @@ def connect_to_db(func):
         result = []
         try:
             conn = await aiosqlite.connect(
-                str(pathlib.PurePath(ConfigUtils.get_project_root(), settings.SQLITE_FILENAME)))
+                str(pathlib.PurePath(ConfigUtils.get_project_root().joinpath('db'), settings.SQLITE_FILENAME)))
             conn.row_factory = sqlite3.Row
             cur = await conn.cursor()
             result = await func(cur, *args, **kwargs)

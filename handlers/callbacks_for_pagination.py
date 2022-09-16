@@ -5,6 +5,7 @@ from handlers.moders_output import characters_page_callback
 from loader import dp, bot
 from pkg.db.user_func import delete_user_by_tg_id, update_user_approve
 from pkg.settings import settings
+from utils.delete_user import delete_user
 
 
 @dp.callback_query_handler(lambda call: call.data.split('#')[0] == 'approve')
@@ -42,11 +43,15 @@ async def callback_refilling(call):
 @dp.callback_query_handler(lambda call: call.data.split('#')
                                         [0] == 'delete_user')
 async def callback_delete_user(call):
+    channels = settings.TELEGRAM_SCHOOL_CHATS
     moder_tg = call['from']['username']
     _, page, telegram_id, user_name = call.data.split('#')
+
     await delete_user_by_tg_id(telegram_id)
     await bot.send_message(chat_id=settings.TELEGRAM_MODERS_CHAT_ID,
                            text=f'Пользователь {user_name} удален модератором @{moder_tg}')
+    await delete_user(telegram_id, channels)
+    await bot.send_message(telegram_id, text='Анкета обновлена, проверьте состояние')
     if page == '0':
         await bot.edit_message_reply_markup(chat_id=call.message.chat.id,
                                             message_id=call.message.message_id,
