@@ -1,4 +1,4 @@
-version: "3.3"
+version: "3.4"
 
 services:
   endpoints:
@@ -6,3 +6,5 @@ services:
       context: .
       dockerfile: Dockerfile
     restart: unless-stopped
+    volumes:
+      - db:/var/admin-bot/db
