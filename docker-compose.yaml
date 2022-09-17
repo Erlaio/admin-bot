@@ -7,4 +7,4 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     volumes:
-      - ./db:/usr/src/python3.8/db:rw
+      - ./db:./db
