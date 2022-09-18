@@ -299,7 +299,7 @@ async def get_department(message: types.Message, state: FSMContext):
                              'Например: Python, Postgresql, Git, FastAPI, Django, '
                              'Go, aiogramm, asyncio',
                              reply_markup=StopBotKeyboard.get_reply_keyboard())
-        await StartState.goals.set()
+        await StartState.exceptations.set()
 
 
 @dp.message_handler(state=StartState.decision_about_design)
@@ -340,10 +340,10 @@ async def get_skills(message: types.Message, state: FSMContext):
         await message.answer('Введите ваши навыки\n'
                              'Например: Python, Postgresql, Git, FastAPI, '
                              'Django, Go, aiogramm, asyncio', reply_markup=StopBotKeyboard.get_reply_keyboard())
-        await StartState.goals.set()
+        await StartState.exceptations.set()
 
 
-@dp.message_handler(state=StartState.goals)
+@dp.message_handler(state=StartState.exceptations)
 async def get_goals(message: types.Message, state: FSMContext):
     answer = message.text
     if await is_command(answer):
@@ -354,10 +354,24 @@ async def get_goals(message: types.Message, state: FSMContext):
         user.skills = answer
         await update_user_by_telegram_id(message.from_user.id, user)
         await ContextHelper.add_user(user, state)
-        await message.answer('Введите ваши цели\n'
-                             '1. Основные ожидания от школы: ...\n2. '
-                             'Вектор, куда Вы хотите развиваться:',
+        await message.answer('Введите ваши основные ожидания от школы',
                              reply_markup=StopBotKeyboard.get_reply_keyboard())
+        await StartState.development_vector.set()
+
+
+@dp.message_handler(state=StartState.development_vector)
+async def get_development_vector(message: types.Message, state: FSMContext):
+    answer = message.text
+    if await is_command(answer):
+        await message.answer('Вы ввели команду. Пожалуйста, введите ваши ожидания от школы',
+                             reply_markup=StopBotKeyboard.get_reply_keyboard(add_stop=False))
+    else:
+        user = await ContextHelper.get_user(state)
+        user.goals = f'Ожидания: {answer}'
+        await update_user_by_telegram_id(message.from_user.id, user)
+        await ContextHelper.add_user(user, state)
+        await message.answer('Введите желаемый вектор развития',
+                             reply_markup=ReplyKeyboardRemove())
         await StartState.finish_questions.set()
 
 
@@ -365,11 +379,11 @@ async def get_goals(message: types.Message, state: FSMContext):
 async def finish_questions(message: types.Message, state: FSMContext):
     answer = message.text
     if await is_command(answer):
-        await message.answer('Вы ввели команду. Пожалуйста, введите ваши цели',
+        await message.answer('Вы ввели команду. Пожалуйста, введите желаемый вектор развития',
                              reply_markup=StopBotKeyboard.get_reply_keyboard(add_stop=False))
     else:
         user = await ContextHelper.get_user(state)
-        user.goals = answer
+        user.goals += f'\nВектор развития: {answer}'
         await update_user_by_telegram_id(message.from_user.id, user)
         await ContextHelper.add_user(user, state)
         await message.answer('Ваша анкета отправлена на проверку. '
