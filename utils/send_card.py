@@ -12,6 +12,8 @@ async def send_card(chat_id: int, user: User, reply_markup=ReplyKeyboardRemove()
               f'Желаемый отдел: {user.desired_department}\n' \
               f'Скилы: {user.skills}\n' \
               f'{user.goals}\n' \
+              f'Город: {user.city}\n' \
+              f'Откуда узнал о школе: {user.source_of_knowledge}\n' \
               f'Комментарий тимлида: {user.lead_description}\n' \
               f'Время присоединения: {user.join_time}\n'
     if user.is_approved == 1:
