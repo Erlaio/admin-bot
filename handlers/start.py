@@ -507,10 +507,11 @@ async def get_moder(message: types.Message, state: FSMContext):
     if answer == settings.SECRET_KEY:
         await update_user_status(message.from_user.id)
         await message.answer('Ваша анкета одобрена и права модератора получены',
-                             reply_markup=CheckAccessKeyboard.get_reply_keyboard(add_stop=False))
+                             reply_markup=ReplyKeyboardRemove())
         await state.finish()
     else:
-        await message.answer('Неверный ключ доступа')
+        await message.answer('Неверный ключ доступа',
+                             reply_markup=StopBotKeyboard.get_reply_keyboard())
         await StartState.check_questionnaire.set()
 
 
