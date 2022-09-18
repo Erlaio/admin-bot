@@ -276,6 +276,7 @@ async def get_department(message: types.Message, state: FSMContext):
         user = await ContextHelper.get_user(state)
         user.desired_department = answer
         await update_user_by_telegram_id(message.from_user.id, user)
+        await ContextHelper.add_user(user, state)
         await message.answer('Введите вашу ссылку на беханс 🌐',
                              reply_markup=StopBotKeyboard.get_reply_keyboard())
         await StartState.get_skills_design.set()
@@ -283,6 +284,7 @@ async def get_department(message: types.Message, state: FSMContext):
         user = await ContextHelper.get_user(state)
         user.desired_department = answer
         await update_user_by_telegram_id(message.from_user.id, user)
+        await ContextHelper.add_user(user, state)
         await message.answer('Введите вашу ссылку на gitlab 🌐',
                              reply_markup=StopBotKeyboard.get_reply_keyboard())
         await StartState.get_skills_dev.set()
