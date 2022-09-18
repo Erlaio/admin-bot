@@ -16,6 +16,8 @@ class StartState(StatesGroup):
     design = State()
     get_skills_design = State()
     get_skills_dev = State()
+    get_city = State()
+    get_source = State()
     exceptations = State()
     development_vector = State()
     finish_questions = State()
