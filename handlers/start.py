@@ -301,10 +301,10 @@ async def get_skills_design(message: types.Message, state: FSMContext):
         user = await ContextHelper.get_user(state)
         user.behance = answer
         await update_user_by_telegram_id(message.from_user.id, user)
-        await message.answer('Введите ваши навыки\n'
-                             'Например: Python, Postgresql, Git, FastAPI, '
-                             'Django, Go, aiogramm, asyncio', reply_markup=StopBotKeyboard.get_reply_keyboard())
-        await StartState.exceptations.set()
+        await ContextHelper.add_user(user, state)
+        await message.answer('Введите, пожалуйста, из какого вы города',
+                             reply_markup=StopBotKeyboard.get_reply_keyboard())
+        await StartState.get_city.set()
 
 
 @dp.message_handler(state=StartState.get_skills_dev)
@@ -312,35 +312,51 @@ async def get_skills_dev(message: types.Message, state: FSMContext):
     answer = message.text
     if await is_command(answer):
         await message.answer('Вы ввели команду. Пожалуйста, введите ссылку на ваш Gitlab',
-                             reply_markup=ReplyKeyboardRemove())
+                             reply_markup=StopBotKeyboard.get_reply_keyboard())
     elif not validators.url(answer):
         await message.answer('Введите, пожалуйста, корректную ссылку на Gitlab',
-                             reply_markup=ReplyKeyboardRemove())
+                             reply_markup=StopBotKeyboard.get_reply_keyboard())
     else:
         user = await ContextHelper.get_user(state)
         user.git = answer
         await update_user_by_telegram_id(message.from_user.id, user)
+        await ContextHelper.add_user(user, state)
+        await message.answer('Введите, пожалуйста, из какого вы города',
+                             reply_markup=StopBotKeyboard.get_reply_keyboard())
+        await StartState.get_city.set()
+
+
+@dp.message_handler(state=StartState.get_city)
+async def get_city(message: types.Message, state: FSMContext):
+    answer = message.text
+    if await is_command(answer):
+        await message.answer('Вы ввели команду. Пожалуйста, введите город, в котором проживаете',
+                             reply_markup=StopBotKeyboard.get_reply_keyboard())
+    else:
+        user = await ContextHelper.get_user(state)
+        user.city = answer
+        await update_user_by_telegram_id(message.from_user.id, user)
+        await ContextHelper.add_user(user, state)
+        await message.answer('Напишите, пожалуйста, откуда Вы узнали о Школе IT?',
+                             reply_markup=StopBotKeyboard.get_reply_keyboard())
+        await StartState.get_source.set()
+
+
+@dp.message_handler(state=StartState.get_source)
+async def get_source(message: types.Message, state: FSMContext):
+    answer = message.text
+    if await is_command(answer):
+        await message.answer('Вы ввели команду. Пожалуйста, введите откуда Вы узнали о школе',
+                             reply_markup=StopBotKeyboard.get_reply_keyboard())
+    else:
+        user = await ContextHelper.get_user(state)
+        user.source_of_knowledge = answer
+        await update_user_by_telegram_id(message.from_user.id, user)
+        await ContextHelper.add_user(user, state)
         await message.answer('Введите ваши навыки\n'
                              'Например: Python, Postgresql, Git, FastAPI, '
                              'Django, Go, aiogramm, asyncio', reply_markup=StopBotKeyboard.get_reply_keyboard())
         await StartState.exceptations.set()
-
-
-# @dp.message_handler(state=StartState.get_skills)
-# async def get_skills(message: types.Message, state: FSMContext):
-#     answer = message.text
-#     if await is_command(answer):
-#         await message.answer('Вы ввели команду. Пожалуйста, введите ваш Behance',
-#                              reply_markup=StopBotKeyboard.get_reply_keyboard())
-#     else:
-#         user = await ContextHelper.get_user(state)
-#         user.behance = answer
-#         await update_user_by_telegram_id(message.from_user.id, user)
-#         await ContextHelper.add_user(user, state)
-#         await message.answer('Введите ваши навыки\n'
-#                              'Например: Python, Postgresql, Git, FastAPI, '
-#                              'Django, Go, aiogramm, asyncio', reply_markup=StopBotKeyboard.get_reply_keyboard())
-#         await StartState.exceptations.set()
 
 
 @dp.message_handler(state=StartState.exceptations)
