@@ -258,29 +258,11 @@ async def get_gitlab(message: types.Message, state: FSMContext):
         user.email = answer
         await update_user_by_telegram_id(message.from_user.id, user)
         await ContextHelper.add_user(user, state)
-        await message.answer('Введите вашу ссылку на gitlab 🌐',
-                             reply_markup=StopBotKeyboard.get_reply_keyboard())
-        await StartState.design.set()
+        await message.answer('Выберите, в какой бы отдел Вы хотели попасть?',
+                             reply_markup=await DepartmentsKeyboard.get_reply_keyboard())
+        await StartState.department.set()
     else:
         await message.answer('Вы ввели неверный формат почты',
-                             reply_markup=StopBotKeyboard.get_reply_keyboard())
-
-
-@dp.message_handler(state=StartState.design)
-async def design(message: types.Message, state: FSMContext):
-    answer = message.text
-    if await is_command(answer):
-        await message.answer('Вы ввели команду. Пожалуйста, введите вашу ссылку на gitlab 🌐 ',
-                             reply_markup=StopBotKeyboard.get_reply_keyboard())
-    elif validators.url(answer):
-        user = await ContextHelper.get_user(state)
-        user.git = answer
-        await update_user_by_telegram_id(message.from_user.id, user)
-        await ContextHelper.add_user(user, state)
-        await message.answer('Вы дизайнер? 🎨', reply_markup=YesNoKeyboard.get_reply_keyboard())
-        await StartState.decision_about_design.set()
-    else:
-        await message.answer('Вы ввели неверный формат ссылки',
                              reply_markup=StopBotKeyboard.get_reply_keyboard())
 
 
@@ -290,57 +272,75 @@ async def get_department(message: types.Message, state: FSMContext):
     if await is_command(answer):
         await message.answer('Вы ввели команду. Пожалуйста, введите или выберите желаемый отдел',
                              reply_markup=await DepartmentsKeyboard.get_reply_keyboard())
+    elif answer == 'Design':
+        user = await ContextHelper.get_user(state)
+        user.desired_department = answer
+        await update_user_by_telegram_id(message.from_user.id, user)
+        await message.answer('Введите вашу ссылку на беханс 🌐',
+                             reply_markup=StopBotKeyboard.get_reply_keyboard())
+        await StartState.get_skills_design.set()
     else:
         user = await ContextHelper.get_user(state)
         user.desired_department = answer
         await update_user_by_telegram_id(message.from_user.id, user)
-        await ContextHelper.add_user(user, state)
-        await message.answer('Введите ваши навыки\n'
-                             'Например: Python, Postgresql, Git, FastAPI, Django, '
-                             'Go, aiogramm, asyncio',
+        await message.answer('Введите вашу ссылку на gitlab 🌐',
                              reply_markup=StopBotKeyboard.get_reply_keyboard())
-        await StartState.exceptations.set()
+        await StartState.get_skills_dev.set()
 
 
-@dp.message_handler(state=StartState.decision_about_design)
-async def decision_about_design(message: types.Message, state: FSMContext):
+@dp.message_handler(state=StartState.get_skills_design)
+async def get_skills_design(message: types.Message, state: FSMContext):
     answer = message.text
     if await is_command(answer):
-        await message.answer('Вы ввели команду. Пожалуйста, выберите один из предложенных вариантов ответа',
-                             reply_markup=YesNoKeyboard.get_reply_keyboard())
-    else:
-        user = await ContextHelper.get_user(state)
-        if answer == YesNoKeyboard.B_YES:
-            user.desired_department = 'Design'
-            await update_user_by_telegram_id(message.from_user.id, user)
-            await ContextHelper.add_user(user, state)
-            await message.answer('Введите вашу ссылку на беханс 🌐',
-                                 reply_markup=StopBotKeyboard.get_reply_keyboard())
-            await StartState.get_skills.set()
-        elif answer == YesNoKeyboard.A_NO:
-            await message.answer('Выберите, в какой бы отдел Вы хотели попасть?',
-                                 reply_markup=await DepartmentsKeyboard.get_reply_keyboard())
-            await StartState.department.set()
-        else:
-            await message.answer('Ошибка ввода! ⛔ \nВыберите один из предложенных вариантов')
-            await StartState.decision_about_design.set()
-
-
-@dp.message_handler(state=StartState.get_skills)
-async def get_skills(message: types.Message, state: FSMContext):
-    answer = message.text
-    if await is_command(answer):
-        await message.answer('Вы ввели команду. Пожалуйста, введите ваш Behance',
-                             reply_markup=StopBotKeyboard.get_reply_keyboard())
+        await message.answer('Вы ввели команду. Пожалуйста, введите ссылку на ваш Behance',
+                             reply_markup=ReplyKeyboardRemove())
+    elif not validators.url(answer):
+        await message.answer('Введите, пожалуйста, корректную ссылку на Behance',
+                             reply_markup=ReplyKeyboardRemove())
     else:
         user = await ContextHelper.get_user(state)
         user.behance = answer
         await update_user_by_telegram_id(message.from_user.id, user)
-        await ContextHelper.add_user(user, state)
         await message.answer('Введите ваши навыки\n'
                              'Например: Python, Postgresql, Git, FastAPI, '
                              'Django, Go, aiogramm, asyncio', reply_markup=StopBotKeyboard.get_reply_keyboard())
         await StartState.exceptations.set()
+
+
+@dp.message_handler(state=StartState.get_skills_dev)
+async def get_skills_dev(message: types.Message, state: FSMContext):
+    answer = message.text
+    if await is_command(answer):
+        await message.answer('Вы ввели команду. Пожалуйста, введите ссылку на ваш Gitlab',
+                             reply_markup=ReplyKeyboardRemove())
+    elif not validators.url(answer):
+        await message.answer('Введите, пожалуйста, корректную ссылку на Gitlab',
+                             reply_markup=ReplyKeyboardRemove())
+    else:
+        user = await ContextHelper.get_user(state)
+        user.git = answer
+        await update_user_by_telegram_id(message.from_user.id, user)
+        await message.answer('Введите ваши навыки\n'
+                             'Например: Python, Postgresql, Git, FastAPI, '
+                             'Django, Go, aiogramm, asyncio', reply_markup=StopBotKeyboard.get_reply_keyboard())
+        await StartState.exceptations.set()
+
+
+# @dp.message_handler(state=StartState.get_skills)
+# async def get_skills(message: types.Message, state: FSMContext):
+#     answer = message.text
+#     if await is_command(answer):
+#         await message.answer('Вы ввели команду. Пожалуйста, введите ваш Behance',
+#                              reply_markup=StopBotKeyboard.get_reply_keyboard())
+#     else:
+#         user = await ContextHelper.get_user(state)
+#         user.behance = answer
+#         await update_user_by_telegram_id(message.from_user.id, user)
+#         await ContextHelper.add_user(user, state)
+#         await message.answer('Введите ваши навыки\n'
+#                              'Например: Python, Postgresql, Git, FastAPI, '
+#                              'Django, Go, aiogramm, asyncio', reply_markup=StopBotKeyboard.get_reply_keyboard())
+#         await StartState.exceptations.set()
 
 
 @dp.message_handler(state=StartState.exceptations)
