@@ -23,6 +23,8 @@ async def create_database(cur: aiosqlite.Cursor):
             "desired_department"	TEXT,
             "skills"	TEXT,
             "goals"	TEXT,
+            "city" TEXT,
+            "source_of_knowledge" TEXT,
             "lead_description"	TEXT,
             "join_time"	TEXT,
             "is_moderator"	INTEGER DEFAULT 0,
