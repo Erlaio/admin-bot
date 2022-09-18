@@ -11,8 +11,8 @@ async def send_card(chat_id: int, user: User, reply_markup=ReplyKeyboardRemove()
               f'Логин в Telegram: {user.tg_login}\n' \
               f'Желаемый отдел: {user.desired_department}\n' \
               f'Скилы: {user.skills}\n' \
-              f'Цели: {user.goals}\n' \
-              f'Описание лида: {user.lead_description}\n' \
+              f'{user.goals}\n' \
+              f'Комментарий тимлида: {user.lead_description}\n' \
               f'Время присоединения: {user.join_time}\n'
     if user.is_approved == 1:
         caption += 'Анкета проверена\n'
