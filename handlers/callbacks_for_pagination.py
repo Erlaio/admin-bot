@@ -40,8 +40,7 @@ async def callback_refilling(call):
         await characters_page_callback(call)
 
 
-@dp.callback_query_handler(lambda call: call.data.split('#')
-                                        [0] == 'delete_user')
+@dp.callback_query_handler(lambda call: call.data.split('#')[0] == 'delete_user')
 async def callback_delete_user(call):
     channels = settings.TELEGRAM_SCHOOL_CHATS
     moder_tg = call['from']['username']
@@ -58,6 +57,13 @@ async def callback_delete_user(call):
                                             reply_markup=None)
     else:
         await characters_page_callback(call)
+
+
+@dp.callback_query_handler(lambda call: call.data.split('#')[0] == 'character_for_edit')
+async def callback_edit_character(call):
+    moder_tg = call['from']['username']
+    _, page, field_name, field_data = call.data.split('#')
+    # print(_, page, field_name, field_data)
 
 
 @dp.callback_query_handler(lambda call: call.data.split('#')[0] == 'back')

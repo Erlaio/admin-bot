@@ -1,4 +1,5 @@
 from .start import dp
+from .cards_for_moder import dp
 from .callbacks_for_pagination import dp
 from .moders_output import dp
 from .lead_description_callbacks import dp
