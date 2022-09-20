@@ -174,6 +174,11 @@ async def get_random_moder(cur: aiosqlite.Cursor) -> User:
     return random.choice(result)
 
 
+@connect_to_db
+async def update_field_value(cur: aiosqlite.Cursor, telegram_id: int, field: str, value) -> None:
+    await cur.execute(f'UPDATE users SET {field} = (?) WHERE telegram_id = (?)', (value, telegram_id, ))
+
+
 if __name__ == '__main__':
     # d = new_user(user_id=-1, behance='asdaljsdhjks', telegram_id=221152376508546261, surname='gh', name='sldjkj', patronymic='asdfas', gender='', photo=bytearray(b''), email='', git='', tg_login='', desired_department=-1, skills='', goals='', lead_description='', join_time=datetime.date(2022, 7, 16), is_moderator=False, is_approved=False)
     # add_new_user(d)
