@@ -25,24 +25,26 @@ class ModeratorChangeCardInlineKeyboard(ButtonFactory):
 
     def __init__(self, page, user: User, ):
         self.SURNAME = {
-            'Фамилия': f'character_for_edit#{page}#surname#{user.surname}'}
+            'Фамилия': f'change#{page}#surname#{user.surname}#{user.telegram_id}'}
         self.NAME = {
-            'Имя': f'character_for_edit#{page}#name#{user.name}'}
+            'Имя': f'change#{page}#name#{user.name}#{user.telegram_id}'}
         self.PATRONYMIC = {
-            'Отчество': f'character_for_edit#{page}#patronymic#{user.patronymic}'}
+            'Отчество': f'change#{page}#patronymic#{user.patronymic}#{user.telegram_id}'}
         self.GENDER = {
-            'Пол': f'character_for_edit#{page}#gender#{user.gender}'}
+            'Пол': f'change#{page}#gender#{user.gender}#{user.telegram_id}'}
         self.TG_LOGIN = {
-            'Логин в Telegram': f'character_for_edit#{page}#tg_login#{user.tg_login}'}
+            'Логин в Telegram': f'change#{page}#tg_login#{user.tg_login}#{user.telegram_id}'}
         self.DESIRED_DEPARTMENT = {
-            'Отдел': f'character_for_edit#{page}#desired_department#{user.desired_department}'}
+            'Отдел': f'change#{page}#desired_department#{user.desired_department}#{user.telegram_id}'}
         self.SKILLS = {
-            'Скилы': f'character_for_edit#{page}#skills#{user.skills}'}
+            'Скилы': f'change#{page}#skills#{user.skills}#{user.telegram_id}'}
         self.GOALS = {
-            'Цели': f'character_for_edit#{page}#goals#{user.goals}'}
+            'Цели': f'change#{page}#goals#{user.goals}#{user.telegram_id}'}
         self.CITY = {
-            'Город': f'character_for_edit#{page}#city#{user.city}'}
+            'Город': f'change#{page}#city#{user.city}#{user.telegram_id}'}
         self.SOURCE_OF_KNOWLEDGE = {
-            'Откуда узнал о школе': f'character_for_edit#{page}#source_of_knowledge#{user.source_of_knowledge}'}
+            'Откуда узнал о школе': f'change#{page}#source_of_knowledge#{user.source_of_knowledge}#'
+                                    f'{user.telegram_id}'}
         self.LEAD_DESCRIPTION = {
-            'Описание тимлида': f'character_for_edit#{page}#lead_description#{user.lead_description}'}
+            'Описание тимлида': f'change#{page}#lead_description#{user.lead_description}#'
+                                f'{user.telegram_id}'}
