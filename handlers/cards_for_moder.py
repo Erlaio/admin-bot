@@ -35,7 +35,7 @@ async def send_character_page_for_edit(message: types.Message, page=1):
         paginator = Pagination(
             len(user_list),
             current_page=page,
-            data_pattern='change#{page}'
+            data_pattern='user_for_change#{page}'
         )
         user = user_list[page - 1]
         list_of_buttons = ModeratorChangeCardInlineKeyboard(page, user).get_inline_keyboard(is_key=True)
@@ -43,7 +43,7 @@ async def send_character_page_for_edit(message: types.Message, page=1):
             paginator.add_before(
                 *buttons)
         paginator.add_after(
-            *BackInlineKeyboard().get_inline_keyboard(is_key=True)[0]
+            *BackInlineKeyboard().get_inline_keyboard(is_key=True)
         )
         await send_card(
             message.chat.id,
@@ -56,15 +56,36 @@ async def send_character_page_for_edit(message: types.Message, page=1):
 
 @dp.callback_query_handler(lambda call: call.data.split('#')[0] == 'change')
 async def characters_for_edit_page_callback(call: types.CallbackQuery, state: FSMContext):
-    _, page, field_name, field_value, telegram_id = call.data.split('#')
+    call_data = call.data.split('#')
+    print(call_data)
+    if len(call_data) == 5:
+        _, page, field_name, field_value, telegram_id = call_data
+        await bot.delete_message(
+            call.message.chat.id,
+            call.message.message_id
+        )
+        await ContextHelper.add_tg_id(telegram_id=telegram_id, context=state)
+        await ContextHelper.add_some_data(data=field_name, context=state)
+        await bot.send_message(call.message.chat.id, f'Выбрано поле {field_name} со значением {field_value}')
+        await state.set_state('change')
+    else:
+        _, page = call_data
+        await bot.delete_message(
+            call.message.chat.id,
+            call.message.message_id
+        )
+        await send_character_page_for_edit(call.message, int(page))
+
+
+@dp.callback_query_handler(lambda call: call.data.split('#')
+                           [0] == 'user_for_change')
+async def characters_page_callback(call):
+    page = int(call.data.split('#')[1])
     await bot.delete_message(
         call.message.chat.id,
         call.message.message_id
     )
-    await ContextHelper.add_tg_id(telegram_id=telegram_id, context=state)
-    await ContextHelper.add_some_data(data=field_name, context=state)
-    await bot.send_message(call.message.chat.id, f'Выбрано поле {field_name} со значением {field_value}')
-    await state.set_state('change')
+    await send_character_page_for_edit(call.message, page)
 
 
 @dp.message_handler(state='change')
