@@ -1,5 +1,6 @@
 import math
 from abc import ABC
+from typing import List
 
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardButton, InlineKeyboardMarkup
 
@@ -42,6 +43,9 @@ class ButtonFactory(ABC):
                     inline_keyboard.insert(
                         InlineKeyboardButton(
                             text=j_key, callback_data=j_value))
+
+        if len(inline_keyboard) == 1 or not any(isinstance(inline_keyboard, list) for i in inline_keyboard):
+            return inline_keyboard
 
         upd_inline_keyboard = []
         index = 0
