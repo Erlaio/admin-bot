@@ -8,7 +8,7 @@ from keyboard.default.pagination import Pagination
 from loader import dp, bot
 from pkg.db.user_func import get_user_by_tg_id, get_all_users, update_field_value
 from utils.context_helper import ContextHelper
-from utils.send_card import send_card
+from utils.send_card import send_card, send_full_card
 
 
 @dp.message_handler(commands='change_card_by_moder')
@@ -43,7 +43,7 @@ async def send_character_page_for_edit(message: types.Message, page=1):
         paginator.add_after(
             *BackInlineKeyboard().get_inline_keyboard(is_key=True)
         )
-        await send_card(
+        await send_full_card(
             message.chat.id,
             user=user_list[page - 1],
             reply_markup=paginator.markup,

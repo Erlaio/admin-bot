@@ -19,7 +19,7 @@ from states.start_state import StartState
 from utils.config_utils import ConfigUtils
 from utils.context_helper import ContextHelper
 from utils.get_name import split_fullname
-from utils.send_card import send_card
+from utils.send_card import send_card, send_full_card
 from utils.delete_user import delete_user
 
 
@@ -408,12 +408,12 @@ async def finish_questions(message: types.Message, state: FSMContext):
                              'Пока ее не проверят, функционал бота не доступен',
                              reply_markup=CheckAccessKeyboard.get_reply_keyboard(add_stop=False))
         await bot.send_message(chat_id=settings.TELEGRAM_MODERS_CHAT_ID, text=f'Пришла карточка {user.tg_login}')
-        await send_card(chat_id=settings.TELEGRAM_MODERS_CHAT_ID, user=user,
-                        reply_markup=ModeratorInlineKeyboard(
-                            page=0,
-                            telegram_id=user.telegram_id,
-                            user_name=user.tg_login
-                        ).get_inline_keyboard())
+        await send_full_card(chat_id=settings.TELEGRAM_MODERS_CHAT_ID, user=user,
+                             reply_markup=ModeratorInlineKeyboard(
+                                 page=0,
+                                 telegram_id=user.telegram_id,
+                                 user_name=user.tg_login
+                             ).get_inline_keyboard())
         await StartState.check_questionnaire.set()
 
 

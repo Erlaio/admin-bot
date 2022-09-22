@@ -6,7 +6,7 @@ from keyboard.default.inline_keyboards import ModeratorInlineKeyboard, BackInlin
 from keyboard.default.pagination import *
 from loader import dp, bot
 from pkg.db.user_func import get_unapproved_users, get_user_by_tg_id
-from utils.send_card import send_card
+from utils.send_card import send_card, send_full_card
 
 
 @dp.message_handler(commands='review_cards')
@@ -50,7 +50,7 @@ async def send_character_page_for_approve(message: types.Message, page=1):
         paginator.add_after(
             *BackInlineKeyboard().get_inline_keyboard(is_key=True)
         )
-        await send_card(
+        await send_full_card(
             message.chat.id,
             user=user_list[page - 1],
             reply_markup=paginator.markup,
