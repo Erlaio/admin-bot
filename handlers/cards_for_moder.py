@@ -2,9 +2,9 @@ from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.types import ReplyKeyboardRemove
 
-from keyboard.default.inline_keyboards import ModeratorInlineKeyboard, BackInlineKeyboard, \
-    ModeratorChangeCardInlineKeyboard
-from keyboard.default.pagination import Pagination, InlineKeyboardButton
+from keyboard.default.inline_keyboards import BackInlineKeyboard, ModeratorChangeCardInlineKeyboard
+from keyboard.default.keyboards import StopBotKeyboard
+from keyboard.default.pagination import Pagination
 from loader import dp, bot
 from pkg.db.user_func import get_user_by_tg_id, get_all_users, update_field_value
 from utils.context_helper import ContextHelper
@@ -13,20 +13,18 @@ from utils.send_card import send_card
 
 @dp.message_handler(commands='change_card_by_moder')
 async def change_card_by_moder(message: types.Message, state: FSMContext):
-    # try:
-    user = await get_user_by_tg_id(message.from_user.id)
-    if user.is_moderator:
-        await send_character_page_for_edit(message)
-    else:
-        await message.answer('Вы не модератор',
+    try:
+        user = await get_user_by_tg_id(message.from_user.id)
+        if user.is_moderator:
+            await send_character_page_for_edit(message)
+        else:
+            await message.answer('Вы не модератор',
+                                 reply_markup=ReplyKeyboardRemove())
+            await state.finish()
+    except (TypeError, AttributeError):
+        await message.answer('Вас нет в базе, пожалуйста пройдите регистрацию',
                              reply_markup=ReplyKeyboardRemove())
         await state.finish()
-
-
-# except (TypeError, AttributeError):
-#     await message.answer('Вас нет в базе, пожалуйста пройдите регистрацию',
-#                          reply_markup=ReplyKeyboardRemove())
-#     await state.finish()
 
 
 async def send_character_page_for_edit(message: types.Message, page=1):
@@ -57,28 +55,21 @@ async def send_character_page_for_edit(message: types.Message, page=1):
 @dp.callback_query_handler(lambda call: call.data.split('#')[0] == 'change')
 async def characters_for_edit_page_callback(call: types.CallbackQuery, state: FSMContext):
     call_data = call.data.split('#')
-    print(call_data)
-    if len(call_data) == 5:
-        _, page, field_name, field_value, telegram_id = call_data
-        await bot.delete_message(
-            call.message.chat.id,
-            call.message.message_id
-        )
-        await ContextHelper.add_tg_id(telegram_id=telegram_id, context=state)
-        await ContextHelper.add_some_data(data=field_name, context=state)
-        await bot.send_message(call.message.chat.id, f'Выбрано поле {field_name} со значением {field_value}')
-        await state.set_state('change')
-    else:
-        _, page = call_data
-        await bot.delete_message(
-            call.message.chat.id,
-            call.message.message_id
-        )
-        await send_character_page_for_edit(call.message, int(page))
+    _, page, field_name, telegram_id = call_data
+    await bot.delete_message(
+        call.message.chat.id,
+        call.message.message_id
+    )
+    await ContextHelper.add_tg_id(telegram_id=telegram_id, context=state)
+    await ContextHelper.add_some_data(data=field_name, context=state)
+    await bot.send_message(call.message.chat.id,
+                           f'Выбрано поле {field_name}. Введите, пожалуйста, что на что хотите изменить данные',
+                           reply_markup=StopBotKeyboard.get_reply_keyboard())
+    await state.set_state('change')
 
 
 @dp.callback_query_handler(lambda call: call.data.split('#')
-                           [0] == 'user_for_change')
+                                        [0] == 'user_for_change')
 async def characters_page_callback(call):
     page = int(call.data.split('#')[1])
     await bot.delete_message(
