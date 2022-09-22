@@ -44,8 +44,12 @@ class ButtonFactory(ABC):
                         InlineKeyboardButton(
                             text=j_key, callback_data=j_value))
 
-        if len(inline_keyboard) == 1 or not any(isinstance(inline_keyboard, list) for i in inline_keyboard):
-            return inline_keyboard
+        try:
+            if len(inline_keyboard) == any(inline_keyboard_len for inline_keyboard_len in range(1, 4)):
+                return inline_keyboard
+        finally:
+            if not any(isinstance(inline_keyboard, list) for i in inline_keyboard):
+                return inline_keyboard
 
         upd_inline_keyboard = []
         index = 0
