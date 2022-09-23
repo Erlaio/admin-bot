@@ -8,7 +8,7 @@ from keyboard.default.pagination import Pagination
 from loader import dp, bot
 from pkg.db.user_func import get_user_by_tg_id, get_all_users, update_field_value
 from utils.context_helper import ContextHelper
-from utils.send_card import send_card, send_full_card
+from utils.send_card import send_full_card
 
 
 @dp.message_handler(commands='change_card_by_moder')
@@ -36,7 +36,8 @@ async def send_character_page_for_edit(message: types.Message, page=1):
             data_pattern='user_for_change#{page}'
         )
         user = user_list[page - 1]
-        list_of_buttons = ModeratorChangeCardInlineKeyboard(page, user).get_inline_keyboard(is_key=True)
+        list_of_buttons = ModeratorChangeCardInlineKeyboard(page, user, 'change_by_moder').\
+            get_inline_keyboard(is_key=True)
         for buttons in list_of_buttons:
             paginator.add_before(
                 *buttons)
@@ -52,7 +53,7 @@ async def send_character_page_for_edit(message: types.Message, page=1):
         await message.answer('Пользователей нет в базе данных', reply_markup=ReplyKeyboardRemove())
 
 
-@dp.callback_query_handler(lambda call: call.data.split('#')[0] == 'change')
+@dp.callback_query_handler(lambda call: call.data.split('#')[0] == 'change_by_moder')
 async def characters_for_edit_page_callback(call: types.CallbackQuery, state: FSMContext):
     call_data = call.data.split('#')
     _, page, field_name, telegram_id = call_data
@@ -63,13 +64,13 @@ async def characters_for_edit_page_callback(call: types.CallbackQuery, state: FS
     await ContextHelper.add_tg_id(telegram_id=telegram_id, context=state)
     await ContextHelper.add_some_data(data=field_name, context=state)
     await bot.send_message(call.message.chat.id,
-                           f'Выбрано поле {field_name}. Введите, пожалуйста, что на что хотите изменить данные',
+                           f'Выбрано поле {field_name}. Введите, пожалуйста,'
+                           f' значение, на которое хотите изменить данные',
                            reply_markup=StopBotKeyboard.get_reply_keyboard())
-    await state.set_state('change')
+    await state.set_state('change_by_moder')
 
 
-@dp.callback_query_handler(lambda call: call.data.split('#')
-                                        [0] == 'user_for_change')
+@dp.callback_query_handler(lambda call: call.data.split('#')[0] == 'user_for_change')
 async def characters_page_callback(call):
     page = int(call.data.split('#')[1])
     await bot.delete_message(
@@ -79,12 +80,12 @@ async def characters_page_callback(call):
     await send_character_page_for_edit(call.message, page)
 
 
-@dp.message_handler(state='change')
+@dp.message_handler(state='change_by_moder')
 async def change_data_of_user(message: types.Message, state: FSMContext):
     telegram_id = await ContextHelper.get_tg_id(state)
     field_name = await ContextHelper.get_some_data(state)
     answer = message.text
     await update_field_value(telegram_id=telegram_id, field=field_name, value=answer)
     await bot.send_message(chat_id=message.chat.id,
-                           text=f'Описание было изменено на {answer}')
+                           text=f'Поле {field_name} теперь имеет значение: {answer}')
     await state.finish()
