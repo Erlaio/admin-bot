@@ -11,7 +11,7 @@ async def send_card(chat_id: int, user: User, reply_markup=ReplyKeyboardRemove()
               f'<b>Логин в Telegram:</b> {user.tg_login}\n' \
               f'<b>Желаемый отдел:</b> {user.desired_department}\n' \
               f'<b>Скилы:</b> {user.skills}\n' \
-              f'<b>Цели:</b> {user.goals}\n' \
+              f'<b>Цели:</b>\n{user.goals}\n' \
               f'<b>Город:</b> {user.city}\n' \
               f'<b>Откуда узнал о школе:</b> {user.source_of_knowledge}\n' \
               f'<b>Комментарий тимлида:</b> {user.lead_description}\n' \
@@ -43,7 +43,7 @@ async def send_full_card(chat_id: int, user: User, reply_markup=ReplyKeyboardRem
               f'<b>Логин в Telegram:</b> {user.tg_login}\n' \
               f'<b>Желаемый отдел:</b> {user.desired_department}\n' \
               f'<b>Скилы:</b> {user.skills}\n' \
-              f'<b>Цели:</b> {user.goals}\n' \
+              f'<b>Цели:</b>\n{user.goals}\n' \
               f'<b>Город:</b> {user.city}\n' \
               f'<b>Откуда узнал о школе:</b> {user.source_of_knowledge}\n' \
               f'<b>Комментарий тимлида:</b> {user.lead_description}\n' \
