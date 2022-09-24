@@ -408,7 +408,8 @@ async def finish_questions(message: types.Message, state: FSMContext):
                              'Пока ее не проверят, функционал бота не доступен',
                              reply_markup=CheckAccessKeyboard.get_reply_keyboard(add_stop=False))
         await bot.send_message(chat_id=settings.TELEGRAM_MODERS_CHAT_ID, text=f'Пришла карточка {user.tg_login}')
-        await send_full_card(chat_id=settings.TELEGRAM_MODERS_CHAT_ID, user=user,
+        await send_full_card(chat_id=settings.TELEGRAM_MODERS_CHAT_ID,
+                             user=user,
                              reply_markup=ModeratorSurveyInlineKeyboard(
                                  page=0,
                                  telegram_id=user.telegram_id,
