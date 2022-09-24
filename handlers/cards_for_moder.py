@@ -4,10 +4,12 @@ from aiogram.types import ReplyKeyboardRemove
 
 from keyboard.default.inline_keyboards import BackInlineKeyboard, ModeratorChangeCardInlineKeyboard
 from keyboard.default.keyboards import StopBotKeyboard
-from keyboard.default.pagination import Pagination
+from keyboard.default.pagination import Pagination, InlineKeyboardButton
 from loader import dp, bot
-from pkg.db.user_func import get_user_by_tg_id, get_all_users, update_field_value
+from pkg.db.user_func import get_user_by_tg_id, get_all_users, update_field_value, delete_user_by_tg_id
+from pkg.settings import settings
 from utils.context_helper import ContextHelper
+from utils.delete_user import delete_user
 from utils.send_card import send_full_card
 
 
@@ -36,13 +38,16 @@ async def send_character_page_for_edit(message: types.Message, page=1):
             data_pattern='user_for_change#{page}'
         )
         user = user_list[page - 1]
+        # delete_button = ModeratorSurveyInlineKeyboard(page,
+        #                                               telegram_id=user.telegram_id,
+        #                                               user_name=user.tg_login).DELETE.popitem()
         list_of_buttons = ModeratorChangeCardInlineKeyboard(page, user, 'change_by_moder').\
             get_inline_keyboard(is_key=True)
         for buttons in list_of_buttons:
             paginator.add_before(
                 *buttons)
         paginator.add_after(
-            InlineKeyboardButton(text= 'Удалить',
+            InlineKeyboardButton(text='Удалить',
                                  callback_data=f'delete_user_by_menu#{page}#{user.telegram_id}#{user.tg_login}')
             # InlineKeyboardButton(text=delete_button[0], callback_data=delete_button[1])
         )
