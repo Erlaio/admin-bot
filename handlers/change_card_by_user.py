@@ -3,12 +3,11 @@ from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.types import ReplyKeyboardRemove, InlineKeyboardMarkup
 
-from keyboard.default.inline_keyboards import BackInlineKeyboard, ModeratorChangeCardInlineKeyboard, \
-    UserChangeCardInlineKeyboard
+from keyboard.default.inline_keyboards import UserChangeCardInlineKeyboard, ModeratorChangeDecisionInlineKeyboard
 from keyboard.default.keyboards import StopBotKeyboard, DepartmentsKeyboard
-from keyboard.default.pagination import Pagination
 from loader import dp, bot
-from pkg.db.user_func import get_user_by_tg_id, get_all_users, update_field_value
+from pkg.db.user_func import get_user_by_tg_id, update_field_value
+from pkg.settings import settings
 from utils.context_helper import ContextHelper
 from utils.send_card import send_card, send_full_card
 
