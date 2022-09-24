@@ -14,11 +14,11 @@ class ModeratorSurveyInlineKeyboard(ButtonFactory):
 
 
 class ModeratorChangeDecisionInlineKeyboard(ButtonFactory):
-    def __init__(self, page, telegram_id, user_name, ):
+    def __init__(self, telegram_id, field_name, field_value, ):
         self.APPROVE = {
-            'Одобрить': f'approve_changes#{page}#{telegram_id}#{user_name}'}
+            'Одобрить': f'approve_changes#{telegram_id}#{field_name}#{field_value}'}
         self.DECLINE = {
-            'Отклонить': f'decline_changes{page}#{telegram_id}#{user_name}'}
+            'Отклонить': f'decline_changes#{telegram_id}#{field_name}#{field_value}'}
 
 
 class BackInlineKeyboard(ButtonFactory):
