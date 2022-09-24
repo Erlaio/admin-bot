@@ -50,7 +50,7 @@ async def characters_for_edit_page_callback(call: types.CallbackQuery, state: FS
     reply_markup = StopBotKeyboard.get_reply_keyboard()
     text = 'Введите, пожалуйста, на какое значение хотите изменить выбранные данные'
     if field_name == 'desired_department':
-        text = f'Выберите, пожалуйста, В какой бы отдел хотели попасть?'
+        text = 'Выберите, пожалуйста, В какой бы отдел хотели попасть?'
         reply_markup = await DepartmentsKeyboard.get_reply_keyboard()
     await bot.send_message(call.message.chat.id,
                            text=text,
@@ -58,18 +58,11 @@ async def characters_for_edit_page_callback(call: types.CallbackQuery, state: FS
     await state.set_state('change_by_user')
 
 
-# @dp.callback_query_handler(lambda call: call.data.split('#')[0] == 'user_for_change')
-# async def characters_page_callback(call):
-#     await bot.delete_message(
-#         call.message.chat.id,
-#         call.message.message_id
-#     )
-#     await send_character_page_for_edit(call.message)
-
-
 @dp.message_handler(state='change_by_user')
 async def change_data_of_user(message: types.Message, state: FSMContext):
     telegram_id = await ContextHelper.get_tg_id(state)
+    user = await get_user_by_tg_id(tg_id=telegram_id)
+    user_dict = dict(user)
     field_name = await ContextHelper.get_some_data(state)
     answer = message.text
 
@@ -82,9 +75,48 @@ async def change_data_of_user(message: types.Message, state: FSMContext):
     elif field_name == 'git' or field_name == 'behance' and not validators.url(answer):
         await message.answer('Введите, пожалуйста, корректную ссылку',
                              reply_markup=StopBotKeyboard.get_reply_keyboard())
+    else:
+        await bot.send_message(chat_id=settings.TELEGRAM_MODERS_CHAT_ID,
+                               text=f'Поступил запрос от {user.tg_login} на изменение поля {field_name} '
+                                    f'со значения {user_dict[field_name]} на значение {answer}')
+        await send_full_card(chat_id=settings.TELEGRAM_MODERS_CHAT_ID, user=user,
+                             reply_markup=ModeratorChangeDecisionInlineKeyboard(
+                                 telegram_id=user.telegram_id,
+                                 field_name=field_name,
+                                 field_value=answer
+                             ).get_inline_keyboard())
+        await message.answer('Ваш запрос был направлен модераторам на рассмотрение. '
+                             'Как только решение будет принято, Вы будете уведомлены в этом чате',
+                             reply_markup=ReplyKeyboardRemove())
+        await state.finish()
 
-    await update_field_value(telegram_id=telegram_id, field=field_name, value=answer)
-    await bot.send_message(chat_id=message.chat.id,
-                           text=f'Выбранное поле теперь имеет значение: {answer}',
+
+@dp.callback_query_handler(lambda call: call.data.split('#')[0] == 'approve_changes')
+async def edit_approved(call: types.CallbackQuery, state: FSMContext):
+    _, telegram_id, field_name, field_value = call.data.split('#')
+    moder_tg = call['from']['username']
+    user = await get_user_by_tg_id(telegram_id)
+
+    await update_field_value(telegram_id=telegram_id, field=field_name, value=field_value)
+    await bot.send_message(chat_id=settings.TELEGRAM_MODERS_CHAT_ID,
+                           text=f'Запрос {user.tg_login} на изменение был одобрен {moder_tg}\n\n'
+                                f'Поле {field_name} изменено на {field_value}')
+    await bot.send_message(chat_id=user.telegram_id,
+                           text=f'Выбранное поле теперь имеет значение: {field_value}',
+                           reply_markup=ReplyKeyboardRemove())
+    await state.finish()
+
+
+@dp.callback_query_handler(lambda call: call.data.split('#')[0] == 'decline_changes')
+async def edit_declined(call: types.CallbackQuery, state: FSMContext):
+    _, telegram_id, field_name, field_value = call.data.split('#')
+    moder_tg = call['from']['username']
+    user = await get_user_by_tg_id(telegram_id)
+
+    await bot.send_message(chat_id=settings.TELEGRAM_MODERS_CHAT_ID,
+                           text=f'Запрос {user.tg_login} на изменение был отклонен {moder_tg}\n\n'
+                                f'Поле {field_name} НЕ изменено на {field_value}')
+    await bot.send_message(chat_id=user.telegram_id,
+                           text=f'К сожалению, модераторы отклонили Вашу заявку на изменение данных.',
                            reply_markup=ReplyKeyboardRemove())
     await state.finish()
