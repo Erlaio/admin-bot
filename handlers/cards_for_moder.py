@@ -42,6 +42,11 @@ async def send_character_page_for_edit(message: types.Message, page=1):
             paginator.add_before(
                 *buttons)
         paginator.add_after(
+            InlineKeyboardButton(text= 'Удалить',
+                                 callback_data=f'delete_user_by_menu#{page}#{user.telegram_id}#{user.tg_login}')
+            # InlineKeyboardButton(text=delete_button[0], callback_data=delete_button[1])
+        )
+        paginator.add_after(
             *BackInlineKeyboard().get_inline_keyboard(is_key=True)
         )
         await send_full_card(
@@ -89,3 +94,22 @@ async def change_data_of_user(message: types.Message, state: FSMContext):
     await bot.send_message(chat_id=message.chat.id,
                            text=f'Поле {field_name} теперь имеет значение: {answer}')
     await state.finish()
+
+
+@dp.callback_query_handler(lambda call: call.data.split('#')[0] == 'delete_user_by_menu')
+async def callback_delete_user(call):
+    channels = settings.TELEGRAM_SCHOOL_CHATS
+    moder_tg = call['from']['username']
+    _, page, telegram_id, user_name = call.data.split('#')
+
+    await delete_user_by_tg_id(telegram_id)
+    await bot.send_message(chat_id=settings.TELEGRAM_MODERS_CHAT_ID,
+                           text=f'Пользователь {user_name} удален модератором @{moder_tg} вручную')
+    await delete_user(telegram_id, channels)
+    await bot.send_message(telegram_id, text='Ваша карточка была удалена. Свяжитесь с администратором')
+    if page == '0':
+        await bot.edit_message_reply_markup(chat_id=call.message.chat.id,
+                                            message_id=call.message.message_id,
+                                            reply_markup=None)
+    else:
+        await send_character_page_for_edit(call.message)
