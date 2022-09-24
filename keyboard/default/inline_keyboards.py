@@ -42,6 +42,8 @@ class UserChangeCardInlineKeyboard(ButtonFactory):
             'Пол': f'{callback_data}#{page}#gender#{user.telegram_id}'}
         self.SKILLS = {
             'Скилы': f'{callback_data}#{page}#skills#{user.telegram_id}'}
+        self.EMAIL = {
+            'Почта': f'{callback_data}#{page}#email#{user.telegram_id}'}
         self.CITY = {
             'Город': f'{callback_data}#{page}#city#{user.telegram_id}'}
         self.TG_LOGIN = {
@@ -62,8 +64,6 @@ class ModeratorChangeCardInlineKeyboard(UserChangeCardInlineKeyboard):
         super().__init__(page, user, callback_data)
         self.LEAD_DESCRIPTION = {
             'Описание тимлида': f'{callback_data}#{page}#lead_description#{user.telegram_id}'}
-        self.EMAIL = {
-            'Почта': f'{callback_data}#{page}#email#{user.telegram_id}'}
         if user.git != '':
             self.GIT = {
                 'Гит': f'{callback_data}#{page}#git#{user.telegram_id}'}
