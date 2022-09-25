@@ -44,6 +44,30 @@ async def bot_start(message: types.Message):
     await StartState.rules.set()
 
 
+@dp.message_handler(commands='moder')
+async def moder_menu(message: types.Message, state: FSMContext):
+    try:
+        user = await get_user_by_tg_id(message.from_user.id)
+        if user.is_moderator:
+            commands_for_moder = '<b>Команды модераторов:</b>\n\n' \
+                                 '/department - добавить новый отдел или изменить данные о существующем.\n\n' \
+                                 '/project -  добавить новый проект или изменить данные о существующем.\n\n' \
+                                 '/show_department_cards - вывести список всех участников отдела.\n\n' \
+                                 '/review_cards - работа со всеми неапрувнутыми учениками.\n\n' \
+                                 '/change_card_by_moder - изменение/удаление карточки учеников'
+            await message.answer(text=commands_for_moder,
+                                 reply_markup=StopBotKeyboard.get_reply_keyboard(add_stop=False))
+            await state.finish()
+        else:
+            await message.answer('Вы не модератор',
+                                 reply_markup=ReplyKeyboardRemove())
+            await state.finish()
+    except (TypeError, AttributeError):
+        await message.answer('Вас нет в базе, пожалуйста пройдите регистрацию',
+                             reply_markup=ReplyKeyboardRemove())
+        await state.finish()
+
+
 @dp.message_handler(commands='stop', state='*')
 @dp.message_handler(Text(equals=ButtonFactory.get_stop_message()), state='*')
 async def bot_stop(message: types.Message, state: FSMContext):
