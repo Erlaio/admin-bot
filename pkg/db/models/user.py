@@ -19,6 +19,8 @@ class User(BaseModel):
     desired_department: str = 'EmptyDepartment'
     skills: str = ''
     goals: str = ''
+    city: str = ''
+    source_of_knowledge: str = ''
     lead_description: str = ''
     join_time: datetime.date = datetime.date.today()
     is_moderator: bool = False

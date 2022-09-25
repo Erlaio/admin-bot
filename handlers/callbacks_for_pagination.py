@@ -1,7 +1,7 @@
 from aiogram.dispatcher import FSMContext
 from aiogram.types import ReplyKeyboardRemove
 
-from handlers.moders_output import characters_page_callback
+from handlers.moder_handlers.moders_output import characters_page_callback
 from loader import dp, bot
 from pkg.db.user_func import delete_user_by_tg_id, update_user_approve
 from pkg.settings import settings
@@ -40,8 +40,7 @@ async def callback_refilling(call):
         await characters_page_callback(call)
 
 
-@dp.callback_query_handler(lambda call: call.data.split('#')
-                                        [0] == 'delete_user')
+@dp.callback_query_handler(lambda call: call.data.split('#')[0] == 'delete_user')
 async def callback_delete_user(call):
     channels = settings.TELEGRAM_SCHOOL_CHATS
     moder_tg = call['from']['username']

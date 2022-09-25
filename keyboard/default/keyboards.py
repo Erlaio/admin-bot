@@ -17,6 +17,10 @@ class DepartmentsKeyboard(ButtonFactory):
         await cls.__get_department()
         return super().get_reply_keyboard(one_time=one_time)
 
+    @classmethod
+    async def delete_department_button(cls, department):
+        delattr(cls, department.upper())
+
 
 class StopBotKeyboard(ButtonFactory):
     pass

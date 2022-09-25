@@ -1,5 +1,6 @@
 import math
 from abc import ABC
+from typing import List
 
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardButton, InlineKeyboardMarkup
 
@@ -43,7 +44,19 @@ class ButtonFactory(ABC):
                         InlineKeyboardButton(
                             text=j_key, callback_data=j_value))
 
-        return inline_keyboard
+        try:
+            if len(inline_keyboard) == any(inline_keyboard_len for inline_keyboard_len in range(1, 4)):
+                return inline_keyboard
+        finally:
+            if not any(isinstance(inline_keyboard, list) for i in inline_keyboard):
+                return inline_keyboard
+
+        upd_inline_keyboard = []
+        index = 0
+        for _ in range(math.ceil(len(inline_keyboard) / 3)):
+            upd_inline_keyboard.append(inline_keyboard[index:index + 3])
+            index += 3
+        return upd_inline_keyboard
 
     @classmethod
     def get_stop_message(cls):

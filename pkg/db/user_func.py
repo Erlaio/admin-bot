@@ -13,14 +13,18 @@ from pkg.db.models.user import User
 @connect_to_db
 async def add_new_user(cur: aiosqlite.Cursor, data: User) -> None:
     join_time = datetime.date.today()
-    sql = '''INSERT INTO users (telegram_id, surname, name, patronymic, gender, photo, email, git, behance, 
-    tg_login, desired_department, skills, goals, lead_description, join_time, is_moderator, is_approved) 
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?); '''
+    sql = '''INSERT INTO users (telegram_id, surname, name, patronymic, gender, 
+    photo, email, git, behance, 
+    tg_login, desired_department, 
+    skills, goals, city, source_of_knowledge, lead_description, 
+    join_time, is_moderator, is_approved) 
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?); '''
     await cur.execute(sql,
                       (data.telegram_id, data.surname, data.name, data.patronymic, data.gender, data.photo,
                        data.email, data.git, data.behance, data.tg_login, data.desired_department,
                        data.skills,
-                       data.goals, data.lead_description, join_time, data.is_moderator,
+                       data.goals, data.city, data.source_of_knowledge,
+                       data.lead_description, join_time, data.is_moderator,
                        data.is_approved))
 
 
@@ -59,6 +63,12 @@ async def get_all_users(cur: aiosqlite.Cursor) -> List[User]:
 
 
 @connect_to_db
+async def add_columns(cur: aiosqlite.Cursor) -> None:
+    await cur.execute('ALTER TABLE users ADD COLUMN source_of_knowledge TEXT')
+    await cur.execute('ALTER TABLE users ADD COLUMN city TEXT')
+
+
+@connect_to_db
 async def delete_user_by_id(cur: aiosqlite.Cursor, user_id: int) -> None:
     await cur.execute(f'DELETE FROM users WHERE user_id={user_id}')
 
@@ -76,41 +86,41 @@ async def update_user_status(cur: aiosqlite.Cursor, telegram_id: int) -> None:
 
 @connect_to_db
 async def update_user_by_id(cur: aiosqlite.Cursor, user_id: int, data: User) -> None:
-    sql = '''UPDATE users SET (telegram_id, surname, name, patronymic, gender, photo, email, git, behance, 
-    tg_login, desired_department, skills, goals, lead_description, join_time, is_moderator,is_approved)= (
-    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) '''
+    sql = '''UPDATE users SET (telegram_id, surname, name, patronymic, gender, photo, email, git, behance, tg_login, 
+    desired_department, skills, goals, city, source_of_knowledge, lead_description, join_time, is_moderator,
+    is_approved) = (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) '''
     await cur.execute(sql + f'WHERE user_id={user_id}',
                       (data.telegram_id, data.surname, data.name, data.patronymic, data.gender, data.photo,
                        data.email, data.git, data.behance, data.tg_login, data.desired_department,
-                       data.skills,
-                       data.goals, data.lead_description, data.join_time, data.is_moderator,
+                       data.skills, data.goals, data.city, data.source_of_knowledge,
+                       data.lead_description, data.join_time, data.is_moderator,
                        data.is_approved))
 
 
 @connect_to_db
 async def update_user_by_telegram_id(cur: aiosqlite.Cursor, telegram_id: int, data: User) -> None:
     sql = '''UPDATE users SET (surname, name, patronymic, gender, photo, email, git, behance, tg_login, 
-    desired_department, skills, goals, lead_description, join_time, is_moderator,is_approved)= (?, ?, ?, ?, 
-    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) '''
+    desired_department, skills, goals, city, source_of_knowledge, lead_description,
+    join_time, is_moderator, is_approved) = (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) '''
     await cur.execute(sql + f'WHERE telegram_id={telegram_id}',
                       (data.surname, data.name, data.patronymic, data.gender, data.photo,
                        data.email, data.git, data.behance, data.tg_login, data.desired_department,
-                       data.skills,
-                       data.goals, data.lead_description, data.join_time, data.is_moderator,
+                       data.skills, data.goals, data.city, data.source_of_knowledge,
+                       data.lead_description, data.join_time, data.is_moderator,
                        data.is_approved))
 
 
 @connect_to_db
 async def update_user_by_department(cur: aiosqlite.Cursor, user_id: int, data: User) -> None:
     sql = '''UPDATE users SET (telegram_id, surname, name, patronymic, gender, photo, email, git, behance, 
-    tg_login, desired_department, skills, goals, lead_description, join_time, is_moderator,is_approved)= (
-    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) '''
+    tg_login, desired_department, skills, goals, city, source_of_knowledge, lead_description, join_time, 
+    is_moderator,is_approved) = 
+    (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'''
     await cur.execute(sql + f'WHERE user_id={user_id}',
                       (data.telegram_id, data.surname, data.name, data.patronymic, data.gender, data.photo,
                        data.email, data.git, data.behance, data.tg_login, data.desired_department,
-                       data.skills,
-                       data.goals, data.lead_description, data.join_time, data.is_moderator,
-                       data.is_approved))
+                       data.skills, data.goals, data.city, data.source_of_knowledge,
+                       data.lead_description, data.join_time, data.is_moderator, data.is_approved))
 
 
 @connect_to_db
@@ -170,11 +180,9 @@ async def get_random_moder(cur: aiosqlite.Cursor) -> User:
     return random.choice(result)
 
 
-# @connect_to_db                                                                # useless for now
-# def get_department_name(cur: sqlite3.Cursor, department_id: int):
-#     cur.execute(f"SELECT department FROM departments WHERE department_id = {department_id}")
-#     record = cur.fetchone()
-#     return record[0]
+@connect_to_db
+async def update_field_value(cur: aiosqlite.Cursor, telegram_id: int, field: str, value) -> None:
+    await cur.execute(f'UPDATE users SET {field} = (?) WHERE telegram_id = (?)', (value, telegram_id, ))
 
 
 if __name__ == '__main__':

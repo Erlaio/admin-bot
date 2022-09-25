@@ -47,7 +47,7 @@ async def show_users_by_department(message: types.Message, state: FSMContext, pa
                              ' или вернитесь на главную страницу')
 
 
-@dp.message_handler(state=UserCardState.show_all) # вроде как лишний стейт
+@dp.message_handler(state=UserCardState.show_all)
 async def show_all(department_name, message: types.Message, state: FSMContext, page=1):
     user_list = await get_users_from_department_name(department_name=department_name)
     if user_list:
