@@ -18,17 +18,6 @@ Build App Dev:
   only:
     - develop
 
-Build App Prod:
-  stage: build
-  script:
-    - docker login -u "$CI_DEPLOY_USER" -p "$CI_DEPLOY_TOKEN" $CI_REGISTRY
-    - docker build --pull -t registry.gitlab.com/f4648/backend/admin-bot:$CI_COMMIT_TAG -f Dockerfile .
-    - docker push registry.gitlab.com/f4648/backend/admin-bot:$CI_COMMIT_TAG
-  tags:
-    - docker
-  only:
-    - tags 
-
 Deploy App Dev:
   stage: deploy
   variables:
