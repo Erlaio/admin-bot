@@ -73,7 +73,6 @@ async def moder_menu(message: types.Message, state: FSMContext):
 async def bot_stop(message: types.Message, state: FSMContext):
     text = 'Главная страница'
     await message.answer(text, reply_markup=types.ReplyKeyboardRemove())
-    await add_def_value()
     await state.finish()
 
 

@@ -68,12 +68,6 @@ async def delete_user_by_id(cur: aiosqlite.Cursor, user_id: int) -> None:
 
 
 @connect_to_db
-async def add_def_value(cur: aiosqlite.Cursor):
-    await cur.execute("UPDATE users SET source_of_knowledge = 'default'")
-    await cur.execute("UPDATE users SET city = 'default'")
-
-
-@connect_to_db
 async def delete_user_by_tg_id(cur: aiosqlite.Cursor, telegram_id: int) -> None:
     await cur.execute(f'DELETE FROM users WHERE telegram_id={telegram_id}')
 
