@@ -63,6 +63,12 @@ async def get_all_users(cur: aiosqlite.Cursor) -> List[User]:
 
 
 @connect_to_db
+async def add_columns(cur: aiosqlite.Cursor) -> None:
+    await cur.execute('ALTER TABLE users ADD COLUMN source_of_knowledge TEXT')
+    await cur.execute('ALTER TABLE users ADD COLUMN city TEXT')
+
+
+@connect_to_db
 async def delete_user_by_id(cur: aiosqlite.Cursor, user_id: int) -> None:
     await cur.execute(f'DELETE FROM users WHERE user_id={user_id}')
 
