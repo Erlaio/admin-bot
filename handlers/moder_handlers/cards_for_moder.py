@@ -38,9 +38,6 @@ async def send_character_page_for_edit(message: types.Message, page=1):
             data_pattern='user_for_change#{page}'
         )
         user = user_list[page - 1]
-        # delete_button = ModeratorSurveyInlineKeyboard(page,
-        #                                               telegram_id=user.telegram_id,
-        #                                               user_name=user.tg_login).DELETE.popitem()
         list_of_buttons = ModeratorChangeCardInlineKeyboard(page, user, 'change_by_moder').\
             get_inline_keyboard(is_key=True)
         for buttons in list_of_buttons:
@@ -49,7 +46,6 @@ async def send_character_page_for_edit(message: types.Message, page=1):
         paginator.add_after(
             InlineKeyboardButton(text='Удалить',
                                  callback_data=f'delete_user_by_menu#{page}#{user.telegram_id}#{user.tg_login}')
-            # InlineKeyboardButton(text=delete_button[0], callback_data=delete_button[1])
         )
         paginator.add_after(
             *BackInlineKeyboard().get_inline_keyboard(is_key=True)

@@ -59,13 +59,6 @@ async def callback_delete_user(call):
         await characters_page_callback(call)
 
 
-@dp.callback_query_handler(lambda call: call.data.split('#')[0] == 'character_for_edit')
-async def callback_edit_character(call):
-    moder_tg = call['from']['username']
-    _, page, field_name, field_data = call.data.split('#')
-    # print(_, page, field_name, field_data)
-
-
 @dp.callback_query_handler(lambda call: call.data.split('#')[0] == 'back')
 async def callback_back(call, state: FSMContext):
     await bot.send_message(call.message.chat.id, 'Возвращаю на главную',
