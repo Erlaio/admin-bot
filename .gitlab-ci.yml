@@ -31,7 +31,7 @@ Deploy App Dev:
     - echo "$CA_ST_KEY" > $DOCKER_CERT_PATH/key.pem
   script:
     - docker login -u "$CI_DEPLOY_USER" -p "$CI_DEPLOY_TOKEN" $CI_REGISTRY
-    - docker stop admin-bot_endpoints || true
+    - docker stop admin-bot-endpoints-1 || true
     - docker system prune -f --all
     - docker-compose -f admin-bot.dev.yml up -d
     - rm -rfv $DOCKER_CERT_PATH
