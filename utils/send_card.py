@@ -29,7 +29,7 @@ async def send_card(chat_id: int, user: User, reply_markup=ReplyKeyboardRemove()
 
 
 async def send_full_card(chat_id: int, user: User, reply_markup=ReplyKeyboardRemove()) -> None:
-    caption = f'<b>Системная информация</b>\n\n'\
+    caption = f'<b>Системная информация:</b>\n\n'\
                                                 \
               f'<b>ID:</b> {user.user_id}\n' \
               f'<b>TG ID:</b> {user.telegram_id}\n' \
