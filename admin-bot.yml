@@ -1,0 +1,33 @@
+version: "3.9"
+
+x-env: &app-env
+  KEY: "${KEY}"
+  SQLITE_FILENAME: "${SQLITE_FILENAME}"
+  SECRET_KEY: "${SECRET_KEY}"
+  TELEGRAM_MODERS_CHAT_ID: "${TELEGRAM_MODERS_CHAT_ID}"
+  TELEGRAM_SCHOOL_CHATS: "${TELEGRAM_SCHOOL_CHATS}"
+
+services:
+  admin-bot:
+    image: registry.gitlab.com/f4648/backend/admin-bot:${CI_COMMIT_TAG}
+    container_name: 'admin-bot'
+    networks:
+      - ab
+    volumes:
+      - ab-db:/db
+    environment:
+      <<: *app-env
+    restart: on-failure
+
+volumes:
+  ab-db:
+    name: ab-db
+    driver_opts:
+      type: local
+      device: /srv/db
+      o: bind
+
+networks:
+  ab:
+    name: "ab"
+

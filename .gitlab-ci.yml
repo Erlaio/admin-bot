@@ -1,40 +1,47 @@
-image: alpine:latest
-
-stages:
+image: docker:20.10.17
+ 
+  services:
+    - docker:20.10.17-dind
+ 
+  stages:
     - build
+    - deploy
+ 
+ Build App Dev:
+   stage: build
+   script:
+     - docker login -u "$CI_DEPLOY_USER" -p "$CI_DEPLOY_TOKEN" $CI_REGISTRY
+     - docker build --pull -t registry.gitlab.com/f4648/backend/admin-bot:$CI_COMMIT_SHA -f Dockerfile.dev .
+     - docker push registry.gitlab.com/f4648/backend/admin-bot:$CI_COMMIT_SHA
+   tags:
+     - docker
+   only:
+     - develop
 
-before_script:
-  - docker login -u "$CI_DEPLOY_USER" -p "$CI_DEPLOY_TOKEN" $CI_REGISTRY
-  - echo "KEY=\"$KEY\"" > .env
-  - echo "SQLITE_FILENAME=\"$SQLITE_FILENAME\"" >> .env
-  - echo "SECRET_KEY=\"$SECRET_KEY\"" >> .env
-  - echo "TELEGRAM_MODERS_CHAT_ID=\"$TELEGRAM_MODERS_CHAT_ID\"" >> .env
-  - echo "TELEGRAM_SCHOOL_CHATS=\"$TELEGRAM_SCHOOL_CHATS\"" >> .env
+ Deploy App Dev:
+  stage: deploy
+   variables:
+     DOCKER_HOST: "$DOCKER_STAGE"
+     DOCKER_TLS_VERIFY: 1
+     DOCKER_CERT_PATH: "/certs"
+   before_script:
+     - mkdir -pv $DOCKER_CERT_PATH
+     - echo "$CA_ST" > $DOCKER_CERT_PATH/ca.pem
+     - echo "$CA_ST_CERT" > $DOCKER_CERT_PATH/cert.pem
+     - echo "$CA_ST_KEY" > $DOCKER_CERT_PATH/key.pem
+   script:
+     - docker login -u "$CI_DEPLOY_USER" -p "$CI_DEPLOY_TOKEN" $CI_REGISTRY
+     - docker stop admin_bot || true
+     - docker system prune -f --all
+     - docker compose -f admin-bot.dev.yml up -d
+     - rm -rfv $DOCKER_CERT_PATH
+   environment:
+     name: develop
+     url:  "$DOCKER_URL_STAGE"
+   needs:
+     - Build App Dev
+   only:
+     - develop
+   tags:
+     - docker
 
-BuildApp:
-    stage: build
-    tags:
-        - "admin-bot"
-    script:
-      - |
-        if [[ "$CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH" ]]; then
-          tag=""
-          echo "Running on default branch '$CI_DEFAULT_BRANCH': tag = 'latest'"
-        else
-          tag=":$CI_COMMIT_REF_SLUG"
-          echo "Running on branch '$CI_COMMIT_BRANCH': tag = $tag"
-        fi
-
-      - git clone https://"$CI_DEPLOY_USER":"$CI_DEPLOY_TOKEN"@$CI_PROJECT_LINK
-      - docker build --pull -t "$CI_REGISTRY_IMAGE${tag}" .
-      - docker compose up --build -d
-      - docker push "$CI_REGISTRY_IMAGE${tag}"
-    rules:
-      - if: '$CI_COMMIT_BRANCH == "main"'
-        when: always
-      - if: '$CI_COMMIT_BRANCH == "develop"'
-        when: always
-      - when: never
-      - if: $CI_COMMIT_BRANCH
-        exists:
-          - Dockerfile

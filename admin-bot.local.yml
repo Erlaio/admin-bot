@@ -1,0 +1,44 @@
+version: "3.9"
+
+x-env: &app-env
+  KEY: "" # TODO: Fix me
+  SQLITE_FILENAME: "" # TODO: Fix me
+  SECRET_KEY: "" # TODO: Fix me
+  TELEGRAM_MODERS_CHAT_ID: "" # TODO: Fix me
+  TELEGRAM_SCHOOL_CHATS: "" # TODO: Fix me
+
+services:
+  admin-bot:
+    image: admin-bot-new:local
+    container_name: 'admin-bot'
+    build:
+      context: ./
+      dockerfile: Dockerfile.local
+    networks:
+      - ab
+    volumes:
+      - ab-src:/src
+      - ab-db:/db
+    environment:
+      <<: *app-env
+    restart: on-failure
+
+volumes:
+  ab-src:
+    name: ab-src
+    driver_opts:
+      type: local
+      device: ${PWD}
+      o: bind
+
+  ab-db:
+    name: ab-db
+    driver_opts:
+      type: local
+      device: /srv/db
+      o: bind
+
+networks:
+  ab:
+    name: "ab"
+
