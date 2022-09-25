@@ -11,8 +11,8 @@ Build App Dev:
   stage: build
   script:
     - docker login -u "$CI_DEPLOY_USER" -p "$CI_DEPLOY_TOKEN" $CI_REGISTRY
-    - docker build --pull -t registry.gitlab.com/biber69/admin-bot-new:$CI_COMMIT_SHA -f Dockerfile.dev .
-    - docker push registry.gitlab.com/biber69/admin-bot-new:$CI_COMMIT_SHA
+    - docker build --pull -t registry.gitlab.com/f4648/backend/admin-bot:$CI_COMMIT_SHA -f Dockerfile.dev .
+    - docker push registry.gitlab.com/f4648/backend/admin-bot:$CI_COMMIT_SHA
   tags:
     - docker
   only:
@@ -42,7 +42,7 @@ Deploy App Dev:
     - echo "$CA_ST_KEY" > $DOCKER_CERT_PATH/key.pem
   script:
     - docker login -u "$CI_DEPLOY_USER" -p "$CI_DEPLOY_TOKEN" $CI_REGISTRY
-    - docker stop admin_bot || true
+    - docker stop admin-bot_endpoints || true
     - docker system prune -f --all
     - docker-compose -f admin-bot.dev.yml up -d
     - rm -rfv $DOCKER_CERT_PATH
