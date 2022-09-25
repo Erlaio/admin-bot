@@ -1,47 +1,57 @@
 image: docker:20.10.17
- 
-  services:
-    - docker:20.10.17-dind
- 
-  stages:
-    - build
-    - deploy
- 
- Build App Dev:
-   stage: build
-   script:
-     - docker login -u "$CI_DEPLOY_USER" -p "$CI_DEPLOY_TOKEN" $CI_REGISTRY
-     - docker build --pull -t registry.gitlab.com/f4648/backend/admin-bot:$CI_COMMIT_SHA -f Dockerfile.dev .
-     - docker push registry.gitlab.com/f4648/backend/admin-bot:$CI_COMMIT_SHA
-   tags:
-     - docker
-   only:
-     - develop
 
- Deploy App Dev:
+services: 
+  - docker:20.10.17-dind
+
+stages:
+  - build
+  - deploy
+
+Build App Dev:
+  stage: build
+  script:
+    - docker login -u "$CI_DEPLOY_USER" -p "$CI_DEPLOY_TOKEN" $CI_REGISTRY
+    - docker build --pull -t registry.gitlab.com/biber69/admin-bot-new:$CI_COMMIT_SHA -f Dockerfile.dev .
+    - docker push registry.gitlab.com/biber69/admin-bot-new:$CI_COMMIT_SHA
+  tags:
+    - docker
+  only:
+    - develop
+
+Build App Prod:
+  stage: build
+  script:
+    - docker login -u "$CI_DEPLOY_USER" -p "$CI_DEPLOY_TOKEN" $CI_REGISTRY
+    - docker build --pull -t registry.gitlab.com/f4648/backend/admin-bot:$CI_COMMIT_TAG -f Dockerfile .
+    - docker push registry.gitlab.com/f4648/backend/admin-bot:$CI_COMMIT_TAG
+  tags:
+    - docker
+  only:
+    - tags 
+
+Deploy App Dev:
   stage: deploy
-   variables:
-     DOCKER_HOST: "$DOCKER_STAGE"
-     DOCKER_TLS_VERIFY: 1
-     DOCKER_CERT_PATH: "/certs"
-   before_script:
-     - mkdir -pv $DOCKER_CERT_PATH
-     - echo "$CA_ST" > $DOCKER_CERT_PATH/ca.pem
-     - echo "$CA_ST_CERT" > $DOCKER_CERT_PATH/cert.pem
-     - echo "$CA_ST_KEY" > $DOCKER_CERT_PATH/key.pem
-   script:
-     - docker login -u "$CI_DEPLOY_USER" -p "$CI_DEPLOY_TOKEN" $CI_REGISTRY
-     - docker stop admin_bot || true
-     - docker system prune -f --all
-     - docker compose -f admin-bot.dev.yml up -d
-     - rm -rfv $DOCKER_CERT_PATH
-   environment:
-     name: develop
-     url:  "$DOCKER_URL_STAGE"
-   needs:
-     - Build App Dev
-   only:
-     - develop
-   tags:
-     - docker
-
+  variables:
+    DOCKER_HOST: "$DOCKER_STAGE" 
+    DOCKER_TLS_VERIFY: 1
+    DOCKER_CERT_PATH: "/certs"
+  before_script:
+    - mkdir -pv $DOCKER_CERT_PATH
+    - echo "$CA_ST" > $DOCKER_CERT_PATH/ca.pem
+    - echo "$CA_ST_CERT" > $DOCKER_CERT_PATH/cert.pem
+    - echo "$CA_ST_KEY" > $DOCKER_CERT_PATH/key.pem
+  script:
+    - docker login -u "$CI_DEPLOY_USER" -p "$CI_DEPLOY_TOKEN" $CI_REGISTRY
+    - docker stop admin_bot || true
+    - docker system prune -f --all
+    - docker-compose -f admin-bot.dev.yml up -d
+    - rm -rfv $DOCKER_CERT_PATH
+  environment:
+    name: develop
+    url:  "$DOCKER_URL_STAGE"
+  needs:
+    - Build App Dev
+  only:
+    - develop
+  tags:
+    - docker
