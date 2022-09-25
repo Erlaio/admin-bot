@@ -1,7 +1,7 @@
 from aiogram.dispatcher import FSMContext
 from aiogram.types import ReplyKeyboardRemove
 
-from handlers.moders_output import characters_page_callback
+from handlers.moder_handlers.moders_output import characters_page_callback
 from loader import dp, bot
 from pkg.db.user_func import delete_user_by_tg_id, update_user_approve
 from pkg.settings import settings
