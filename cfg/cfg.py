@@ -5,6 +5,7 @@ from envreader import Field
 from envreader import EnvTransformError
 from envreader import EnvMissingError
 
+
 class Config(EnvReader):
     SQLITE_FILENAME: str = Field(..., description = "sqlite3 database file path")
     SECRET_KEY: str = Field(..., description = "Admin Bot Secret Key")
@@ -23,4 +24,3 @@ except EnvMissingError as e:
     print('Configuration key {} was not found in env!'.format(e.args[0]))
     print('Settings help:\n' + Config(populate=False).help())
     print('Committing suicide...')
-
