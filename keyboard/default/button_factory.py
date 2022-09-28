@@ -11,10 +11,10 @@ class ButtonFactory(ABC):
     @classmethod
     def get_reply_keyboard(cls, add_stop=True,
                            one_time=False) -> ReplyKeyboardMarkup:
-        key_list = [KeyboardButton(getattr(cls, i_const)) for i_const in dir(cls)[::-1]
+        key_list = [KeyboardButton(getattr(cls, i_const)) for i_const in dir(cls)
                     if any([i_const.isupper(), i_const.isdigit()])]
 
-        row = 3 if len(key_list) < 5 else math.ceil(len(key_list) / 5)
+        row = 3 if len(key_list) < 6 else math.ceil(len(key_list) / 4)
 
         keyboard = ReplyKeyboardMarkup(resize_keyboard=True, row_width=row,
                                        one_time_keyboard=one_time).add(*key_list)
@@ -48,7 +48,7 @@ class ButtonFactory(ABC):
             if len(inline_keyboard) == any(inline_keyboard_len for inline_keyboard_len in range(1, 4)):
                 return inline_keyboard
         finally:
-            if not any(isinstance(inline_keyboard, list) for i in inline_keyboard):
+            if not any(isinstance(inline_keyboard, list) for _ in inline_keyboard):
                 return inline_keyboard
 
         upd_inline_keyboard = []
