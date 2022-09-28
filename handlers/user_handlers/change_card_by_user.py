@@ -1,4 +1,3 @@
-import validators
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.types import ReplyKeyboardRemove, InlineKeyboardMarkup
@@ -8,6 +7,7 @@ from keyboard.default.keyboards import StopBotKeyboard, DepartmentsKeyboard
 from loader import dp, bot
 from pkg.db.user_func import get_user_by_tg_id, update_field_value
 from pkg.settings import settings
+from utils import validations
 from utils.context_helper import ContextHelper
 from utils.send_card import send_card, send_full_card
 

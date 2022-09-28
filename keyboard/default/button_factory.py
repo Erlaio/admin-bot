@@ -1,6 +1,5 @@
 import math
 from abc import ABC
-from typing import List
 
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardButton, InlineKeyboardMarkup
 

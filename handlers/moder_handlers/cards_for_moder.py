@@ -3,7 +3,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram.types import ReplyKeyboardRemove
 
 from keyboard.default.inline_keyboards import BackInlineKeyboard, ModeratorChangeCardInlineKeyboard
-from keyboard.default.keyboards import StopBotKeyboard
+from keyboard.default.keyboards import StopBotKeyboard, DepartmentsKeyboard
 from keyboard.default.pagination import Pagination, InlineKeyboardButton
 from loader import dp, bot
 from pkg.db.user_func import get_user_by_tg_id, get_all_users, update_field_value, delete_user_by_tg_id
