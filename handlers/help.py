@@ -12,6 +12,7 @@ async def start_handler(message: types.Message, state: FSMContext):
                   '/help - помощь по командам взаимодействия с ботом.\n\n' \
                   '/show_card - посмотреть личные карточки студентов Школы IT.\n\n' \
                   '/show_department_cards - показать карточки пользователей отдела.\n\n' \
+                  '/change_card - изменение данных в своей карточке.\n\n' \
                   '/moder - меню модератора.\n\n' \
                   '/rules - правила Школы IT.\n\n\n'
     await message.answer(command_bot)

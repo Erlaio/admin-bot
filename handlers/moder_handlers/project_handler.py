@@ -30,19 +30,19 @@ async def start_handler(message: types.Message, state: FSMContext):
 @dp.message_handler(state=ProjectStates.moderator_choice)
 async def moderator_choice(message: types.Message, state: FSMContext):
     answer = message.text
-    if answer == ProjectCommandsKeyboard.D_CREATE_PROJECT:
+    if answer == ProjectCommandsKeyboard.A_CREATE_PROJECT:
         await message.answer('Введите название проекта который хотите создать',
                              reply_markup=StopBotKeyboard.get_reply_keyboard())
         await ProjectStates.new_project.set()
-    elif answer == ProjectCommandsKeyboard.C_DELETE_PROJECT:
+    elif answer == ProjectCommandsKeyboard.B_DELETE_PROJECT:
         await message.answer('Введите название проекта который хотите удалить',
                              reply_markup=StopBotKeyboard.get_reply_keyboard())
         await ProjectStates.delete_project.set()
-    elif answer == ProjectCommandsKeyboard.B_CHANGE_PROJECT_NAME:
+    elif answer == ProjectCommandsKeyboard.C_CHANGE_PROJECT_NAME:
         await message.answer('Введите название проекта который хотите поменять',
                              reply_markup=StopBotKeyboard.get_reply_keyboard())
         await ProjectStates.change_project_name_get_name.set()
-    elif answer == ProjectCommandsKeyboard.A_CHANGE_PROJECT_LEAD:
+    elif answer == ProjectCommandsKeyboard.D_CHANGE_PROJECT_LEAD:
         await message.answer('Введите название проекта тим лидера которого вы хотите поменять',
                              reply_markup=StopBotKeyboard.get_reply_keyboard())
         await ProjectStates.change_team_lead_name_get_name.set()

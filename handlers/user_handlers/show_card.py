@@ -21,7 +21,7 @@ async def show_user_start(message: types.Message):
 @dp.message_handler(state=UserCardState.show_user_choice)
 async def show_user_choice(message: types.Message, state: FSMContext):
     answer = message.text
-    if answer == ShowUserKeyboard.C_VIEW_ALL:
+    if answer == ShowUserKeyboard.A_VIEW_ALL:
         await message.answer('Постраничный вывод всех пользователей', reply_markup=ReplyKeyboardRemove())
         await show_all(message, state)
 
@@ -29,7 +29,7 @@ async def show_user_choice(message: types.Message, state: FSMContext):
         await message.answer('Введите внутренний ID', reply_markup=StopBotKeyboard.get_reply_keyboard())
         await UserCardState.user_id.set()
 
-    elif answer == ShowUserKeyboard.A_VIEW_TG_LOGIN:
+    elif answer == ShowUserKeyboard.C_VIEW_TG_LOGIN:
         await message.answer('Введите логин Telegram', reply_markup=StopBotKeyboard.get_reply_keyboard())
         await UserCardState.user_tg_login.set()
 

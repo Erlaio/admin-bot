@@ -1,8 +1,7 @@
-import pydantic
 from cfg.cfg import config as cfg
 
 
-class Settings():
+class Settings:
     SQLITE_FILENAME: str = cfg.SQLITE_FILENAME
     SECRET_KEY: str = cfg.SECRET_KEY
     TELEGRAM_MODERS_CHAT_ID: int = cfg.TELEGRAM_MODERS_CHAT_ID

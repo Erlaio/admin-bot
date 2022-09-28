@@ -1,11 +1,7 @@
-import os.path
 import pathlib
 import sqlite3
-
 import aiosqlite
-
 from pkg.settings import settings
-from utils.config_utils import ConfigUtils
 
 
 def connect_to_db(func):

@@ -1,4 +1,3 @@
-import validators
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.types import ReplyKeyboardRemove, InlineKeyboardMarkup
@@ -8,6 +7,7 @@ from keyboard.default.keyboards import StopBotKeyboard, DepartmentsKeyboard
 from loader import dp, bot
 from pkg.db.user_func import get_user_by_tg_id, update_field_value
 from pkg.settings import settings
+from utils import validations
 from utils.context_helper import ContextHelper
 from utils.send_card import send_card, send_full_card
 
@@ -64,16 +64,8 @@ async def change_data_of_user(message: types.Message, state: FSMContext):
     user_dict = dict(user)
     field_name = await ContextHelper.get_some_data(state)
     answer = message.text
-
-    if field_name == 'tg_login' and not answer.startswith('@'):
-        await message.answer('Пожалуйста, введите ваш логин с @\n(Например: @login)',
-                             reply_markup=StopBotKeyboard.get_reply_keyboard())
-    elif field_name == 'email' and not validators.email(answer):
-        await message.answer('Вы ввели неверный формат почты',
-                             reply_markup=StopBotKeyboard.get_reply_keyboard())
-    elif field_name == 'git' or field_name == 'behance' and not validators.url(answer):
-        await message.answer('Введите, пожалуйста, корректную ссылку',
-                             reply_markup=StopBotKeyboard.get_reply_keyboard())
+    if not await validations.Validations(field_name, message).validate_tg_login_email_git():
+        await state.set_state('change_by_user')
     else:
         await bot.send_message(chat_id=settings.TELEGRAM_MODERS_CHAT_ID,
                                text=f'Поступил запрос от {user.tg_login} на изменение поля {field_name} '
@@ -98,8 +90,11 @@ async def edit_approved(call: types.CallbackQuery, state: FSMContext):
 
     await update_field_value(telegram_id=telegram_id, field=field_name, value=field_value)
     await bot.send_message(chat_id=settings.TELEGRAM_MODERS_CHAT_ID,
-                           text=f'Запрос {user.tg_login} на изменение был одобрен {moder_tg}\n\n'
+                           text=f'Запрос {user.tg_login} на изменение был одобрен @{moder_tg}\n\n'
                                 f'Поле {field_name} изменено на {field_value}')
+    await bot.edit_message_reply_markup(chat_id=call.message.chat.id,
+                                        message_id=call.message.message_id,
+                                        reply_markup=None)
     await bot.send_message(chat_id=user.telegram_id,
                            text=f'Выбранное поле теперь имеет значение: {field_value}',
                            reply_markup=ReplyKeyboardRemove())
@@ -113,8 +108,11 @@ async def edit_declined(call: types.CallbackQuery, state: FSMContext):
     user = await get_user_by_tg_id(telegram_id)
 
     await bot.send_message(chat_id=settings.TELEGRAM_MODERS_CHAT_ID,
-                           text=f'Запрос {user.tg_login} на изменение был отклонен {moder_tg}\n\n'
+                           text=f'Запрос {user.tg_login} на изменение был отклонен @{moder_tg}\n\n'
                                 f'Поле {field_name} НЕ изменено на {field_value}')
+    await bot.edit_message_reply_markup(chat_id=call.message.chat.id,
+                                        message_id=call.message.message_id,
+                                        reply_markup=None)
     await bot.send_message(chat_id=user.telegram_id,
                            text=f'К сожалению, модераторы отклонили Вашу заявку на изменение данных.',
                            reply_markup=ReplyKeyboardRemove())

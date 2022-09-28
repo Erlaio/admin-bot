@@ -3,11 +3,12 @@ from aiogram.dispatcher import FSMContext
 from aiogram.types import ReplyKeyboardRemove
 
 from keyboard.default.inline_keyboards import BackInlineKeyboard, ModeratorChangeCardInlineKeyboard
-from keyboard.default.keyboards import StopBotKeyboard
+from keyboard.default.keyboards import StopBotKeyboard, DepartmentsKeyboard
 from keyboard.default.pagination import Pagination, InlineKeyboardButton
 from loader import dp, bot
 from pkg.db.user_func import get_user_by_tg_id, get_all_users, update_field_value, delete_user_by_tg_id
 from pkg.settings import settings
+from utils import validations
 from utils.context_helper import ContextHelper
 from utils.delete_user import delete_user
 from utils.send_card import send_full_card
@@ -69,10 +70,16 @@ async def characters_for_edit_page_callback(call: types.CallbackQuery, state: FS
     )
     await ContextHelper.add_tg_id(telegram_id=telegram_id, context=state)
     await ContextHelper.add_some_data(data=field_name, context=state)
-    await bot.send_message(call.message.chat.id,
-                           f'Выбрано поле {field_name}. Введите, пожалуйста,'
-                           f' значение, на которое хотите изменить данные',
-                           reply_markup=StopBotKeyboard.get_reply_keyboard())
+    text = f'Выбрано поле {field_name}. Введите, пожалуйста,' \
+           f' значение, на которое хотите изменить данные'
+    reply_markup = StopBotKeyboard.get_reply_keyboard()
+    if field_name == 'desired_department':
+        text = f'Выбрано поле {field_name}. Выберите, пожалуйста,' \
+               f' отдел, на который хотите изменить'
+        reply_markup = await DepartmentsKeyboard.get_reply_keyboard()
+    await bot.send_message(chat_id=call.message.chat.id,
+                           text=text,
+                           reply_markup=reply_markup)
     await state.set_state('change_by_moder')
 
 
@@ -91,10 +98,13 @@ async def change_data_of_user(message: types.Message, state: FSMContext):
     telegram_id = await ContextHelper.get_tg_id(state)
     field_name = await ContextHelper.get_some_data(state)
     answer = message.text
-    await update_field_value(telegram_id=telegram_id, field=field_name, value=answer)
-    await bot.send_message(chat_id=message.chat.id,
-                           text=f'Поле {field_name} теперь имеет значение: {answer}')
-    await state.finish()
+    if not await validations.Validations(field_name, message).validate_tg_login_email_git():
+        await state.set_state('change_by_moder')
+    else:
+        await update_field_value(telegram_id=telegram_id, field=field_name, value=answer)
+        await bot.send_message(chat_id=message.chat.id,
+                               text=f'Поле {field_name} теперь имеет значение: {answer}')
+        await state.finish()
 
 
 @dp.callback_query_handler(lambda call: call.data.split('#')[0] == 'delete_user_by_menu')

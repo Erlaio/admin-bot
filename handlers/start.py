@@ -52,7 +52,6 @@ async def moder_menu(message: types.Message, state: FSMContext):
             commands_for_moder = '<b>Команды модераторов:</b>\n\n' \
                                  '/department - добавить новый отдел или изменить данные о существующем.\n\n' \
                                  '/project -  добавить новый проект или изменить данные о существующем.\n\n' \
-                                 '/show_department_cards - вывести список всех участников отдела.\n\n' \
                                  '/review_cards - работа со всеми неапрувнутыми учениками.\n\n' \
                                  '/change_card_by_moder - изменение/удаление карточки учеников'
             await message.answer(text=commands_for_moder,
@@ -95,11 +94,11 @@ async def reading_rules(message: types.Message, state: FSMContext):
     if await is_command(answer):
         await message.answer('Вы ввели команду. Пожалуйста, выберите один из предложенных вариантов ответа',
                              reply_markup=ChoiceKeyboard.get_reply_keyboard())
-    elif answer == ChoiceKeyboard.B_READ_RULES:
+    elif answer == ChoiceKeyboard.A_READ_RULES:
         await message.answer(RULES, reply_markup=ReplyKeyboardRemove())
         await message.answer('Вы согласны с правилами?', reply_markup=AgreementKeyboard.get_reply_keyboard())
         await StartState.decision.set()
-    elif answer == ChoiceKeyboard.A_DONT_READ_RULES:
+    elif answer == ChoiceKeyboard.B_DONT_READ_RULES:
         await message.answer(
             'Очень жаль, что наше с Вами общение подходит к концу 😔\nЕсли Вы передумаете, '
             'то я всегда тут! Нужно лишь повторно вызвать команду /start',
@@ -116,7 +115,7 @@ async def decision_about_rules(message: types.Message, state: FSMContext):
     if await is_command(answer):
         await message.answer('Вы ввели команду. Пожалуйста, выберите один из предложенных вариантов ответа',
                              reply_markup=AgreementKeyboard.get_reply_keyboard())
-    elif answer == AgreementKeyboard.B_AGREE_WITH_RULES:
+    elif answer == AgreementKeyboard.A_AGREE_WITH_RULES:
         if await get_user_by_tg_id(tg_id=message.from_user.id) is None:
             await message.answer('Введите ваше ФИО 🖊',
                                  reply_markup=StopBotKeyboard.get_reply_keyboard())
@@ -125,7 +124,7 @@ async def decision_about_rules(message: types.Message, state: FSMContext):
             await message.answer('Вы уже зарегистрированы в системе. Хотите обновить данные?',
                                  reply_markup=YesNoKeyboard.get_reply_keyboard())
             await StartState.update_info.set()
-    elif answer == AgreementKeyboard.A_DONT_AGREE_WITH_RULES:
+    elif answer == AgreementKeyboard.B_DONT_AGREE_WITH_RULES:
         await message.answer('Жаль, что вас не устроили наши правила 😔\n'
                              'В любой момент, если передумаете, можете '
                              'попробовать снова, для этого нажмите команду /start',
@@ -142,13 +141,13 @@ async def update_info(message: types.Message):
     if await is_command(answer):
         await message.answer('Вы ввели команду. Пожалуйста, выберите один из предложенных вариантов ответа',
                              reply_markup=YesNoKeyboard.get_reply_keyboard())
-    elif answer == YesNoKeyboard.B_YES:
+    elif answer == YesNoKeyboard.A_YES:
         await message.answer('Введите ваше ФИО 🖊',
                              reply_markup=StopBotKeyboard.get_reply_keyboard())
         tg_id = message.from_user.id
         await delete_user_by_tg_id(telegram_id=tg_id)
         await StartState.gender.set()
-    elif answer == YesNoKeyboard.A_NO:
+    elif answer == YesNoKeyboard.B_NO:
         await message.answer('Хотите проверить Вашу анкету?',
                              reply_markup=YesNoKeyboard.get_reply_keyboard())
         await StartState.choice.set()
@@ -160,11 +159,11 @@ async def questionnaire_choice(message: types.Message, state: FSMContext):
     if await is_command(answer):
         await message.answer('Вы ввели команду. Пожалуйста, выберите один из предложенных вариантов ответа',
                              reply_markup=YesNoKeyboard.get_reply_keyboard())
-    elif answer == YesNoKeyboard.B_YES:
+    elif answer == YesNoKeyboard.A_YES:
         await message.answer('Для проверки нажмите на кнопку ниже',
                              reply_markup=CheckAccessKeyboard.get_reply_keyboard(add_stop=False))
         await StartState.check_questionnaire.set()
-    elif answer == YesNoKeyboard.A_NO:
+    elif answer == YesNoKeyboard.B_NO:
         await message.answer('Ок. Возвращаю Вас в начало',
                              reply_markup=ReplyKeyboardRemove())
         await state.reset_state()
@@ -208,9 +207,9 @@ async def ask_about_photo(message: types.Message, state: FSMContext):
     else:
         message_text = 'Хотите ли Вы загрузить свое фото?'
         user = await ContextHelper.get_user(state)
-        if answer == GenderKeyboard.B_MALE_GENDER:
+        if answer == GenderKeyboard.A_MALE_GENDER:
             user.gender = 'Мужской'
-        elif answer == GenderKeyboard.A_FEMALE_GENDER:
+        elif answer == GenderKeyboard.B_FEMALE_GENDER:
             user.gender = 'Женский'
         else:
             await message.answer('Ошибка ввода! ⛔ \nВыберите один из предложенных вариантов')
@@ -230,11 +229,11 @@ async def decision_about_photo(message: types.Message):
         await message.answer('Вы ввели команду. Пожалуйста, выберите один из предложенных вариантов ответа',
                              reply_markup=PhotoKeyboard.get_reply_keyboard())
     else:
-        if answer == PhotoKeyboard.B_WANT_UPLOAD_PHOTO:
+        if answer == PhotoKeyboard.A_WANT_UPLOAD_PHOTO:
             await message.answer('Супер! Просто отправьте его мне.',
                                  reply_markup=StopBotKeyboard.get_reply_keyboard())
             await StartState.upload_photo.set()
-        elif answer == PhotoKeyboard.A_DONT_WANT_UPLOAD_PHOTO:
+        elif answer == PhotoKeyboard.B_DONT_WANT_UPLOAD_PHOTO:
             await message.answer('Хорошо, тогда продолжаем анкетирование 📝',
                                  reply_markup=StopBotKeyboard.get_reply_keyboard())
             await message.answer('Введите вашу почту 📧')
@@ -541,5 +540,5 @@ async def get_moder(message: types.Message, state: FSMContext):
 
 
 @dp.message_handler(state=StartState.cycle)
-async def cycle(message: types.Message):
+async def cycle():
     await StartState.cycle.set()
