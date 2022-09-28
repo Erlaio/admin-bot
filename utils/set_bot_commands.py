@@ -10,5 +10,6 @@ async def set_default_commands(dp):
             'show_department_cards',
             'Показать карточку пользователей отдела'),
         types.BotCommand('rules', 'Правила школы'),
+        types.BotCommand('change_card', 'Изменение данных в своей карточке'),
         types.BotCommand('moder', 'Меню модератора')
     ])
