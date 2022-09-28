@@ -108,7 +108,7 @@ async def edit_declined(call: types.CallbackQuery, state: FSMContext):
     user = await get_user_by_tg_id(telegram_id)
 
     await bot.send_message(chat_id=settings.TELEGRAM_MODERS_CHAT_ID,
-                           text=f'Запрос {user.tg_login} на изменение был отклонен {moder_tg}\n\n'
+                           text=f'Запрос {user.tg_login} на изменение был отклонен @{moder_tg}\n\n'
                                 f'Поле {field_name} НЕ изменено на {field_value}')
     await bot.edit_message_reply_markup(chat_id=call.message.chat.id,
                                         message_id=call.message.message_id,
