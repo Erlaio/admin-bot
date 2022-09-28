@@ -70,10 +70,16 @@ async def characters_for_edit_page_callback(call: types.CallbackQuery, state: FS
     )
     await ContextHelper.add_tg_id(telegram_id=telegram_id, context=state)
     await ContextHelper.add_some_data(data=field_name, context=state)
-    await bot.send_message(call.message.chat.id,
-                           f'Выбрано поле {field_name}. Введите, пожалуйста,'
-                           f' значение, на которое хотите изменить данные',
-                           reply_markup=StopBotKeyboard.get_reply_keyboard())
+    text = f'Выбрано поле {field_name}. Введите, пожалуйста,' \
+           f' значение, на которое хотите изменить данные'
+    reply_markup = StopBotKeyboard.get_reply_keyboard()
+    if field_name == 'desired_department':
+        text = f'Выбрано поле {field_name}. Выберите, пожалуйста,' \
+               f' отдел, на который хотите изменить'
+        reply_markup = await DepartmentsKeyboard.get_reply_keyboard()
+    await bot.send_message(chat_id=call.message.chat.id,
+                           text=text,
+                           reply_markup=reply_markup)
     await state.set_state('change_by_moder')
 
 
