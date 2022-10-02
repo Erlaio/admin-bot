@@ -4,7 +4,7 @@ from aiogram.types import ReplyKeyboardRemove
 
 from keyboard.default.inline_keyboards import ModeratorChangeCardInlineKeyboard, BackInlineKeyboard
 from keyboard.default.pagination import Pagination, InlineKeyboardButton
-from loader import dp
+from loader import dp, bot
 from pkg.db.user_func import get_user_by_tg_id, get_all_users
 from utils.send_card import send_short_card
 
@@ -31,7 +31,7 @@ async def send_character_page_for_edit(message: types.Message, page=1):
         paginator = Pagination(
             len(user_list),
             current_page=page,
-            data_pattern='user_for_change#{page}'
+            data_pattern='user_for_change_short#{page}'
         )
         user = user_list[page - 1]
         list_of_buttons = ModeratorChangeCardInlineKeyboard(page, user, 'change_by_moder').\
@@ -55,3 +55,11 @@ async def send_character_page_for_edit(message: types.Message, page=1):
         await message.answer('Пользователей нет в базе данных', reply_markup=ReplyKeyboardRemove())
 
 
+@dp.callback_query_handler(lambda call: call.data.split('#')[0] == 'user_for_change_short')
+async def characters_page_callback(call):
+    page = int(call.data.split('#')[1])
+    await bot.delete_message(
+        call.message.chat.id,
+        call.message.message_id
+    )
+    await send_character_page_for_edit(call.message, page)
