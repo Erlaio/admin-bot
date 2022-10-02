@@ -53,7 +53,8 @@ async def moder_menu(message: types.Message, state: FSMContext):
                                  '/department - добавить новый отдел или изменить данные о существующем.\n\n' \
                                  '/project -  добавить новый проект или изменить данные о существующем.\n\n' \
                                  '/review_cards - работа со всеми неапрувнутыми учениками.\n\n' \
-                                 '/change_card_by_moder - изменение/удаление карточки учеников'
+                                 '/change_card_by_moder - изменение/удаление карточки учеников\n\n' \
+                                 '/blind_change - изменение полей вслепую (когда карточка забагована)'
             await message.answer(text=commands_for_moder,
                                  reply_markup=StopBotKeyboard.get_reply_keyboard(add_stop=False))
             await state.finish()
