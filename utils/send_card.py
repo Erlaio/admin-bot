@@ -58,3 +58,17 @@ async def send_full_card(chat_id: int, user: User, reply_markup=ReplyKeyboardRem
     except BadRequest:
         await bot.send_message(chat_id, caption + f'\n<b>Фото отсутствует в бд</b>',
                                reply_markup=reply_markup)
+
+
+async def send_short_card(chat_id: int, user: User, reply_markup=ReplyKeyboardRemove()) -> None:
+    caption = f'<b>Краткая информация:</b>\n\n'\
+                                                \
+              f'<b>ID:</b> {user.user_id}\n' \
+              f'<b>TG ID:</b> {user.telegram_id}\n' \
+              f'<b>TG Tag</b> {user.tg_login}\n' \
+              f'<b>ФИО:</b> {user.surname} {user.name} {user.patronymic}'
+
+    try:
+        await bot.send_message(chat_id=chat_id, text=caption, reply_markup=reply_markup)
+    except BadRequest:
+        await bot.send_message(chat_id=chat_id, text='Техническая ошибка с карточкой', reply_markup=reply_markup)
