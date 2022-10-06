@@ -2,7 +2,6 @@ from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.types import ReplyKeyboardRemove
 
-from handlers.start import is_command
 from keyboard.default.keyboards import DepartmentsKeyboard
 from keyboard.default.pagination import Pagination, InlineKeyboardButton
 from loader import dp, bot
@@ -10,14 +9,16 @@ from pkg.db.user_func import get_users_from_department_name
 from states.show_user_state import UserCardState
 from utils.check_is_available import is_department_available
 from utils.send_card import send_card
+from utils.validations import Validations
 
 
 @dp.message_handler(commands='show_department_cards')
 async def show_user_by_department_start(message: types.Message):
-    text = 'Выберите отдел для вывода'
-    await message.answer(text,
-                         reply_markup=await DepartmentsKeyboard.get_reply_keyboard(one_time=True))
-    await UserCardState.show_departments.set()
+    if await Validations.moder_validation_for_supergroups(message):
+        text = 'Выберите отдел для вывода'
+        await message.answer(text,
+                             reply_markup=await DepartmentsKeyboard.get_reply_keyboard(one_time=True))
+        await UserCardState.show_departments.set()
 
 
 @dp.callback_query_handler(lambda call: True)
@@ -34,7 +35,7 @@ async def characters_page_callback(call, state: FSMContext):
 @dp.message_handler(state=UserCardState.show_departments)
 async def show_users_by_department(message: types.Message, state: FSMContext, page=1):
     department_name = message.text
-    if not await is_command(department_name):
+    if not await Validations.is_command(department_name):
         if await is_department_available(department_name):
             await message.answer(text=f'Был выбран отдел {department_name}', reply_markup=ReplyKeyboardRemove())
             await show_all(department_name, message, state=state, page=page)

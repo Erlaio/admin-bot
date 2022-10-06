@@ -2,20 +2,21 @@ from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.types import ReplyKeyboardRemove
 
-from handlers.start import is_command
 from keyboard.default.pagination import Pagination, InlineKeyboardButton
 from keyboard.default.keyboards import ShowUserKeyboard, StopBotKeyboard
 from loader import dp, bot
 from pkg.db.user_func import get_user_by_id, get_all_users, get_user_by_tg_login
 from states.show_user_state import UserCardState
 from utils.send_card import send_card
+from utils.validations import Validations
 
 
 @dp.message_handler(commands='show_card')
 async def show_user_start(message: types.Message):
-    text = 'Вы хотите посмотреть всех пользователей или кого-то конкретного?'
-    await message.answer(text, reply_markup=ShowUserKeyboard.get_reply_keyboard())
-    await UserCardState.show_user_choice.set()
+    if await Validations.moder_validation_for_supergroups(message):
+        text = 'Вы хотите посмотреть всех пользователей или кого-то конкретного?'
+        await message.answer(text, reply_markup=ShowUserKeyboard.get_reply_keyboard())
+        await UserCardState.show_user_choice.set()
 
 
 @dp.message_handler(state=UserCardState.show_user_choice)
@@ -76,7 +77,7 @@ async def show_all(message: types.Message, state: FSMContext, page=1):
 @dp.message_handler(state=UserCardState.user_id)
 async def show_user_by_id(message: types.Message, state: FSMContext):
     user_id = message.text
-    if not await is_command(message.text):
+    if not await Validations.is_command(message.text):
         try:
             user = await get_user_by_id(int(user_id))
             await send_card(message.chat.id, user)
@@ -93,7 +94,7 @@ async def show_user_by_id(message: types.Message, state: FSMContext):
 @dp.message_handler(state=UserCardState.user_tg_login)
 async def show_user_by_tg_login(message: types.Message, state: FSMContext):
     user_tg_login = message.text
-    if not await is_command(message.text):
+    if not await Validations.is_command(message.text):
         try:
             user = await get_user_by_tg_login(user_tg_login)
             await send_card(message.chat.id, user)

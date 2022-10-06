@@ -2,6 +2,7 @@ import validators
 from aiogram import types
 
 from keyboard.default.keyboards import StopBotKeyboard
+from pkg.db.user_func import get_user_by_tg_id
 
 
 class Validations:
@@ -31,6 +32,26 @@ class Validations:
             else:
                 await self.message.answer('Введите, пожалуйста, корректную ссылку',
                                           reply_markup=StopBotKeyboard.get_reply_keyboard())
+                return False
+        else:
+            return True
+
+    @staticmethod
+    async def is_command(text: str) -> bool:
+        if text.startswith('/'):
+            return True
+        return False
+
+    @staticmethod
+    async def moder_validation_for_supergroups(message: types.Message) -> bool:
+        if message.chat.type == types.ChatType.SUPERGROUP:
+            try:
+                user = await get_user_by_tg_id(message.from_user.id)
+                if user.is_moderator:
+                    return True
+                return False
+            except Exception as e:
+                print(e)
                 return False
         else:
             return True

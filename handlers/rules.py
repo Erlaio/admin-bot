@@ -2,6 +2,7 @@ from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.types import ReplyKeyboardRemove
 
+from utils.validations import Validations
 from loader import dp
 
 RULES = '<b>Приветствуем в Школе IT!</b>\n' \
@@ -23,5 +24,6 @@ RULES = '<b>Приветствуем в Школе IT!</b>\n' \
 
 @dp.message_handler(commands='rules')
 async def send_rules(message: types.Message, state: FSMContext):
-    await message.answer(RULES, reply_markup=ReplyKeyboardRemove())
-    await state.finish()
+    if await Validations.moder_validation_for_supergroups(message):
+        await message.answer(RULES, reply_markup=ReplyKeyboardRemove())
+        await state.finish()

@@ -7,20 +7,21 @@ from keyboard.default.keyboards import StopBotKeyboard, DepartmentsKeyboard
 from loader import dp, bot
 from pkg.db.user_func import get_user_by_tg_id, update_field_value
 from pkg.settings import settings
-from utils import validations
+from utils.validations import Validations
 from utils.context_helper import ContextHelper
 from utils.send_card import send_card, send_full_card
 
 
 @dp.message_handler(commands='change_card')
 async def change_card_by_moder(message: types.Message, state: FSMContext):
-    try:
-        await get_user_by_tg_id(message.from_user.id)
-        await send_character_page_for_edit(message)
-    except (TypeError, AttributeError):
-        await message.answer('Вас нет в базе, пожалуйста пройдите регистрацию',
-                             reply_markup=ReplyKeyboardRemove())
-        await state.finish()
+    if await Validations.moder_validation_for_supergroups(message):
+        try:
+            await get_user_by_tg_id(message.from_user.id)
+            await send_character_page_for_edit(message)
+        except (TypeError, AttributeError):
+            await message.answer('Вас нет в базе, пожалуйста пройдите регистрацию',
+                                 reply_markup=ReplyKeyboardRemove())
+            await state.finish()
 
 
 async def send_character_page_for_edit(message: types.Message):
@@ -64,7 +65,7 @@ async def change_data_of_user(message: types.Message, state: FSMContext):
     user_dict = dict(user)
     field_name = await ContextHelper.get_some_data(state)
     answer = message.text
-    if not await validations.Validations(field_name, message).validate_tg_login_email_git():
+    if not await Validations(field_name, message).validate_tg_login_email_git():
         await state.set_state('change_by_user')
     else:
         await bot.send_message(chat_id=settings.TELEGRAM_MODERS_CHAT_ID,

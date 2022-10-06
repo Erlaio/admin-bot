@@ -16,6 +16,7 @@ from loader import dp, bot
 from pkg.db.user_func import *
 from pkg.settings import settings
 from states.start_state import StartState
+from utils.validations import Validations
 from utils.config_utils import ConfigUtils
 from utils.context_helper import ContextHelper
 from utils.get_name import split_fullname
@@ -23,57 +24,54 @@ from utils.send_card import send_card, send_full_card
 from utils.delete_user import delete_user
 
 
-async def is_command(text: str) -> bool:
-    if text.startswith('/'):
-        return True
-    return False
-
-
 @dp.message_handler(CommandStart())
 async def bot_start(message: types.Message):
-    text = 'Привет! ' \
-           'Рады приветствовать Вас в Школе IT! ' \
-           '\nШкола IT Terra создана для помощи благотворительным фондам и людям.' \
-           ' Каждый участник вносит вклад в общее дело. ' \
-           'Школа – это комьюнити, которое помогает прокачивать навыки всем желающим. Мы учимся новому и всегда ' \
-           'готовы помочь каждому участнику разобраться с возникшим вопросом.  ' \
-           '\nЗдесь собрались самые любознательные, целеустремленные и приветливые люди.' \
-           ' Мы объединяем новичков и специалистов разных возрастов не только из разных городов России, но и мира. ' \
-           '\nДля того чтобы попасть в Школу, просим ответить на несколько вопросов'
-    await message.answer(text, reply_markup=ChoiceKeyboard.get_reply_keyboard())
-    await StartState.rules.set()
+    if await Validations.moder_validation_for_supergroups(message):
+        text = 'Привет! ' \
+               'Рады приветствовать Вас в Школе IT! ' \
+               '\nШкола IT Terra создана для помощи благотворительным фондам и людям.' \
+               ' Каждый участник вносит вклад в общее дело. ' \
+               'Школа – это комьюнити, которое помогает прокачивать навыки всем желающим. Мы учимся новому и всегда ' \
+               'готовы помочь каждому участнику разобраться с возникшим вопросом.  ' \
+               '\nЗдесь собрались самые любознательные, целеустремленные и приветливые люди.' \
+               ' Мы объединяем новичков и специалистов разных возрастов не только из разных городов России, но и мира. ' \
+               '\nДля того чтобы попасть в Школу, просим ответить на несколько вопросов'
+        await message.answer(text, reply_markup=ChoiceKeyboard.get_reply_keyboard())
+        await StartState.rules.set()
 
 
 @dp.message_handler(commands='moder')
 async def moder_menu(message: types.Message, state: FSMContext):
-    try:
-        user = await get_user_by_tg_id(message.from_user.id)
-        if user.is_moderator:
-            commands_for_moder = '<b>Команды модераторов:</b>\n\n' \
-                                 '/department - добавить новый отдел или изменить данные о существующем.\n\n' \
-                                 '/project -  добавить новый проект или изменить данные о существующем.\n\n' \
-                                 '/review_cards - работа со всеми неапрувнутыми учениками.\n\n' \
-                                 '/change_card_by_moder - изменение/удаление карточки учеников\n\n' \
-                                 '/blind_change - изменение полей вслепую (когда карточка забагована)'
-            await message.answer(text=commands_for_moder,
-                                 reply_markup=StopBotKeyboard.get_reply_keyboard(add_stop=False))
-            await state.finish()
-        else:
-            await message.answer('Вы не модератор',
+    if await Validations.moder_validation_for_supergroups(message):
+        try:
+            user = await get_user_by_tg_id(message.from_user.id)
+            if user.is_moderator:
+                commands_for_moder = '<b>Команды модераторов:</b>\n\n' \
+                                     '/department - добавить новый отдел или изменить данные о существующем.\n\n' \
+                                     '/project -  добавить новый проект или изменить данные о существующем.\n\n' \
+                                     '/review_cards - работа со всеми неапрувнутыми учениками.\n\n' \
+                                     '/change_card_by_moder - изменение/удаление карточки учеников\n\n' \
+                                     '/blind_change - изменение полей вслепую (когда карточка забагована)'
+                await message.answer(text=commands_for_moder,
+                                     reply_markup=StopBotKeyboard.get_reply_keyboard(add_stop=False))
+                await state.finish()
+            else:
+                await message.answer('Вы не модератор',
+                                     reply_markup=ReplyKeyboardRemove())
+                await state.finish()
+        except (TypeError, AttributeError):
+            await message.answer('Вас нет в базе, пожалуйста пройдите регистрацию',
                                  reply_markup=ReplyKeyboardRemove())
             await state.finish()
-    except (TypeError, AttributeError):
-        await message.answer('Вас нет в базе, пожалуйста пройдите регистрацию',
-                             reply_markup=ReplyKeyboardRemove())
-        await state.finish()
 
 
 @dp.message_handler(commands='stop', state='*')
 @dp.message_handler(Text(equals=ButtonFactory.get_stop_message()), state='*')
 async def bot_stop(message: types.Message, state: FSMContext):
-    text = 'Главная страница'
-    await message.answer(text, reply_markup=types.ReplyKeyboardRemove())
-    await state.finish()
+    if await Validations.moder_validation_for_supergroups(message):
+        text = 'Главная страница'
+        await message.answer(text, reply_markup=types.ReplyKeyboardRemove())
+        await state.finish()
 
 
 @dp.message_handler(commands='iammoder')
@@ -92,7 +90,7 @@ async def get_rules(message: types.Message):
 @dp.message_handler(state=StartState.rules)
 async def reading_rules(message: types.Message, state: FSMContext):
     answer = message.text
-    if await is_command(answer):
+    if await Validations.is_command(answer):
         await message.answer('Вы ввели команду. Пожалуйста, выберите один из предложенных вариантов ответа',
                              reply_markup=ChoiceKeyboard.get_reply_keyboard())
     elif answer == ChoiceKeyboard.A_READ_RULES:
@@ -113,7 +111,7 @@ async def reading_rules(message: types.Message, state: FSMContext):
 @dp.message_handler(state=StartState.decision)
 async def decision_about_rules(message: types.Message, state: FSMContext):
     answer = message.text
-    if await is_command(answer):
+    if await Validations.is_command(answer):
         await message.answer('Вы ввели команду. Пожалуйста, выберите один из предложенных вариантов ответа',
                              reply_markup=AgreementKeyboard.get_reply_keyboard())
     elif answer == AgreementKeyboard.A_AGREE_WITH_RULES:
@@ -139,7 +137,7 @@ async def decision_about_rules(message: types.Message, state: FSMContext):
 @dp.message_handler(state=StartState.update_info)
 async def update_info(message: types.Message):
     answer = message.text
-    if await is_command(answer):
+    if await Validations.is_command(answer):
         await message.answer('Вы ввели команду. Пожалуйста, выберите один из предложенных вариантов ответа',
                              reply_markup=YesNoKeyboard.get_reply_keyboard())
     elif answer == YesNoKeyboard.A_YES:
@@ -157,7 +155,7 @@ async def update_info(message: types.Message):
 @dp.message_handler(state=StartState.choice)
 async def questionnaire_choice(message: types.Message, state: FSMContext):
     answer = message.text
-    if await is_command(answer):
+    if await Validations.is_command(answer):
         await message.answer('Вы ввели команду. Пожалуйста, выберите один из предложенных вариантов ответа',
                              reply_markup=YesNoKeyboard.get_reply_keyboard())
     elif answer == YesNoKeyboard.A_YES:
@@ -173,7 +171,7 @@ async def questionnaire_choice(message: types.Message, state: FSMContext):
 @dp.message_handler(state=StartState.gender)
 async def get_user_gender(message: types.Message, state: FSMContext):
     answer = message.text
-    if await is_command(answer):
+    if await Validations.is_command(answer):
         await message.answer('Вы ввели команду. Пожалуйста, введите ваше ФИО',
                              reply_markup=StopBotKeyboard.get_reply_keyboard())
     else:
@@ -202,7 +200,7 @@ async def get_user_gender(message: types.Message, state: FSMContext):
 @dp.message_handler(state=StartState.photo)
 async def ask_about_photo(message: types.Message, state: FSMContext):
     answer = message.text
-    if await is_command(answer):
+    if await Validations.is_command(answer):
         await message.answer('Вы ввели команду. Пожалуйста, выберите один из предложенных вариантов ответа',
                              reply_markup=GenderKeyboard.get_reply_keyboard())
     else:
@@ -226,7 +224,7 @@ async def ask_about_photo(message: types.Message, state: FSMContext):
 @dp.message_handler(state=StartState.decision_about_photo)
 async def decision_about_photo(message: types.Message):
     answer = message.text
-    if await is_command(answer):
+    if await Validations.is_command(answer):
         await message.answer('Вы ввели команду. Пожалуйста, выберите один из предложенных вариантов ответа',
                              reply_markup=PhotoKeyboard.get_reply_keyboard())
     else:
@@ -274,7 +272,7 @@ async def upload_photo(message: types.Message, state: FSMContext):
 @dp.message_handler(state=StartState.gitlab)
 async def get_gitlab(message: types.Message, state: FSMContext):
     answer = message.text
-    if await is_command(answer):
+    if await Validations.is_command(answer):
         await message.answer('Вы ввели команду. Пожалуйста, введите вашу почту',
                              reply_markup=StopBotKeyboard.get_reply_keyboard())
     elif validators.email(answer):
@@ -293,7 +291,7 @@ async def get_gitlab(message: types.Message, state: FSMContext):
 @dp.message_handler(state=StartState.department)
 async def get_department(message: types.Message, state: FSMContext):
     answer = message.text
-    if await is_command(answer):
+    if await Validations.is_command(answer):
         await message.answer('Вы ввели команду. Пожалуйста, введите или выберите желаемый отдел',
                              reply_markup=await DepartmentsKeyboard.get_reply_keyboard())
     elif answer == 'Design':
@@ -317,7 +315,7 @@ async def get_department(message: types.Message, state: FSMContext):
 @dp.message_handler(state=StartState.get_skills_design)
 async def get_skills_design(message: types.Message, state: FSMContext):
     answer = message.text
-    if await is_command(answer):
+    if await Validations.is_command(answer):
         await message.answer('Вы ввели команду. Пожалуйста, введите ссылку на ваш Behance',
                              reply_markup=ReplyKeyboardRemove())
     elif not validators.url(answer):
@@ -336,7 +334,7 @@ async def get_skills_design(message: types.Message, state: FSMContext):
 @dp.message_handler(state=StartState.get_skills_dev)
 async def get_skills_dev(message: types.Message, state: FSMContext):
     answer = message.text
-    if await is_command(answer):
+    if await Validations.is_command(answer):
         await message.answer('Вы ввели команду. Пожалуйста, введите ссылку на ваш Gitlab',
                              reply_markup=StopBotKeyboard.get_reply_keyboard())
     elif not validators.url(answer):
@@ -355,7 +353,7 @@ async def get_skills_dev(message: types.Message, state: FSMContext):
 @dp.message_handler(state=StartState.get_city)
 async def get_city(message: types.Message, state: FSMContext):
     answer = message.text
-    if await is_command(answer):
+    if await Validations.is_command(answer):
         await message.answer('Вы ввели команду. Пожалуйста, введите город, в котором проживаете',
                              reply_markup=StopBotKeyboard.get_reply_keyboard())
     else:
@@ -371,7 +369,7 @@ async def get_city(message: types.Message, state: FSMContext):
 @dp.message_handler(state=StartState.get_source)
 async def get_source(message: types.Message, state: FSMContext):
     answer = message.text
-    if await is_command(answer):
+    if await Validations.is_command(answer):
         await message.answer('Вы ввели команду. Пожалуйста, введите откуда Вы узнали о школе',
                              reply_markup=StopBotKeyboard.get_reply_keyboard())
     else:
@@ -388,7 +386,7 @@ async def get_source(message: types.Message, state: FSMContext):
 @dp.message_handler(state=StartState.exceptations)
 async def get_goals(message: types.Message, state: FSMContext):
     answer = message.text
-    if await is_command(answer):
+    if await Validations.is_command(answer):
         await message.answer('Вы ввели команду. Пожалуйста, введите ваши навыки',
                              reply_markup=StopBotKeyboard.get_reply_keyboard())
     else:
@@ -404,7 +402,7 @@ async def get_goals(message: types.Message, state: FSMContext):
 @dp.message_handler(state=StartState.development_vector)
 async def get_development_vector(message: types.Message, state: FSMContext):
     answer = message.text
-    if await is_command(answer):
+    if await Validations.is_command(answer):
         await message.answer('Вы ввели команду. Пожалуйста, введите ваши ожидания от школы',
                              reply_markup=StopBotKeyboard.get_reply_keyboard(add_stop=False))
     else:
@@ -420,7 +418,7 @@ async def get_development_vector(message: types.Message, state: FSMContext):
 @dp.message_handler(state=StartState.finish_questions)
 async def finish_questions(message: types.Message, state: FSMContext):
     answer = message.text
-    if await is_command(answer):
+    if await Validations.is_command(answer):
         await message.answer('Вы ввели команду. Пожалуйста, введите желаемый вектор развития',
                              reply_markup=StopBotKeyboard.get_reply_keyboard(add_stop=False))
     else:
