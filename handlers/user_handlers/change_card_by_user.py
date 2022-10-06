@@ -67,19 +67,28 @@ async def change_data_of_user(message: types.Message, state: FSMContext):
     answer = message.text
     if not await Validations(field_name, message).validate_tg_login_email_git():
         await state.set_state('change_by_user')
+    if len(answer) >= 20:
+        await message.answer('Слишком длинное сообщение. Пожалуйста, сократите запрос или обратитесь к модератору',
+                             reply_markup=ReplyKeyboardRemove())
+        await state.set_state('change_by_user')
     else:
         await bot.send_message(chat_id=settings.TELEGRAM_MODERS_CHAT_ID,
                                text=f'Поступил запрос от {user.tg_login} на изменение поля {field_name} '
                                     f'со значения {user_dict[field_name]} на значение {answer}')
-        await send_full_card(chat_id=settings.TELEGRAM_MODERS_CHAT_ID, user=user,
-                             reply_markup=ModeratorChangeDecisionInlineKeyboard(
-                                 telegram_id=user.telegram_id,
-                                 field_name=field_name,
-                                 field_value=answer
-                             ).get_inline_keyboard())
-        await message.answer('Ваш запрос был направлен модераторам на рассмотрение. '
-                             'Как только решение будет принято, Вы будете уведомлены в этом чате',
-                             reply_markup=ReplyKeyboardRemove())
+        try:
+            await send_full_card(chat_id=settings.TELEGRAM_MODERS_CHAT_ID, user=user,
+                                 reply_markup=ModeratorChangeDecisionInlineKeyboard(
+                                     telegram_id=user.telegram_id,
+                                     field_name=field_name,
+                                     field_value=answer
+                                 ).get_inline_keyboard())
+            await message.answer('Ваш запрос был направлен модераторам на рассмотрение. '
+                                 'Как только решение будет принято, Вы будете уведомлены в этом чате',
+                                 reply_markup=ReplyKeyboardRemove())
+        except Exception:
+            await message.answer('Произошла техническая ошибка.'
+                                 ' Модераторам отправлен запрос на изменение данных вручную.',
+                                 reply_markup=ReplyKeyboardRemove())
         await state.finish()
 
 
