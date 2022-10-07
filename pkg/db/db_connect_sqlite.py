@@ -1,23 +1,22 @@
-import pathlib
-import sqlite3
-import aiosqlite
+from contextlib import asynccontextmanager
+
+import asyncpg
+
 from pkg.settings import settings
 
 
-def connect_to_db(func):
-    async def wrapper(*args, **kwargs):
-        result = []
-        try:
-            conn = await aiosqlite.connect(
-                str(pathlib.PurePath(settings.SQLITE_FILENAME)))
-            conn.row_factory = sqlite3.Row
-            cur = await conn.cursor()
-            result = await func(cur, *args, **kwargs)
-        except aiosqlite.Error as e:
-            print('aiosqlite Error: ', e)
-        finally:
-            await conn.commit()
-            await conn.close()
-        return result
+@asynccontextmanager
+async def connect_to_db():
+    try:
+        conn = await asyncpg.connect(
+            host=settings.POSTGRES_HOSTNAME,
+            database=settings.POSTGRES_DATABASE,
+            user=settings.POSTGRES_USER,
+            password=settings.POSTGRES_PASSWORD,
+            port=settings.POSTGRES_PORT)
 
-    return wrapper
+        yield conn
+        await conn.close()
+
+    except Exception as ex:
+        print(ex)
