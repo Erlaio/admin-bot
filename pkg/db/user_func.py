@@ -90,7 +90,6 @@ async def delete_user_by_id(user_id: int) -> None:
         )
 
 
-@connect_to_db
 async def delete_user_by_tg_id(telegram_id: int) -> None:
     async with connect_to_db() as conn:
         await conn.execute(
@@ -100,13 +99,15 @@ async def delete_user_by_tg_id(telegram_id: int) -> None:
         )
 
 
-async def update_user_status(telegram_id: int) -> None:
+async def update_user_status(telegram_id: int, is_moder: int = 1,
+                             approved: int = 1) -> None:
     async with connect_to_db() as conn:
         await conn.execute(
-            'UPDATE users SET is_moderator = $1, is_approved = $2'
+            'UPDATE users'
+            'SET is_moderator = $1, is_approved = $2'
             'WHERE telegram_id = $3;',
-            1,
-            1,
+            is_moder,
+            approved,
             telegram_id
         )
 
@@ -114,11 +115,12 @@ async def update_user_status(telegram_id: int) -> None:
 async def update_user_by_id(user_id: int, data: User) -> None:
     async with connect_to_db() as conn:
         await conn.execute(
-            'UPDATE users SET telegram_id=$1, surname=$2, name=$3,'
-            'patronymic=$4, gender=$5, photo=$6, email=$7, git=$8, behance=$9,'
-            'tg_login=$10, desired_department=$11, skills=$12, goals=$13,'
-            'city=$14, source_of_knowledge=$15, lead_description=$16,'
-            'join_time=$17, is_moderator=$18, is_approved=$19'
+            'UPDATE users'
+            'SET telegram_id=$1, surname=$2, name=$3, patronymic=$4, gender=$5,'
+            'photo=$6, email=$7, git=$8, behance=$9, tg_login=$10,'
+            'desired_department=$11, skills=$12, goals=$13, city=$14,'
+            'source_of_knowledge=$15, lead_description=$16, join_time=$17,'
+            'is_moderator=$18, is_approved=$19'
             'WHERE user_id = $20;',
             data.telegram_id,
             data.surname,
@@ -282,7 +284,7 @@ async def update_user_approve(telegram_id: int, approved: int = 1) -> None:
 
 async def get_random_moder(is_moder: int = 1) -> User:
     async with connect_to_db() as conn:
-        rec = await conn.fetch(
+        rec = await conn.fetchrow(
             'SELECT * FROM users'
             'WHERE is_moderator = $1',
             is_moder

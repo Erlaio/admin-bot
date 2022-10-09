@@ -1,67 +1,97 @@
-import asyncio
 from typing import List
 
-import aiosqlite
 from pydantic import parse_obj_as
 
 from pkg.db.db_connect_sqlite import connect_to_db
 from pkg.db.models.department import Department
 
 
-@connect_to_db
-async def add_new_department(cur: aiosqlite.Cursor, department: str) -> None:
-    await cur.execute('INSERT INTO departments (department) VALUES (?);', (department,))
+async def add_new_department(department: str) -> None:
+    async with connect_to_db() as conn:
+        await conn.execute(
+            'INSERT INTO departments (department) '
+            'VALUES ($1);',
+            department
+        )
 
 
-@connect_to_db
-async def attach_tl_to_department(cur: aiosqlite.Cursor, department: str, team_lead: str) -> None:
-    await cur.execute('UPDATE departments SET (team_lead) = (?) WHERE department = ?',
-                      (team_lead, department,))
+async def attach_tl_to_department(department: str, team_lead: str) -> None:
+    async with connect_to_db() as conn:
+        await conn.execute(
+            'UPDATE departments SET team_lead = $1'
+            'WHERE department = $2',
+            team_lead,
+            department
+        )
 
 
-@connect_to_db
-async def get_department_by_id(cur: aiosqlite.Cursor, department_id: int) -> Department:
-    await cur.execute(f'SELECT * FROM departments WHERE department_id = {department_id}')
-    res = await cur.fetchone()
-    data = parse_obj_as(Department, res)
+async def get_department_by_id(department_id: int) -> Department:
+    async with connect_to_db() as conn:
+        rec = await conn.fetchrow(
+            'SELECT * FROM departments'
+            'WHERE department_id = $1',
+            department_id
+        )
+    data = parse_obj_as(Department, rec)
     return data
 
 
-@connect_to_db
-async def get_all_departments(cur: aiosqlite.Cursor) -> List[Department]:
-    await cur.execute(f'SELECT * FROM departments')
-    records = await cur.fetchall()
-    result = parse_obj_as(List[Department], records)
+async def get_all_departments() -> List[Department]:
+    async with connect_to_db() as conn:
+        rec = await conn.fetch(
+            'SELECT * FROM departments'
+        )
+    result = parse_obj_as(List[Department], rec)
     return result
 
 
-@connect_to_db
-async def delete_department_by_id(cur: aiosqlite.Cursor, department_id: int) -> None:
-    await cur.execute(f'DELETE FROM departments WHERE department_id={department_id}')
+async def delete_department_by_id(department_id: int) -> None:
+    async with connect_to_db() as conn:
+        await conn.execute(
+            'DELETE FROM departments'
+            'WHERE department_id = $1',
+            department_id
+        )
 
 
-@connect_to_db
-async def delete_department_by_name(cur: aiosqlite.Cursor, department_name: str) -> None:
-    await cur.execute(f'DELETE FROM departments WHERE department = ?', (department_name,))
+async def delete_department_by_name(department_name: str) -> None:
+    async with connect_to_db() as conn:
+        await conn.execute(
+            'DELETE FROM departments'
+            'WHERE department = $1',
+            department_name
+        )
 
 
-@connect_to_db
-async def update_department_name(cur: aiosqlite.Cursor, old_name: str, new_name: str) -> None:
-    await cur.execute(f'UPDATE departments SET (department) = (?) WHERE department = ?', (new_name, old_name))
+async def update_department_name(old_name: str, new_name: str) -> None:
+    async with connect_to_db() as conn:
+        await conn.execute(
+            'UPDATE departments '
+            'SET department = $1'
+            'WHERE department = $2',
+            new_name,
+            old_name
+        )
 
 
-@connect_to_db
-async def update_department_by_id(cur: aiosqlite.Cursor, department_id: int, data: Department) -> None:
-    await cur.execute(
-        f'UPDATE departments SET (department, team_lead)=(?, ?) WHERE department_id={department_id}',
-        (data.department, data.team_lead))
+async def update_department_by_id(department_id: int, data: Department) -> None:
+    async with connect_to_db() as conn:
+        await conn.execute(
+            'UPDATE departments '
+            'SET department = $1, team_lead = $2'
+            'WHERE department_id = $3',
+            data.department,
+            data.team_lead,
+            department_id
+        )
 
 
 if __name__ == '__main__':
+    pass
     # d = new_department(-1, "DepName1", "Leader1")
     # asyncio.run(add_new_department("NewDepName1"))
     # asyncio.run(attach_tl_to_department("NewDepName1", "NewLead1"))
-    print(*asyncio.run(get_all_departments()), sep='\n')
+    # print(*asyncio.run(get_all_departments()), sep='\n')
     # print('', *get_all_departments(), sep='\n')
     # delete_department_by_id(11)
     # print(*get_all_departments(), sep='\n')
