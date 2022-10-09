@@ -1,3 +1,4 @@
+import asyncio
 import datetime
 import random
 from typing import List
@@ -15,7 +16,7 @@ async def add_new_user(data: User) -> None:
             'INSERT INTO users (telegram_id, surname, name, patronymic, gender,'
             'photo, email, git, behance, tg_login, desired_department, skills, '
             'goals, city, source_of_knowledge, lead_description, join_time, '
-            'is_moderator, is_approved)'
+            'is_moderator, is_approved) '
             'VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, '
             '$14, $15, $16, $17, $18, $19);',
             data.telegram_id,
@@ -42,7 +43,7 @@ async def add_new_user(data: User) -> None:
 async def get_user_by_id(user_id: int) -> User:
     async with connect_to_db() as conn:
         rec = await conn.fetchrow(
-            'SELECT * FROM users'
+            'SELECT * FROM users ' 
             'WHERE user_id = $1;',
             user_id
         )
@@ -53,7 +54,7 @@ async def get_user_by_id(user_id: int) -> User:
 async def get_user_by_tg_login(tg_login: str) -> User:
     async with connect_to_db() as conn:
         rec = await conn.fetchrow(
-            'SELECT * FROM users'
+            'SELECT * FROM users '
             'WHERE tg_login = $1;',
             tg_login
         )
@@ -64,7 +65,7 @@ async def get_user_by_tg_login(tg_login: str) -> User:
 async def get_user_by_tg_id(tg_id: int) -> User or None:
     async with connect_to_db() as conn:
         rec = await conn.fetchrow(
-            'SELECT * FROM users'
+            'SELECT * FROM users '
             'WHERE telegram_id = $1;',
             tg_id
         )
@@ -84,7 +85,7 @@ async def get_all_users() -> List[User]:
 async def delete_user_by_id(user_id: int) -> None:
     async with connect_to_db() as conn:
         await conn.execute(
-            'DELETE FROM users'
+            'DELETE FROM users '
             'WHERE user_id = $1;',
             user_id
         )
@@ -93,7 +94,7 @@ async def delete_user_by_id(user_id: int) -> None:
 async def delete_user_by_tg_id(telegram_id: int) -> None:
     async with connect_to_db() as conn:
         await conn.execute(
-            'DELETE FROM users'
+            'DELETE FROM users '
             'WHERE telegram_id = $1;',
             telegram_id
         )
@@ -103,8 +104,8 @@ async def update_user_status(telegram_id: int, is_moder: int = 1,
                              approved: int = 1) -> None:
     async with connect_to_db() as conn:
         await conn.execute(
-            'UPDATE users'
-            'SET is_moderator = $1, is_approved = $2'
+            'UPDATE users '
+            'SET is_moderator = $1, is_approved = $2 '
             'WHERE telegram_id = $3;',
             is_moder,
             approved,
@@ -115,12 +116,12 @@ async def update_user_status(telegram_id: int, is_moder: int = 1,
 async def update_user_by_id(user_id: int, data: User) -> None:
     async with connect_to_db() as conn:
         await conn.execute(
-            'UPDATE users'
+            'UPDATE users '
             'SET telegram_id=$1, surname=$2, name=$3, patronymic=$4, gender=$5,'
             'photo=$6, email=$7, git=$8, behance=$9, tg_login=$10,'
             'desired_department=$11, skills=$12, goals=$13, city=$14,'
             'source_of_knowledge=$15, lead_description=$16, join_time=$17,'
-            'is_moderator=$18, is_approved=$19'
+            'is_moderator=$18, is_approved=$19 '
             'WHERE user_id = $20;',
             data.telegram_id,
             data.surname,
@@ -148,11 +149,12 @@ async def update_user_by_id(user_id: int, data: User) -> None:
 async def update_user_by_telegram_id(telegram_id: int, data: User) -> None:
     async with connect_to_db() as conn:
         await conn.execute(
-            'UPDATE users SET telegram_id=$1, surname=$2, name=$3,'
+            'UPDATE users '
+            'SET telegram_id=$1, surname=$2, name=$3,'
             'patronymic=$4, gender=$5, photo=$6, email=$7, git=$8, behance=$9,'
             'tg_login=$10, desired_department=$11, skills=$12, goals=$13,'
             'city=$14, source_of_knowledge=$15, lead_description=$16,'
-            'join_time=$17, is_moderator=$18, is_approved=$19'
+            'join_time=$17, is_moderator=$18, is_approved=$19 '
             'WHERE telegram_id = $20;',
             data.telegram_id,
             data.surname,
@@ -180,11 +182,12 @@ async def update_user_by_telegram_id(telegram_id: int, data: User) -> None:
 async def update_user_by_department(user_id: int, data: User) -> None:
     async with connect_to_db() as conn:
         await conn.execute(
-            'UPDATE users SET telegram_id=$1, surname=$2, name=$3,'
+            'UPDATE users '
+            'SET telegram_id=$1, surname=$2, name=$3,'
             'patronymic=$4, gender=$5, photo=$6, email=$7, git=$8, behance=$9,'
             'tg_login=$10, desired_department=$11, skills=$12, goals=$13,'
             'city=$14, source_of_knowledge=$15, lead_description=$16,'
-            'join_time=$17, is_moderator=$18, is_approved=$19'
+            'join_time=$17, is_moderator=$18, is_approved=$19 '
             'WHERE user_id = $20;',
             data.telegram_id,
             data.surname,
@@ -212,8 +215,9 @@ async def update_user_by_department(user_id: int, data: User) -> None:
 async def update_lead_description(telegram_id: int, description: str) -> None:
     async with connect_to_db() as conn:
         await conn.execute(
-            'UPDATE users SET lead_description = $1'
-            'WHERE telegram_id = $2',
+            'UPDATE users '
+            'SET lead_description = $1 '
+            'WHERE telegram_id = $2;',
             description,
             telegram_id
         )
@@ -222,7 +226,7 @@ async def update_lead_description(telegram_id: int, description: str) -> None:
 async def get_users_from_department(department_id: int) -> List[User]:
     async with connect_to_db() as conn:
         rec = await conn.fetch(
-            'SELECT * from users'
+            'SELECT * from users '
             'WHERE desired_department = $1;',
             department_id
         )
@@ -233,7 +237,7 @@ async def get_users_from_department(department_id: int) -> List[User]:
 async def get_users_from_department_name(department_name: str) -> List[User]:
     async with connect_to_db() as conn:
         rec = await conn.fetch(
-            'SELECT * from users'
+            'SELECT * from users '
             'WHERE desired_department = $1;',
             department_name
         )
@@ -244,7 +248,7 @@ async def get_users_from_department_name(department_name: str) -> List[User]:
 async def get_tg_id_if_moderator(is_moder: int = 1) -> List[int]:
     async with connect_to_db() as conn:
         records = await conn.fetch(
-            'SELECT * from users'
+            'SELECT * from users '
             'WHERE is_moderator = $1;',
             is_moder
         )
@@ -254,7 +258,8 @@ async def get_tg_id_if_moderator(is_moder: int = 1) -> List[int]:
 async def update_user_department(old_name: str, new_name: str) -> None:
     async with connect_to_db() as conn:
         await conn.execute(
-            'UPDATE users SET desired_department = $1'
+            'UPDATE users '
+            'SET desired_department = $1 '
             'WHERE desired_department = $2;',
             new_name,
             old_name
@@ -265,7 +270,7 @@ async def get_unapproved_users(unapproved: int = 0) -> List[User]:
     async with connect_to_db() as conn:
         rec = await conn.fetch(
             'SELECT * from users '
-            'WHERE is_approved = $1',
+            'WHERE is_approved = $1;',
             unapproved
         )
     result = parse_obj_as(List[User], rec)
@@ -275,8 +280,9 @@ async def get_unapproved_users(unapproved: int = 0) -> List[User]:
 async def update_user_approve(telegram_id: int, approved: int = 1) -> None:
     async with connect_to_db() as conn:
         await conn.execute(
-            'UPDATE users SET is_approved = $1'
-            'WHERE telegram_id = $2',
+            'UPDATE users '
+            'SET is_approved = $1 '
+            'WHERE telegram_id = $2;',
             approved,
             telegram_id
         )
@@ -285,8 +291,8 @@ async def update_user_approve(telegram_id: int, approved: int = 1) -> None:
 async def get_random_moder(is_moder: int = 1) -> User:
     async with connect_to_db() as conn:
         rec = await conn.fetchrow(
-            'SELECT * FROM users'
-            'WHERE is_moderator = $1',
+            'SELECT * FROM users '
+            'WHERE is_moderator = $1;',
             is_moder
         )
     result = parse_obj_as(List[User], rec)
@@ -296,15 +302,26 @@ async def get_random_moder(is_moder: int = 1) -> User:
 async def update_field_value(telegram_id: int, field: str, value) -> None:
     async with connect_to_db() as conn:
         await conn.execute(
-            f'UPDATE users SET {field} = $1'
-            'WHERE telegram_id = $2',
+            'UPDATE users '
+            f'SET {field} = $1'
+            'WHERE telegram_id = $2;',
             value,
             telegram_id
         )
 
 
 if __name__ == '__main__':
-    pass
+    # pass
+    user1 = User(telegram_id=12345, surname='Elijah', name='John',
+                 patronymic='Junior', gender='Male', photo='',
+                 email='john@example.com',
+                 git='https://github.com/', tg_login='@John',
+                 desired_department='Student', skills='Pass', goals='Pass',
+                 lead_description='Фарух', join_time='123', is_moderator=False,
+                 is_approved=True
+                 )
+    asyncio.run(add_new_user(user1))
+    print(asyncio.run(get_all_users()))
     # d = new_user(user_id=-1, behance='asdaljsdhjks', telegram_id=221152376508546261,
     # surname='gh', name='sldjkj', patronymic='asdfas', gender='', photo=bytearray(b''),
     # email='', git='', tg_login='', desired_department=-1, skills='', goals='', lead_description='',

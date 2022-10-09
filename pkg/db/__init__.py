@@ -10,7 +10,7 @@ async def create_database():
             /*  Table Users  */
         CREATE TABLE IF NOT EXISTS "users" (
             user_id	SERIAL NOT NULL UNIQUE,
-            telegram_id INTEGER UNIQUE,
+            telegram_id INT UNIQUE,
             surname	TEXT,
             name	TEXT,
             patronymic	TEXT,
@@ -30,34 +30,31 @@ async def create_database():
             is_moderator	INTEGER DEFAULT 0,
             is_approved	INTEGER DEFAULT 0,
             PRIMARY KEY (user_id));
-        ''')
 
-        # CREATE UNIQUE INDEX IF NOT EXISTS "user_id_index" ON "users" (
-        #     "user_id"
-        # );
-        #
-        # /*  Table Department  */
-        # CREATE TABLE IF NOT EXISTS "departments" (
-        #     "department_id"	INTEGER NOT NULL UNIQUE,
-        #     "department"	TEXT NOT NULL,
-        #     "team_lead"	TEXT,
-        #     PRIMARY KEY("department_id" AUTOINCREMENT));
-        #
-        #
-        # CREATE UNIQUE INDEX IF NOT EXISTS "department_id_index" ON "departments" (
-        #     "department_id");
-        #
-        # /*  Table Projects  */
-        # CREATE TABLE IF NOT EXISTS "projects" (
-        #     "project_id"	INTEGER NOT NULL UNIQUE,
-        #     "project_name"	TEXT NOT NULL,
-        #     "team_lead"	TEXT,
-        #     PRIMARY KEY("project_id" AUTOINCREMENT));
-        #
-        #
-        # CREATE UNIQUE INDEX IF NOT EXISTS "project_id_index" ON "projects" (
-        #     "project_id");
-        # ''')
+        CREATE UNIQUE INDEX IF NOT EXISTS "user_id_index" ON "users" (
+            "user_id"
+        );
+
+        /*  Table Department  */
+        CREATE TABLE IF NOT EXISTS "departments" (
+            department_id	SERIAL NOT NULL UNIQUE,
+            department	TEXT NOT NULL,
+            team_lead	TEXT,
+            PRIMARY KEY(department_id));
+
+        CREATE UNIQUE INDEX IF NOT EXISTS "department_id_index" ON 
+        "departments" ("department_id");
+
+        /*  Table Projects  */
+        CREATE TABLE IF NOT EXISTS "projects" (
+            project_id	SERIAL NOT NULL UNIQUE,
+            project_name	TEXT NOT NULL,
+            team_lead	TEXT,
+            PRIMARY KEY(project_id));
+
+        CREATE UNIQUE INDEX IF NOT EXISTS "project_id_index" ON "projects" (
+            "project_id");
+        ''')
 
 
 # if __name__ == '__main__':

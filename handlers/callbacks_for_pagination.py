@@ -12,7 +12,7 @@ from utils.delete_user import delete_user
 async def callback_approve(call):
     moder_tg = call['from']['username']
     _, page, telegram_id, user_name = call.data.split('#')
-    await update_user_approve(telegram_id)
+    await update_user_approve(int(telegram_id))
     await bot.send_message(chat_id=settings.TELEGRAM_MODERS_CHAT_ID,
                            text=f'Пользователь {user_name} добавлен модератором @{moder_tg}')
     await bot.send_message(telegram_id, text='Анкета обновлена, проверьте состояние')

@@ -19,4 +19,4 @@ async def connect_to_db():
         await conn.close()
 
     except Exception as ex:
-        print(ex)
+        raise ex
