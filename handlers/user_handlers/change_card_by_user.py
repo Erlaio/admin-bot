@@ -60,7 +60,7 @@ async def characters_for_edit_page_callback(call: types.CallbackQuery, state: FS
 @dp.message_handler(state='change_by_user')
 async def change_data_of_user(message: types.Message, state: FSMContext):
     telegram_id = await ContextHelper.get_tg_id(state)
-    user = await get_user_by_tg_id(tg_id=telegram_id)
+    user = await get_user_by_tg_id(tg_id=int(telegram_id))
     user_dict = dict(user)
     field_name = await ContextHelper.get_some_data(state)
     answer = message.text
@@ -86,9 +86,9 @@ async def change_data_of_user(message: types.Message, state: FSMContext):
 async def edit_approved(call: types.CallbackQuery, state: FSMContext):
     _, telegram_id, field_name, field_value = call.data.split('#')
     moder_tg = call['from']['username']
-    user = await get_user_by_tg_id(telegram_id)
+    user = await get_user_by_tg_id(int(telegram_id))
 
-    await update_field_value(telegram_id=telegram_id, field=field_name, value=field_value)
+    await update_field_value(telegram_id=int(telegram_id), field=field_name, value=field_value)
     await bot.send_message(chat_id=settings.TELEGRAM_MODERS_CHAT_ID,
                            text=f'Запрос {user.tg_login} на изменение был одобрен @{moder_tg}\n\n'
                                 f'Поле {field_name} изменено на {field_value}')
@@ -105,7 +105,7 @@ async def edit_approved(call: types.CallbackQuery, state: FSMContext):
 async def edit_declined(call: types.CallbackQuery, state: FSMContext):
     _, telegram_id, field_name, field_value = call.data.split('#')
     moder_tg = call['from']['username']
-    user = await get_user_by_tg_id(telegram_id)
+    user = await get_user_by_tg_id(int(telegram_id))
 
     await bot.send_message(chat_id=settings.TELEGRAM_MODERS_CHAT_ID,
                            text=f'Запрос {user.tg_login} на изменение был отклонен @{moder_tg}\n\n'
