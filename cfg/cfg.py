@@ -7,7 +7,7 @@ from envreader import Field
 
 
 class Config(EnvReader):
-    SQLITE_FILENAME: str = Field('blah.db', description="sqlite3 database file path")
+    # SQLITE_FILENAME: str = Field('blah.db', description="sqlite3 database file path")
     SECRET_KEY: str = Field('asdf', description="Admin Bot Secret Key")
     TELEGRAM_MODERS_CHAT_ID: int = Field(-1001658648627, description="Moders_IDs")
     TELEGRAM_SCHOOL_CHATS: list = Field([-1001658648627, -1001770112839], description="School_Chat_ID")

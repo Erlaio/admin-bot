@@ -1,7 +1,7 @@
 import asyncio
 
 import aiosqlite
-from .db_connect_sqlite import connect_to_db
+from .db_connect import connect_to_db
 
 
 async def create_database():

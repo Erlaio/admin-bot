@@ -3,7 +3,7 @@ from typing import List
 
 from pydantic import parse_obj_as
 
-from pkg.db.db_connect_sqlite import connect_to_db
+from pkg.db.db_connect import connect_to_db
 from pkg.db.models.project import Project
 
 
