@@ -45,8 +45,11 @@ async def send_character_page_for_approve(message: types.Message, page=1):
             data_pattern='unapproved_character#{page}'
         )
         user = user_list[page - 1]
-        paginator.add_before(
-            *ModeratorSurveyInlineKeyboard(page, user.telegram_id, user.tg_login).get_inline_keyboard(is_key=True))
+        list_of_buttons = ModeratorSurveyInlineKeyboard(page, user.telegram_id, user.tg_login).\
+            get_inline_keyboard(is_key=True)
+        for buttons in list_of_buttons:
+            paginator.add_before(
+                *buttons)
         paginator.add_after(
             *BackInlineKeyboard().get_inline_keyboard(is_key=True)
         )
