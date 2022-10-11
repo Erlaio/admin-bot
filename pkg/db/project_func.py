@@ -7,7 +7,7 @@ from pkg.db.db_connect import connect_to_db
 from pkg.db.models.project import Project
 
 
-async def add_new_project(project_name: str) -> None:
+async def add_new_project(project_name: str):
     async with connect_to_db() as conn:
         await conn.execute(
             'INSERT INTO projects (project_name) '
@@ -16,7 +16,7 @@ async def add_new_project(project_name: str) -> None:
         )
 
 
-async def attach_tl_to_project(project_name: str, team_lead: str) -> None:
+async def attach_tl_to_project(project_name: str, team_lead: str):
     async with connect_to_db() as conn:
         await conn.execute(
             'UPDATE projects '
@@ -35,7 +35,7 @@ async def get_all_projects() -> List[Project]:
     return result
 
 
-async def delete_project_by_name(project_name: str) -> None:
+async def delete_project_by_name(project_name: str):
     async with connect_to_db() as conn:
         await conn.execute(
             'DELETE FROM projects '
@@ -44,7 +44,7 @@ async def delete_project_by_name(project_name: str) -> None:
         )
 
 
-async def update_project_name(old_name: str, new_name: str) -> None:
+async def update_project_name(old_name: str, new_name: str):
     async with connect_to_db() as conn:
         await conn.execute(
             'UPDATE projects '
