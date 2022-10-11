@@ -29,7 +29,9 @@ async def attach_tl_to_project(project_name: str, team_lead: str):
 async def get_all_projects() -> List[Project]:
     async with connect_to_db() as conn:
         rec = await conn.fetch(
-            'SELECT * FROM projects;'
+            'SELECT '
+            '"project_id", "project_name", "team_lead"'
+            'FROM projects;'
         )
     result = parse_obj_as(List[Project], rec)
     return result
