@@ -9,7 +9,7 @@ from pkg.db.db_connect import connect_to_db
 from pkg.db.models.user import User
 
 
-async def add_new_user(data: User) -> None:
+async def add_new_user(data: User):
     async with connect_to_db() as conn:
         join_time = datetime.date.today()
         await conn.execute(
@@ -82,7 +82,7 @@ async def get_all_users() -> List[User]:
         return result
 
 
-async def delete_user_by_id(user_id: int) -> None:
+async def delete_user_by_id(user_id: int):
     async with connect_to_db() as conn:
         await conn.execute(
             'DELETE FROM users '
@@ -91,7 +91,7 @@ async def delete_user_by_id(user_id: int) -> None:
         )
 
 
-async def delete_user_by_tg_id(telegram_id: int) -> None:
+async def delete_user_by_tg_id(telegram_id: int):
     async with connect_to_db() as conn:
         await conn.execute(
             'DELETE FROM users '
@@ -101,7 +101,7 @@ async def delete_user_by_tg_id(telegram_id: int) -> None:
 
 
 async def update_user_status(telegram_id: int, is_moder: int = 1,
-                             approved: int = 1) -> None:
+                             approved: int = 1):
     async with connect_to_db() as conn:
         await conn.execute(
             'UPDATE users '
@@ -113,7 +113,7 @@ async def update_user_status(telegram_id: int, is_moder: int = 1,
         )
 
 
-async def update_user_by_id(user_id: int, data: User) -> None:
+async def update_user_by_id(user_id: int, data: User):
     async with connect_to_db() as conn:
         await conn.execute(
             'UPDATE users '
@@ -146,7 +146,7 @@ async def update_user_by_id(user_id: int, data: User) -> None:
         )
 
 
-async def update_user_by_telegram_id(telegram_id: int, data: User) -> None:
+async def update_user_by_telegram_id(telegram_id: int, data: User):
     async with connect_to_db() as conn:
         await conn.execute(
             'UPDATE users '
@@ -179,7 +179,7 @@ async def update_user_by_telegram_id(telegram_id: int, data: User) -> None:
         )
 
 
-async def update_user_by_department(user_id: int, data: User) -> None:
+async def update_user_by_department(user_id: int, data: User):
     async with connect_to_db() as conn:
         await conn.execute(
             'UPDATE users '
@@ -212,7 +212,7 @@ async def update_user_by_department(user_id: int, data: User) -> None:
         )
 
 
-async def update_lead_description(telegram_id: int, description: str) -> None:
+async def update_lead_description(telegram_id: int, description: str):
     async with connect_to_db() as conn:
         await conn.execute(
             'UPDATE users '
@@ -255,7 +255,7 @@ async def get_tg_id_if_moderator(is_moder: int = 1) -> List[int]:
     return [rec[1] for rec in records]
 
 
-async def update_user_department(old_name: str, new_name: str) -> None:
+async def update_user_department(old_name: str, new_name: str):
     async with connect_to_db() as conn:
         await conn.execute(
             'UPDATE users '
@@ -277,7 +277,7 @@ async def get_unapproved_users(unapproved: int = 0) -> List[User]:
     return result
 
 
-async def update_user_approve(telegram_id: int, approved: int = 1) -> None:
+async def update_user_approve(telegram_id: int, approved: int = 1):
     async with connect_to_db() as conn:
         await conn.execute(
             'UPDATE users '
@@ -299,7 +299,7 @@ async def get_random_moder(is_moder: int = 1) -> User:
     return random.choice(result)
 
 
-async def update_field_value(telegram_id: int, field: str, value) -> None:
+async def update_field_value(telegram_id: int, field: str, value):
     async with connect_to_db() as conn:
         await conn.execute(
             'UPDATE users '
@@ -311,26 +311,4 @@ async def update_field_value(telegram_id: int, field: str, value) -> None:
 
 
 if __name__ == '__main__':
-    # pass
-    user1 = User(telegram_id=12345, surname='Elijah', name='John',
-                 patronymic='Junior', gender='Male', photo='',
-                 email='john@example.com',
-                 git='https://github.com/', tg_login='@John',
-                 desired_department='Student', skills='Pass', goals='Pass',
-                 lead_description='Фарух', join_time='123', is_moderator=False,
-                 is_approved=True
-                 )
-    asyncio.run(add_new_user(user1))
-    print(asyncio.run(get_all_users()))
-    # d = new_user(user_id=-1, behance='asdaljsdhjks', telegram_id=221152376508546261,
-    # surname='gh', name='sldjkj', patronymic='asdfas', gender='', photo=bytearray(b''),
-    # email='', git='', tg_login='', desired_department=-1, skills='', goals='', lead_description='',
-    # join_time=datetime.date(2022, 7, 16), is_moderator=False, is_approved=False)
-    # add_new_user(d)
-    # print(get_user_by_id(10))
-    # print(get_user_by_id(2))
-    # print('', *get_all_users(), sep='\n')
-    # print(*asyncio.run(get_all_users()), sep='\n')
-    # update_user_by_id(2, d)
-    # print(get_user_by_id(3))
-    # delete_user_by_id(3)
+    pass
