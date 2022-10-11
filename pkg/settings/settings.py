@@ -7,7 +7,7 @@ class _Settings(pydantic.BaseSettings):
         env_file_encoding = "utf-8"
 
 
-class Settings(Settings):
+class Settings:
     # PostgresQL
     POSTGRES_HOSTNAME: str = cfg.POSTGRES_HOSTNAME
     POSTGRES_DATABASE: str = cfg.POSTGRES_DATABASE
@@ -24,4 +24,5 @@ class Settings(Settings):
 
 def _get_settings() -> Settings:
     settings = Settings()
+    return settings
 
