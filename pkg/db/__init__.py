@@ -28,8 +28,7 @@ async def create_database():
             lead_description	TEXT,
             join_time	DATE,
             is_moderator	INTEGER DEFAULT 0,
-            is_approved	INTEGER DEFAULT 0,
-            PRIMARY KEY (user_id));
+            is_approved	INTEGER DEFAULT 0);
 
         CREATE UNIQUE INDEX IF NOT EXISTS "user_id_index" ON "users" (
             "user_id"
@@ -39,8 +38,7 @@ async def create_database():
         CREATE TABLE IF NOT EXISTS "departments" (
             department_id	SERIAL NOT NULL UNIQUE,
             department	TEXT NOT NULL,
-            team_lead	TEXT,
-            PRIMARY KEY(department_id));
+            team_lead	TEXT);
 
         CREATE UNIQUE INDEX IF NOT EXISTS "department_id_index" ON 
         "departments" ("department_id");
@@ -49,8 +47,7 @@ async def create_database():
         CREATE TABLE IF NOT EXISTS "projects" (
             project_id	SERIAL NOT NULL UNIQUE,
             project_name	TEXT NOT NULL,
-            team_lead	TEXT,
-            PRIMARY KEY(project_id));
+            team_lead	TEXT);
 
         CREATE UNIQUE INDEX IF NOT EXISTS "project_id_index" ON "projects" (
             "project_id");
