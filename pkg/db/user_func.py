@@ -43,7 +43,11 @@ async def add_new_user(data: User):
 async def get_user_by_id(user_id: int) -> User:
     async with connect_to_db() as conn:
         rec = await conn.fetchrow(
-            'SELECT * FROM users ' 
+            'SELECT '
+            'user_id, telegram_id, surname, name, patronymic, gender, photo, email, git, '
+            'behance, tg_login, desired_department, skills, goals, city, source_of_knowledge,'
+            'lead_description, join_time, is_moderator, is_approved '
+            'FROM users ' 
             'WHERE user_id = $1;',
             user_id
         )
@@ -54,7 +58,11 @@ async def get_user_by_id(user_id: int) -> User:
 async def get_user_by_tg_login(tg_login: str) -> User:
     async with connect_to_db() as conn:
         rec = await conn.fetchrow(
-            'SELECT * FROM users '
+            'SELECT '
+            'user_id, telegram_id, surname, name, patronymic, gender, photo, email, git, '
+            'behance, tg_login, desired_department, skills, goals, city, source_of_knowledge,'
+            'lead_description, join_time, is_moderator, is_approved '
+            'FROM users '
             'WHERE tg_login = $1;',
             tg_login
         )
@@ -65,7 +73,11 @@ async def get_user_by_tg_login(tg_login: str) -> User:
 async def get_user_by_tg_id(tg_id: int) -> User or None:
     async with connect_to_db() as conn:
         rec = await conn.fetchrow(
-            'SELECT * FROM users '
+            'SELECT '
+            'user_id, telegram_id, surname, name, patronymic, gender, photo, email, git, '
+            'behance, tg_login, desired_department, skills, goals, city, source_of_knowledge,'
+            'lead_description, join_time, is_moderator, is_approved '
+            'FROM users '
             'WHERE telegram_id = $1;',
             tg_id
         )
@@ -226,7 +238,11 @@ async def update_lead_description(telegram_id: int, description: str):
 async def get_users_from_department(department_id: int) -> List[User]:
     async with connect_to_db() as conn:
         rec = await conn.fetch(
-            'SELECT * from users '
+            'SELECT '
+            'user_id, telegram_id, surname, name, patronymic, gender, photo, email, git, '
+            'behance, tg_login, desired_department, skills, goals, city, source_of_knowledge,'
+            'lead_description, join_time, is_moderator, is_approved '
+            'FROM users '
             'WHERE desired_department = $1;',
             department_id
         )
@@ -237,7 +253,11 @@ async def get_users_from_department(department_id: int) -> List[User]:
 async def get_users_from_department_name(department_name: str) -> List[User]:
     async with connect_to_db() as conn:
         rec = await conn.fetch(
-            'SELECT * from users '
+            'SELECT '
+            'user_id, telegram_id, surname, name, patronymic, gender, photo, email, git, '
+            'behance, tg_login, desired_department, skills, goals, city, source_of_knowledge,'
+            'lead_description, join_time, is_moderator, is_approved '
+            'FROM users '
             'WHERE desired_department = $1;',
             department_name
         )
@@ -248,7 +268,11 @@ async def get_users_from_department_name(department_name: str) -> List[User]:
 async def get_tg_id_if_moderator(is_moder: int = 1) -> List[int]:
     async with connect_to_db() as conn:
         records = await conn.fetch(
-            'SELECT * from users '
+            'SELECT '
+            'user_id, telegram_id, surname, name, patronymic, gender, photo, email, git, '
+            'behance, tg_login, desired_department, skills, goals, city, source_of_knowledge,'
+            'lead_description, join_time, is_moderator, is_approved '
+            'FROM users '
             'WHERE is_moderator = $1;',
             is_moder
         )
@@ -258,7 +282,11 @@ async def get_tg_id_if_moderator(is_moder: int = 1) -> List[int]:
 async def update_user_department(old_name: str, new_name: str):
     async with connect_to_db() as conn:
         await conn.execute(
-            'UPDATE users '
+            'SELECT '
+            'user_id, telegram_id, surname, name, patronymic, gender, photo, email, git, '
+            'behance, tg_login, desired_department, skills, goals, city, source_of_knowledge,'
+            'lead_description, join_time, is_moderator, is_approved '
+            'FROM users '
             'SET desired_department = $1 '
             'WHERE desired_department = $2;',
             new_name,
@@ -269,7 +297,11 @@ async def update_user_department(old_name: str, new_name: str):
 async def get_unapproved_users(unapproved: int = 0) -> List[User]:
     async with connect_to_db() as conn:
         rec = await conn.fetch(
-            'SELECT * from users '
+            'SELECT '
+            'user_id, telegram_id, surname, name, patronymic, gender, photo, email, git, '
+            'behance, tg_login, desired_department, skills, goals, city, source_of_knowledge,'
+            'lead_description, join_time, is_moderator, is_approved '
+            'FROM users '
             'WHERE is_approved = $1;',
             unapproved
         )
@@ -291,7 +323,11 @@ async def update_user_approve(telegram_id: int, approved: int = 1):
 async def get_random_moder(is_moder: int = 1) -> User:
     async with connect_to_db() as conn:
         rec = await conn.fetchrow(
-            'SELECT * FROM users '
+            'SELECT '
+            'user_id, telegram_id, surname, name, patronymic, gender, photo, email, git, '
+            'behance, tg_login, desired_department, skills, goals, city, source_of_knowledge,'
+            'lead_description, join_time, is_moderator, is_approved '
+            'FROM users '
             'WHERE is_moderator = $1;',
             is_moder
         )

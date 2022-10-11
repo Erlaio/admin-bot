@@ -41,13 +41,14 @@ async def create_database():
             team_lead	TEXT);
 
         CREATE UNIQUE INDEX IF NOT EXISTS "department_id_index" ON 
-        "departments" ("department_id");
+        "departments" (
+        "department_id");
 
         /*  Table Projects  */
         CREATE TABLE IF NOT EXISTS "projects" (
-            project_id	SERIAL NOT NULL UNIQUE,
-            project_name	TEXT NOT NULL,
-            team_lead	TEXT);
+            "project_id" SERIAL NOT NULL UNIQUE,
+            "project_name" TEXT NOT NULL,
+            "team_lead" TEXT);
 
         CREATE UNIQUE INDEX IF NOT EXISTS "project_id_index" ON "projects" (
             "project_id");
