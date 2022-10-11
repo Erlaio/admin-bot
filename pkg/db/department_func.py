@@ -28,7 +28,9 @@ async def attach_tl_to_department(department: str, team_lead: str):
 async def get_department_by_id(department_id: int) -> Department:
     async with connect_to_db() as conn:
         rec = await conn.fetchrow(
-            'SELECT * FROM departments '
+            'SELECT '
+            'department_id, department, team_lead'
+            'FROM departments '
             'WHERE department_id = $1;',
             department_id
         )
@@ -39,7 +41,9 @@ async def get_department_by_id(department_id: int) -> Department:
 async def get_all_departments() -> List[Department]:
     async with connect_to_db() as conn:
         rec = await conn.fetch(
-            'SELECT * FROM departments;'
+            'SELECT '
+            'department_id, department, team_lead'
+            'FROM departments;'
         )
     result = parse_obj_as(List[Department], rec)
     return result
