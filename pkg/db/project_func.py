@@ -57,4 +57,3 @@ async def update_project_name(old_name: str, new_name: str):
 
 if __name__ == '__main__':
     pass
-    # asyncio.run(add_new_project('TestProject'))

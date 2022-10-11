@@ -6,7 +6,7 @@ from pkg.db.db_connect import connect_to_db
 from pkg.db.models.department import Department
 
 
-async def add_new_department(department: str) -> None:
+async def add_new_department(department: str):
     async with connect_to_db() as conn:
         await conn.execute(
             'INSERT INTO departments (department) '
@@ -15,7 +15,7 @@ async def add_new_department(department: str) -> None:
         )
 
 
-async def attach_tl_to_department(department: str, team_lead: str) -> None:
+async def attach_tl_to_department(department: str, team_lead: str):
     async with connect_to_db() as conn:
         await conn.execute(
             'UPDATE departments SET team_lead = $1 '
@@ -45,7 +45,7 @@ async def get_all_departments() -> List[Department]:
     return result
 
 
-async def delete_department_by_id(department_id: int) -> None:
+async def delete_department_by_id(department_id: int):
     async with connect_to_db() as conn:
         await conn.execute(
             'DELETE FROM departments '
@@ -54,7 +54,7 @@ async def delete_department_by_id(department_id: int) -> None:
         )
 
 
-async def delete_department_by_name(department_name: str) -> None:
+async def delete_department_by_name(department_name: str):
     async with connect_to_db() as conn:
         await conn.execute(
             'DELETE FROM departments '
@@ -63,7 +63,7 @@ async def delete_department_by_name(department_name: str) -> None:
         )
 
 
-async def update_department_name(old_name: str, new_name: str) -> None:
+async def update_department_name(old_name: str, new_name: str):
     async with connect_to_db() as conn:
         await conn.execute(
             'UPDATE departments '
@@ -74,7 +74,7 @@ async def update_department_name(old_name: str, new_name: str) -> None:
         )
 
 
-async def update_department_by_id(department_id: int, data: Department) -> None:
+async def update_department_by_id(department_id: int, data: Department):
     async with connect_to_db() as conn:
         await conn.execute(
             'UPDATE departments '
@@ -88,12 +88,3 @@ async def update_department_by_id(department_id: int, data: Department) -> None:
 
 if __name__ == '__main__':
     pass
-    # d = new_department(-1, "DepName1", "Leader1")
-    # asyncio.run(add_new_department("NewDepName1"))
-    # asyncio.run(attach_tl_to_department("NewDepName1", "NewLead1"))
-    # print(*asyncio.run(get_all_departments()), sep='\n')
-    # print('', *get_all_departments(), sep='\n')
-    # delete_department_by_id(11)
-    # print(*get_all_departments(), sep='\n')
-    # update_department_by_id(9, d)
-    # print(*get_all_departments(), sep='\n')
