@@ -30,7 +30,7 @@ async def get_all_projects() -> List[Project]:
     async with connect_to_db() as conn:
         rec = await conn.fetch(
             'SELECT '
-            '"project_id", "project_name", "team_lead"'
+            'project_id, project_name, team_lead '
             'FROM projects;'
         )
     result = parse_obj_as(List[Project], rec)
