@@ -3,38 +3,59 @@ from typing import List
 
 from pydantic import parse_obj_as
 
-from pkg.db.db_connect_sqlite import connect_to_db
+from pkg.db.db_connect import connect_to_db
 from pkg.db.models.project import Project
 
 
-@connect_to_db
-async def add_new_project(cur: aiosqlite.Cursor, project_name: str) -> None:
-    await cur.execute('INSERT INTO projects (project_name) VALUES (?);', (project_name,))
+async def add_new_project(project_name: str):
+    async with connect_to_db() as conn:
+        await conn.execute(
+            'INSERT INTO projects (project_name) '
+            'VALUES ($1);',
+            project_name
+        )
 
 
-@connect_to_db
-async def attach_tl_to_project(cur: aiosqlite.Cursor, project_name: str, team_lead: str) -> None:
-    await cur.execute('UPDATE projects SET (team_lead) = (?) WHERE project_name = ?', (team_lead, project_name,))
+async def attach_tl_to_project(project_name: str, team_lead: str):
+    async with connect_to_db() as conn:
+        await conn.execute(
+            'UPDATE projects '
+            'SET team_lead = $1 '
+            'WHERE project_name = $2;',
+            team_lead, project_name
+        )
 
 
-@connect_to_db
-async def get_all_projects(cur: aiosqlite.Cursor) -> List[Project]:
-    await cur.execute('SELECT * FROM projects')
-    records = await cur.fetchall()
-    result = parse_obj_as(List[Project], records)
+async def get_all_projects() -> List[Project]:
+    async with connect_to_db() as conn:
+        rec = await conn.fetch(
+            'SELECT '
+            'project_id, project_name, team_lead '
+            'FROM projects;'
+        )
+    result = parse_obj_as(List[Project], rec)
     return result
 
 
-@connect_to_db
-async def delete_project_by_name(cur: aiosqlite.Cursor, project_name: str) -> None:
-    await cur.execute(f'DELETE FROM projects WHERE project_name = ?', (project_name,))
+async def delete_project_by_name(project_name: str):
+    async with connect_to_db() as conn:
+        await conn.execute(
+            'DELETE FROM projects '
+            'WHERE project_name = $1;',
+            project_name
+        )
 
 
-@connect_to_db
-async def update_project_name(cur: aiosqlite.Cursor, old_name: str, new_name: str) -> None:
-    await cur.execute(f'UPDATE projects SET (project_name) = (?) WHERE project_name = ?', (new_name, old_name))
+async def update_project_name(old_name: str, new_name: str):
+    async with connect_to_db() as conn:
+        await conn.execute(
+            'UPDATE projects '
+            'SET project_name = $1 '
+            'WHERE project_name = $2;',
+            new_name,
+            old_name
+        )
 
 
 if __name__ == '__main__':
     pass
-    # asyncio.run(add_new_project('TestProject'))

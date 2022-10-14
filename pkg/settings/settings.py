@@ -1,8 +1,22 @@
+import pydantic
 from cfg.cfg import config as cfg
 
 
+class _Settings(pydantic.BaseSettings):
+    class Config:
+        env_file_encoding = "utf-8"
+
+
 class Settings:
-    SQLITE_FILENAME: str = cfg.SQLITE_FILENAME
+    # PostgresQL
+    POSTGRES_HOSTNAME: str = cfg.POSTGRES_HOSTNAME
+    POSTGRES_DATABASE: str = cfg.POSTGRES_DATABASE
+    POSTGRES_USER: str = cfg.POSTGRES_USER
+    POSTGRES_PASSWORD: str = cfg.POSTGRES_PASSWORD
+    POSTGRES_PORT: int = cfg.POSTGRES_PORT
+
+    # BaseSettings
+    # SQLITE_FILENAME: str = cfg.SQLITE_FILENAME
     SECRET_KEY: str = cfg.SECRET_KEY
     TELEGRAM_MODERS_CHAT_ID: int = cfg.TELEGRAM_MODERS_CHAT_ID
     TELEGRAM_SCHOOL_CHATS: list = cfg.TELEGRAM_SCHOOL_CHATS
@@ -11,3 +25,4 @@ class Settings:
 def _get_settings() -> Settings:
     settings = Settings()
     return settings
+

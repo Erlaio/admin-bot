@@ -101,7 +101,7 @@ async def change_data_of_user(message: types.Message, state: FSMContext):
     if not await validations.Validations(field_name, message).validate_tg_login_email_git():
         await state.set_state('change_by_moder')
     else:
-        await update_field_value(telegram_id=telegram_id, field=field_name, value=answer)
+        await update_field_value(telegram_id=int(telegram_id), field=field_name, value=answer)
         await bot.send_message(chat_id=message.chat.id,
                                text=f'Поле {field_name} теперь имеет значение: {answer}')
         await state.finish()
