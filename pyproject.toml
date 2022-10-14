@@ -17,6 +17,7 @@ python-dotenv = "^0.21.0"
 pytz = "^2022.2.1"
 validators = "^0.20.0"
 envreader = "^0.0.5"
+asyncpg = "^0.26.0"
 
 [tool.poetry.dev-dependencies]
 
