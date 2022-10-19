@@ -13,8 +13,8 @@ Build App Dev:
     - docker login -u "$CI_DEPLOY_USER" -p "$CI_DEPLOY_TOKEN" $CI_REGISTRY
     - docker build --pull -t registry.gitlab.com/f4648/backend/admin-bot:$CI_COMMIT_SHA -f Dockerfile.dev .
     - docker push registry.gitlab.com/f4648/backend/admin-bot:$CI_COMMIT_SHA
-    - docker build --pull -t registry.gitlab.com/f4648/backend/ab_postgres:$CI_COMMIT_SHA -f DockerfilePG.dev .
-    - docker push registry.gitlab.com/f4648/backend/ab_postgres:$CI_COMMIT_SHA
+    - docker build --pull -t registry.gitlab.com/f4648/backend/admin-bot:DB-$CI_COMMIT_SHA -f DockerfilePG.dev .
+    - docker push registry.gitlab.com/f4648/backend/admin-bot:DB-$CI_COMMIT_SHA
   tags:
     - docker
   only:
