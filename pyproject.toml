@@ -18,6 +18,11 @@ python-dotenv = "^0.21.0"
 pytz = "^2022.2.1"
 validators = "^0.20.0"
 envreader = "^0.0.5"
+psycopg2-binary = "^2.9.4"
+wheel = "^0.37.1"
+six = "^1.16.0"
+psycopg2 = "^2.9.4"
+
 
 [tool.poetry.dev-dependencies]
 
