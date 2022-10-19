@@ -1,15 +1,19 @@
 version: "3.9"
 
 x-env: &app-env
-  KEY: "" # TODO: Fix me
-  SQLITE_FILENAME: "" # TODO: Fix me
+  POSTGRES_HOSTNAME: "" # TODO: Fix me
+  POSTGRES_DATABASE: "" # TODO: Fix me
+  POSTGRES_USER: "" # TODO: Fix me
+  POSTGRES_PASSWORD: "" # TODO: Fix me
+  POSTGRES_PORT: "" # TODO: Fix me
   SECRET_KEY: "" # TODO: Fix me
   TELEGRAM_MODERS_CHAT_ID: "" # TODO: Fix me
   TELEGRAM_SCHOOL_CHATS: "" # TODO: Fix me
+  KEY: ""
 
 services:
   admin-bot:
-    image: admin-bot-new:local
+    image: admin-bot:local
     container_name: 'admin-bot'
     build:
       context: ./
@@ -18,10 +22,31 @@ services:
       - ab
     volumes:
       - ab-src:/src
-      - ab-db:/db
     environment:
       <<: *app-env
     restart: on-failure
+    depends_on:
+      ab_postgres:
+        condition: service_healthy
+
+  ab_postgres:
+    image: postgres
+    build:
+      context: ./
+      dockerfile: DockerfilePG.local
+    environment:
+      <<: *app-env
+    ports:
+        - 5432:5432 
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d admin_bot']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+       - ab
+    volumes:
+       - ab-db:/db
 
 volumes:
   ab-src:

@@ -11,7 +11,11 @@ RUN apk add --no-cache build-base \
                        musl-dev \
                        libffi-dev \
                        openssl-dev \
-                       make
+                       make \
+                       postgresql-dev \
+                       libxml2-dev \
+                       libxslt-dev
+
 
 RUN pip install poetry
 
@@ -23,6 +27,8 @@ RUN python -m venv /env && . /env/bin/activate && pip install --upgrade pip && p
 
 # Stage 3: Build admin-bot container
 FROM base
+
+RUN apk add --no-cache postgresql-libs
 
 COPY --from=builder /env /env
 

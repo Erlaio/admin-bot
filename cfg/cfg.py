@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import pydantic
 from envreader import EnvMissingError
 from envreader import EnvReader
 from envreader import EnvTransformError
