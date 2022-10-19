@@ -26,6 +26,7 @@ services:
 
   ab_postgres:
     image: postgres
+    container_name: 'ab_postgres'
     environment:
       <<: *app-env
     ports:
