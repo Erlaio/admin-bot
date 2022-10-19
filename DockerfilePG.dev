@@ -1,0 +1,5 @@
+# Stage 1: Prepare base image
+FROM postgres:11.5-alpine
+
+# Stage 2: Create Databace instance and Set postgres user password
+COPY ./pkg/db/init_db.sql /docker-entrypoint-initdb.d/
