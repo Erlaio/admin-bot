@@ -1,3 +1,6 @@
 ALTER USER postgres WITH PASSWORD '2cuYUi}DLKyddIvniv{sP0yuq';
-SELECT 'CREATE DATABASE admin_bot'
-WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'admin_bot')\gexec
+
+CREATE TABLESPACE admin_bot_tbs LOCATION '/db';
+
+CREATE DATABASE admin_bot WITH OWNER = 'postgres' TABLESPACE = 'admin_bot_tbs';
+

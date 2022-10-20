@@ -25,9 +25,9 @@ services:
     environment:
       <<: *app-env
     restart: on-failure
-    depends_on:
-      ab_postgres:
-        condition: service_healthy
+      depends_on:
+        ab_postgres:
+          condition: service_healthy
 
   ab_postgres:
     image: postgres
@@ -46,7 +46,7 @@ services:
     networks:
        - ab
     volumes:
-       - ab-db:/var/lib/postgresql/data
+       - ab-db:/db
 
 volumes:
   ab-src:

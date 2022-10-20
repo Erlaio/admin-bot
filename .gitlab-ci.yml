@@ -35,7 +35,7 @@ Deploy App Dev:
     - docker login -u "$CI_DEPLOY_USER" -p "$CI_DEPLOY_TOKEN" $CI_REGISTRY
     - docker stop admin-bot || true
     - docker system prune -f --all
-    - docker-compose -f admin-bot.dev.yml up -d
+    - docker-compose -f admin-bot.dev.yml up -d --no-recreate
     - rm -rfv $DOCKER_CERT_PATH
   environment:
     name: develop

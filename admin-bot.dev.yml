@@ -39,7 +39,7 @@ services:
     networks:
        - ab
     volumes:
-       - ab-db:/var/lib/postgresql/data
+       - ab-db:/db
 
 
 volumes:
