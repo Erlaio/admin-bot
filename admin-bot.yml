@@ -28,7 +28,7 @@ services:
         condition: service_healthy
 
   ab_postgres:
-    image: registry.gitlab.com/f4648/backend/admin-bot:DB-$CI_COMMIT_SHA
+    image: registry.gitlab.com/f4648/backend/admin-bot:DB-${CI_COMMIT_SHA}
     environment:
       <<: *app-env
     ports:
@@ -41,7 +41,7 @@ services:
     networks:
        - ab
     volumes:
-       - ab-db:/db
+       - ab-db:/var/lib/postgresql/data
 
 volumes:
   ab-db:
