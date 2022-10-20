@@ -31,8 +31,6 @@ RUN apk add --no-cache postgresql-libs
 
 COPY --from=builder /env /env
 
-RUN mkdir -p /db
-
 WORKDIR /src
 
 CMD ["/env/bin/python3", "app.py"]

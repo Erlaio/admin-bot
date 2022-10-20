@@ -34,8 +34,6 @@ COPY --from=builder /env /env
 
 COPY . /src/
 
-RUN mkdir -p /db
-
 WORKDIR /src
 
 CMD ["/env/bin/python3", "app.py"]
