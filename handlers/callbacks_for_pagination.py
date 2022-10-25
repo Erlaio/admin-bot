@@ -28,7 +28,7 @@ async def callback_approve(call):
 async def callback_refilling(call):
     moder_tg = call['from']['username']
     _, page, telegram_id, user_name = call.data.split('#')
-    await delete_user_by_tg_id(telegram_id)
+    await delete_user_by_tg_id(int(telegram_id))
     await bot.send_message(chat_id=settings.TELEGRAM_MODERS_CHAT_ID,
                            text=f'Пользователь {user_name} отправлен на перезаполнение модератором @{moder_tg}')
     await bot.send_message(telegram_id, text='Анкета обновлена, проверьте состояние')
@@ -46,7 +46,7 @@ async def callback_delete_user(call):
     moder_tg = call['from']['username']
     _, page, telegram_id, user_name = call.data.split('#')
 
-    await delete_user_by_tg_id(telegram_id)
+    await delete_user_by_tg_id(int(telegram_id))
     await bot.send_message(chat_id=settings.TELEGRAM_MODERS_CHAT_ID,
                            text=f'Пользователь {user_name} удален модератором @{moder_tg}')
     await delete_user(telegram_id, channels)
