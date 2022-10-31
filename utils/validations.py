@@ -16,8 +16,9 @@ class Validations:
             if self.message.text.startswith('@'):
                 return True
             else:
-                await self.message.answer('Пожалуйста, введите ваш логин с @\n(Например: @login)',
-                                          reply_markup=StopBotKeyboard.get_reply_keyboard())
+                await self.message.answer(
+                    'Пожалуйста, введите ваш логин с @\n(Например: @login)',
+                    reply_markup=StopBotKeyboard.get_reply_keyboard())
                 return False
         elif self.field_name == 'email':
             if validators.email(self.message.text):
@@ -30,8 +31,9 @@ class Validations:
             if validators.url(self.message.text):
                 return True
             else:
-                await self.message.answer('Введите, пожалуйста, корректную ссылку',
-                                          reply_markup=StopBotKeyboard.get_reply_keyboard())
+                await self.message.answer(
+                    'Введите, пожалуйста, корректную ссылку',
+                    reply_markup=StopBotKeyboard.get_reply_keyboard())
                 return False
         else:
             return True
@@ -55,3 +57,9 @@ class Validations:
                 return False
         else:
             return True
+
+    @staticmethod
+    async def length(text: str, minimum: int, maximum: int) -> bool:
+        if validators.length(text, min=minimum, max=maximum):
+            return False
+        return True

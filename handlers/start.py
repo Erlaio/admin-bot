@@ -356,6 +356,8 @@ async def get_city(message: types.Message, state: FSMContext):
     if await Validations.is_command(answer):
         await message.answer('Вы ввели команду. Пожалуйста, введите город, в котором проживаете',
                              reply_markup=StopBotKeyboard.get_reply_keyboard())
+    elif await Validations.length(answer, minimum=0, maximum=30):
+        await message.answer('Нельзя использовать более 30 символов')
     else:
         user = await ContextHelper.get_user(state)
         user.city = answer
@@ -372,6 +374,8 @@ async def get_source(message: types.Message, state: FSMContext):
     if await Validations.is_command(answer):
         await message.answer('Вы ввели команду. Пожалуйста, введите откуда Вы узнали о школе',
                              reply_markup=StopBotKeyboard.get_reply_keyboard())
+    elif await Validations.length(answer, minimum=0, maximum=30):
+        await message.answer('Нельзя использовать более 30 символов')
     else:
         user = await ContextHelper.get_user(state)
         user.source_of_knowledge = answer
